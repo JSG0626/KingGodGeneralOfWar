@@ -6,6 +6,11 @@
 #include <Kismet/KismetMathLibrary.h>
 void USG_AN_CharacterMove::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
+	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
+	if (!MeshComp || !MeshComp->GetWorld() || !MeshComp->GetWorld()->IsGameWorld())
+	{
+		return;
+	}
 	UAnimInstance* anim = MeshComp->GetAnimInstance();
 	if (anim == nullptr) return;
 
@@ -19,20 +24,29 @@ void USG_AN_CharacterMove::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 	CMC->MaxWalkSpeed = NewWalkSpeed;
 
 	Direction.Normalize();
+
+	FTransform ActorTransform = CMC->GetActorTransform();
+	WorldDirection = UKismetMathLibrary::TransformDirection(ActorTransform, Direction);
 }
 
 void USG_AN_CharacterMove::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
-	if (CMC == nullptr) return;
-	FTransform ActorTransform = CMC->GetActorTransform(); // 현재 액터의 월드 트랜스폼
-	FVector WorldDirection = UKismetMathLibrary::TransformDirection(ActorTransform, Direction);
+	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
+	if (!MeshComp || !MeshComp->GetWorld() || !MeshComp->GetWorld()->IsGameWorld() || CMC == nullptr)
+	{
+		return;
+	}
 
-	if (CMC == nullptr) return;
 	CMC->AddInputVector(WorldDirection);
 }
 
 void USG_AN_CharacterMove::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
+	Super::NotifyEnd(MeshComp, Animation, EventReference);
+	if (!MeshComp || !MeshComp->GetWorld() || !MeshComp->GetWorld()->IsGameWorld())
+	{
+		return;
+	}
 	if (CMC == nullptr) return;
 	CMC->MaxWalkSpeed = OriginWalkSpeed;
 }
