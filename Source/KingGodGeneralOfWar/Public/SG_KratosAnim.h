@@ -43,7 +43,7 @@ public:
 
 	void JumpToAttackMontageSection(int32 NewSection);
 	void JumpToDodgeMontageSection(FString SectionName);
-	void JumpToRollMontageSection(int32 NewSection);
+	void JumpToRollMontageSection(FString SectionName);
 	void JumpToGuardMontageSection(FString SectionName);
 	void JumpToHitMontageSection(FString SectionName);
 
@@ -176,6 +176,7 @@ private:
 
 	UFUNCTION()
 	void AnimNotify_DelayEnd();
+	
 
 	FName GetAttackMontageSection(int32 Section);
 	FName GetRollMontageSection(int32 Section);

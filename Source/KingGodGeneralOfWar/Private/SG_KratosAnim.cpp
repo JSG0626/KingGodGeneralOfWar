@@ -199,9 +199,9 @@ void USG_KratosAnim::JumpToDodgeMontageSection(FString SectionName)
 	Montage_JumpToSection(FName(*SectionName), DodgeMontage);
 }
 
-void USG_KratosAnim::JumpToRollMontageSection(int32 NewSection)
+void USG_KratosAnim::JumpToRollMontageSection(FString SectionName)
 {
-	Montage_JumpToSection(GetRollMontageSection(NewSection), RollMontage);
+	Montage_JumpToSection(FName(*SectionName), RollMontage);
 }
 
 void USG_KratosAnim::JumpToGuardMontageSection(FString SectionName)
@@ -343,6 +343,7 @@ void USG_KratosAnim::AnimNotify_DelayEnd()
 	Montage_SetPlayRate(AxeThrowMontage, 1.0f);
 
 }
+
 
 FName USG_KratosAnim::GetAttackMontageSection(int32 Section)
 {

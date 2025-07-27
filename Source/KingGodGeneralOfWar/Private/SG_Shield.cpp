@@ -70,3 +70,15 @@ void ASG_Shield::OnShieldAttackOverlap(UPrimitiveComponent* OverlappedComponent,
 		}, 0.001f, false);
 }
 
+void ASG_Shield::ActiveHitCollision(bool ActiveState)
+{
+	if (ActiveState)
+	{
+		MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("HitableWeapon"), true);
+	}
+	else
+	{
+		MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
+	}
+}
+

@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WeaponInterface.h"
 #include "SG_Shield.generated.h"
 
 UCLASS()
-class KINGGODGENERALOFWAR_API ASG_Shield : public AActor
+class KINGGODGENERALOFWAR_API ASG_Shield : public AActor, public IWeaponInterface
 {
 	GENERATED_BODY()
 
@@ -31,4 +32,6 @@ public:
 
 	UFUNCTION()
 	void OnShieldAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void ActiveHitCollision(bool active);
 };

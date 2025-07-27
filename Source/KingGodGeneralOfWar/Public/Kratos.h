@@ -182,6 +182,8 @@ public:
 	int32 GetCurrentWeakCombo();
 	int32 GetCurrentStrongCombo();
 	void SetGlobalTimeDilation(float Duration, float SlowScale);
+
+	UFUNCTION(BlueprintCallable)
 	void SetState(EPlayerState NextState);
 private:
 
@@ -200,7 +202,7 @@ private:
 	void LockTargetFunc(float DeltaTime);
 
 	FString GetHitSectionName(EHitType hitType);
-	FString GetDodgeDirection(int& DodgeScale);
+	FString GetDodgeDirection();
 
 public:
 	// Player Input

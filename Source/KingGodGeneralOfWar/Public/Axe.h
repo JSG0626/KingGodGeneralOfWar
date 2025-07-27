@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WeaponInterface.h"
 #include "Axe.generated.h"
 
 
 UCLASS()
-class KINGGODGENERALOFWAR_API AAxe : public AActor
+class KINGGODGENERALOFWAR_API AAxe : public AActor, public IWeaponInterface
 {
 	GENERATED_BODY()
 	
@@ -66,4 +67,6 @@ public:
 
 	UPROPERTY()
 	class AKratos* Me;
+
+	void ActiveHitCollision(bool ActiveState);
 };

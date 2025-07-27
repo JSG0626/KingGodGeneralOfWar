@@ -115,3 +115,15 @@ void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 }
 
 
+void AAxe::ActiveHitCollision(bool ActiveState)
+{
+	if (ActiveState)
+	{
+		MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("HitableWeapon"), true);
+	}
+	else
+	{
+		MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
+	}
+}
+

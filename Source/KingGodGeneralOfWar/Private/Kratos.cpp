@@ -164,7 +164,7 @@ void AKratos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		input->BindAction(IA_Guard, ETriggerEvent::Completed, this, &AKratos::OnMyActionGuardOff);
 		input->BindAction(IA_LockOn, ETriggerEvent::Started, this, &AKratos::OnMyActionLockOn);
 		input->BindAction(IA_SetDamage, ETriggerEvent::Started, this, &AKratos::OnMySetThorDamage);
-		
+
 		input->BindAction(IA_WeakAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionWeakAttack);
 		input->BindAction(IA_StrongAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionStrongAttack);
 		input->BindAction(IA_Aim, ETriggerEvent::Triggered, this, &AKratos::OnMyActionAimOn);
@@ -177,6 +177,7 @@ void AKratos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AKratos::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+	UE_LOG(LogTemp, Warning, TEXT("PostInitializeComponents"));
 	Anim = Cast<USG_KratosAnim>(GetMesh()->GetAnimInstance());
 	if (Anim)
 	{
@@ -185,94 +186,66 @@ void AKratos::PostInitializeComponents()
 		// 공격이 유효할 시점을 체크하는 노티파이 AttackHitCheck
 		// 콜리전 설정을 On -> Off로 전환
 		Anim->OnAttackHitCheck.AddLambda([this]() -> void
+		{
+			// 특정 공격에서는 방패를 활용한 공격
+			if (CurrentAttackType == EAttackType::DASH_ATTACK || CurrentAttackType == EAttackType::STRONG_ATTACK && CurrentStrongCombo == 3)
 			{
-				if (CurrentAttackType == EAttackType::STRONG_ATTACK)
-				{
-					// 방패 공격 : 강공격 콤보 3번쨰
-					if (CurrentStrongCombo == 3)
-						Shield->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("HitableWeapon"), true);
-					// 도끼 공격
-					else
-						Axe->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("HitableWeapon"), true);
-				}
-				else if (CurrentAttackType == EAttackType::DASH_ATTACK)
-				{
-					Shield->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("HitableWeapon"), true);
-				}
-				else if (CurrentAttackType == EAttackType::RUNE_ATTACK || CurrentAttackType == EAttackType::WEAK_ATTACK)
-				{
-					Axe->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("HitableWeapon"), true);
-				}
-			});
+				Shield->ActiveHitCollision(true);
+			}
+			else
+			{
+				Axe->ActiveHitCollision(true);
+			}
+
+		});
 		// 공격이 끝난 시점을 체크하는 노티파이 AttackEndCheck
 		// 콜리전 설정을 Off -> On로 전환
 		Anim->OnAttackEndCheck.AddLambda([this]() -> void
-			{
-				if (CurrentAttackType == EAttackType::STRONG_ATTACK)
-				{
-					if (CurrentStrongCombo == 3)
-						Shield->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
-					else
-						Axe->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
-				}
-				else if (CurrentAttackType == EAttackType::DASH_ATTACK)
-				{
-					Shield->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
-				}
-				else if (CurrentAttackType == EAttackType::RUNE_ATTACK || CurrentAttackType == EAttackType::WEAK_ATTACK)
-				{
-					Axe->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
-				}
+		{
+			Shield->ActiveHitCollision(false);
+			Axe->ActiveHitCollision(false);
+		});
 
-			});
+		// 강공격 콤보를 위한 델리게이트
 		Anim->OnNextAttackCheck.AddLambda([this]() -> void
-			{
-				CanNextStrongCombo = false;
+		{
+			CanNextStrongCombo = false;
 
-				if (bIsStrongComboInputOn)
-				{
-					StrongAttackStartComboState();
-					Anim->JumpToAttackMontageSection(CurrentStrongCombo);
-					UGameplayStatics::PlaySound2D(GetWorld(), StrongAttackSoundArr[CurrentStrongCombo], 1, 1, 0.55);
-				}
-			});
+			if (bIsStrongComboInputOn)
+			{
+				StrongAttackStartComboState();
+				Anim->JumpToAttackMontageSection(CurrentStrongCombo);
+				UGameplayStatics::PlaySound2D(GetWorld(), StrongAttackSoundArr[CurrentStrongCombo], 1, 1, 0.55);
+			}
+		});
 		Anim->OnNextWeakAttackCheck.AddLambda([this]() -> void
-			{
-				CanNextWeakCombo = false;
+		{
+			CanNextWeakCombo = false;
 
-				if (bIsWeakComboInputOn)
+			if (bIsWeakComboInputOn)
+			{
+				WeakAttackStartComboState();
+				Anim->JumpToAttackMontageSection(CurrentWeakCombo);
+				if (CurrentAttackType == EAttackType::WEAK_ATTACK)
 				{
-					WeakAttackStartComboState();
-					Anim->JumpToAttackMontageSection(CurrentWeakCombo);
-					if (CurrentAttackType == EAttackType::WEAK_ATTACK)
-					{
-						if (CurrentWeakCombo <= 2)
-							UGameplayStatics::PlaySound2D(GetWorld(), WeakAttackSoundArr[CurrentWeakCombo], 1, 1, 1.55f);
-						//else
-							//UGameplayStatics::PlaySound2D(GetWorld(), WeakAttackSoundArr[CurrentWeakCombo], 1, 1, .3f);
-
-					}
-					else
-					{
-						if (CurrentWeakCombo <= 3)
-							UGameplayStatics::PlaySound2D(GetWorld(), RuneAttackSoundArr[CurrentWeakCombo], 1, 1, 0.34);
-						else
-							UGameplayStatics::PlaySound2D(GetWorld(), RuneAttackSoundArr[CurrentWeakCombo], 1, 1, 0.65f);
-
-					}
-
+					UGameplayStatics::PlaySound2D(GetWorld(), WeakAttackSoundArr[CurrentWeakCombo], 1, 1, 1.55f);
 				}
-			});
-		Anim->OnMovableCheck.AddLambda([this]() -> void
-			{
-				//SetState(EPlayerState::Idle);
-			});
+				else
+				{
+					UGameplayStatics::PlaySound2D(GetWorld(), RuneAttackSoundArr[CurrentWeakCombo], 1, 1, 0.34);
+				}
+
+			}
+		});
 	}
 }
 // Called when the game starts or when spawned
 void AKratos::BeginPlay()
 {
 	Super::BeginPlay();
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("BeginPlay"));
+	UE_LOG(LogTemp, Display, TEXT("BeginPlay"));
+	
 	CurHP = MaxHP;
 	// 1. 컨트롤러를 가져와서 PlayerController인지 캐스팅해본다.
 	auto* pc = Cast<APlayerController>(Controller);
@@ -333,7 +306,6 @@ void AKratos::Tick(float DeltaTime)
 	// 카메라 시야각 선형 보간
 	CameraComp->FieldOfView = FMath::Lerp(CameraComp->FieldOfView, TargetFOV, DeltaTime * 3);
 
-	//카메라 오육칠팔프셋 선동생 간보 
 	// 카메라 오프셋 선형 보간
 	SpringArmComp->SocketOffset = FMath::Lerp(SpringArmComp->SocketOffset, TargetCameraOffset, DeltaTime * 2);
 
@@ -348,7 +320,7 @@ void AKratos::Tick(float DeltaTime)
 
 	if (bRuneReady)
 		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("RuneReady")));
-
+	
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("CurrentAttackType: %s"), *UEnum::GetValueAsString(CurrentAttackType)));
 
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, GetPlayerStateString());
@@ -394,7 +366,7 @@ FORCEINLINE void AKratos::LockTargetFunc(float DeltaTime)
 	}
 	if (bLockOn)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, TEXT("LockSystem On"));
+		// GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, TEXT("LockSystem On"));
 
 		FRotator playerCameraRotation = GetController()->AController::GetControlRotation();
 		TargetCameraRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), LockTarget->GetActorLocation());
@@ -548,9 +520,9 @@ void AKratos::OnMyEndWithFail()
 {
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [&]()
-		{
-			GameMode->EndWithFail();
-		}, 2.0f, false);
+	{
+		GameMode->EndWithFail();
+	}, 2.0f, false);
 }
 
 void AKratos::OnMyGetUPCameraSet()
@@ -650,9 +622,9 @@ void AKratos::SetGlobalTimeDilation(float Duration, float SlowScale)
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowScale);
 	FTimerHandle handle;
 	GetWorld()->GetTimerManager().SetTimer(handle, [&]()
-		{
-			UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
-		}, Duration, false);
+	{
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+	}, Duration, false);
 }
 
 FString AKratos::GetHitSectionName(EHitType hitType)
@@ -661,42 +633,24 @@ FString AKratos::GetHitSectionName(EHitType hitType)
 	return HitTypeValueAsString.Mid(10);
 }
 
-FString AKratos::GetDodgeDirection(int& DodgeScale)
+FString AKratos::GetDodgeDirection()
 {
 	float absX = abs(PrevDirection.X), absY = abs(PrevDirection.Y);
-	FString DodgeDirString;
-	DodgeScale = 2000;
-	if (absX <= 0.1)
+	FString DodgeDirString = "";
+	UE_LOG(LogTemp, Display, TEXT("PrevDirection: %s"), *PrevDirection.ToString());
+	if (absY >= 0.7)
 	{
-		if (PrevDirection.Y >= 0.9)
-			DodgeDirString = TEXT("R");
+		if (PrevDirection.Y >= 0.7)
+			DodgeDirString += TEXT("R");
 		else
-			DodgeDirString = TEXT("L");
+			DodgeDirString += TEXT("L");
 	}
-	else if (absY <= 0.1)
+	if (absX >= 0.7f)
 	{
-		if (PrevDirection.X >= 0.9)
-			DodgeDirString = TEXT("F");
+		if (PrevDirection.X >= 0.7)
+			DodgeDirString += TEXT("F");
 		else
-		{
-			DodgeDirString = TEXT("B");
-			DodgeScale = 1500;
-		}
-	}
-	else if (PrevDirection.X >= 0.5)
-	{
-		if (PrevDirection.Y >= 0.5)
-			DodgeDirString = TEXT("RF");
-		else
-			DodgeDirString = TEXT("LF");
-	}
-	else
-	{
-		if (PrevDirection.Y >= 0.5)
-			DodgeDirString = TEXT("RB");
-		else
-			DodgeDirString = TEXT("LB");
-		DodgeScale = 1500;
+			DodgeDirString += TEXT("B");
 	}
 	return DodgeDirString;
 }
@@ -746,15 +700,7 @@ void AKratos::OnMyActionDodge(const FInputActionValue& value)
 	{
 		SetState(EPlayerState::Dodge);
 		bIsDodging = true;
-		UGameplayStatics::PlaySound2D(GetWorld(), AvoidSound, 1, 1, 0.2f);
-
-		int DodgeScale;
-		FString DodgeDirString = GetDodgeDirection(DodgeScale);
-
-		FTransform T = UKismetMathLibrary::MakeTransform(FVector(0, 0, 0), GetControlRotation(), FVector(1, 1, 1));
-		FVector DodgeDirection = UKismetMathLibrary::TransformDirection(T, PrevDirection);
-		DodgeDirection.Z = 0;
-		LaunchCharacter(DodgeDirection * DodgeScale, true, false);
+		FString DodgeDirString = GetDodgeDirection();
 		Anim->PlayDodgeMontage();
 		Anim->JumpToDodgeMontageSection(DodgeDirString);
 	}
@@ -764,24 +710,11 @@ void AKratos::OnMyActionDodge(const FInputActionValue& value)
 		UGameplayStatics::PlaySound2D(GetWorld(), RollSound);
 		bIsDodging = true;
 		Anim->Montage_Stop(0.1f, Anim->DodgeMontage);
-		int8 sectionIdx = 3;
-		if (PrevDirection.X == 0)
-		{
-			if (PrevDirection.Y == -1)
-				sectionIdx = 0;
-			else
-				sectionIdx = 1;
-		}
-		else
-		{
-			if (PrevDirection.X == 1)
-				sectionIdx = 2;
-			else
-				sectionIdx = 3;
-		}
-		float RollScale = 1000;
+		FString DodgeDirString = GetDodgeDirection();
+		//DodgeDirString = DodgeDirString[0] + "";
+		UE_LOG(LogTemp, Display, TEXT("DodgeString: %s"), *DodgeDirString);
 		Anim->PlayRollMontage();
-		Anim->JumpToRollMontageSection(sectionIdx);
+		Anim->JumpToRollMontageSection(DodgeDirString);
 	}
 }
 
@@ -1166,7 +1099,7 @@ bool AKratos::Damage(AActor* Attacker, int DamageValue, EHitType HitType, bool I
 			UNiagaraFunctionLibrary::SpawnSystemAttached(GuardBlockVFX, Shield->LightPosition, TEXT("GuardBlockVFX"), Shield->LightPosition->GetComponentLocation(), Shield->LightPosition->GetComponentRotation(), EAttachLocation::KeepWorldPosition, true);
 			GuardHitCnt -= 1;
 			// 가드 성공 카메라 쉐이크
-			
+
 		}
 		// 가드 크러쉬
 		else
@@ -1227,7 +1160,7 @@ bool AKratos::Damage(AActor* Attacker, int DamageValue, EHitType HitType, bool I
 			GameMode->SetPlayerHpBar(CurHP / MaxHP);
 			GameMode->PlayHitWidgetAnim();
 		}
-		
+
 		if (bSuperArmor) return false;
 		if (CurHP == 0)
 		{
