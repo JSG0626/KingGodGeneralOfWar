@@ -19,7 +19,6 @@ void USG_AN_CharacterMove::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 	CMC->MaxWalkSpeed = NewWalkSpeed;
 
 	Direction.Normalize();
-	UE_LOG(LogTemp, Display, TEXT("Begin"));
 }
 
 void USG_AN_CharacterMove::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
@@ -30,12 +29,10 @@ void USG_AN_CharacterMove::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeq
 
 	if (CMC == nullptr) return;
 	CMC->AddInputVector(WorldDirection);
-	UE_LOG(LogTemp, Display, TEXT("CMC->AddInputVector(%s);"), *WorldDirection.ToString());
 }
 
 void USG_AN_CharacterMove::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	if (CMC == nullptr) return;
 	CMC->MaxWalkSpeed = OriginWalkSpeed;
-	UE_LOG(LogTemp, Display, TEXT("End"));
 }

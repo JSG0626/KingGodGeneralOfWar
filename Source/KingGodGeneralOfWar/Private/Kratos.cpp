@@ -694,17 +694,10 @@ void AKratos::OnMyActionLook(const FInputActionValue& value)
 
 void AKratos::OnMyActionDodge(const FInputActionValue& value)
 {
-	if (GetVelocity().Size() < 1 || State == EPlayerState::Hit || State == EPlayerState::NoneMovable)	return;
+	if (GetVelocity().Size() < 1 || State == EPlayerState::Hit || State == EPlayerState::NoneMovable || State == EPlayerState::Roll)	return;
 
-	if (!bIsDodging && State != EPlayerState::Roll)
-	{
-		SetState(EPlayerState::Dodge);
-		bIsDodging = true;
-		FString DodgeDirString = GetDodgeDirection();
-		Anim->PlayDodgeMontage();
-		Anim->JumpToDodgeMontageSection(DodgeDirString);
-	}
-	else if (State == EPlayerState::Dodge)
+	UE_LOG(LogTemp, Display, TEXT("vel.size: %f"), GetVelocity().Size());
+	if (State == EPlayerState::Dodge || GetVelocity().Size() >= RollVelocityThreshhold)
 	{
 		SetState(EPlayerState::Roll);
 		UGameplayStatics::PlaySound2D(GetWorld(), RollSound);
@@ -715,6 +708,14 @@ void AKratos::OnMyActionDodge(const FInputActionValue& value)
 		UE_LOG(LogTemp, Display, TEXT("DodgeString: %s"), *DodgeDirString);
 		Anim->PlayRollMontage();
 		Anim->JumpToRollMontageSection(DodgeDirString);
+	}
+	else if (!bIsDodging && State != EPlayerState::Roll)
+	{
+		SetState(EPlayerState::Dodge);
+		bIsDodging = true;
+		FString DodgeDirString = GetDodgeDirection();
+		Anim->PlayDodgeMontage();
+		Anim->JumpToDodgeMontageSection(DodgeDirString);
 	}
 }
 

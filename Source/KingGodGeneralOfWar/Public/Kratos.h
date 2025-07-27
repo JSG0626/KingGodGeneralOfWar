@@ -398,6 +398,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CurHP;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+
+	float RollVelocityThreshhold ;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EPlayerState State = EPlayerState::Idle;
 
