@@ -697,6 +697,8 @@ void AKratos::OnMyActionDodge(const FInputActionValue& value)
 	if (GetVelocity().Size() < 1 || State == EPlayerState::Hit || State == EPlayerState::NoneMovable || State == EPlayerState::Roll)	return;
 
 	UE_LOG(LogTemp, Display, TEXT("vel.size: %f"), GetVelocity().Size());
+
+	// Roll
 	if (State == EPlayerState::Dodge || GetVelocity().Size() >= RollVelocityThreshhold)
 	{
 		SetState(EPlayerState::Roll);
@@ -704,16 +706,23 @@ void AKratos::OnMyActionDodge(const FInputActionValue& value)
 		bIsDodging = true;
 		Anim->Montage_Stop(0.1f, Anim->DodgeMontage);
 		FString DodgeDirString = GetDodgeDirection();
-		//DodgeDirString = DodgeDirString[0] + "";
 		UE_LOG(LogTemp, Display, TEXT("DodgeString: %s"), *DodgeDirString);
+
 		Anim->PlayRollMontage();
 		Anim->JumpToRollMontageSection(DodgeDirString);
 	}
+	// Dash
 	else if (!bIsDodging && State != EPlayerState::Roll)
 	{
 		SetState(EPlayerState::Dodge);
 		bIsDodging = true;
 		FString DodgeDirString = GetDodgeDirection();
+
+		FTransform T = UKismetMathLibrary::MakeTransform(FVector(0, 0, 0), GetControlRotation(), FVector(1, 1, 1));
+		FVector DodgeDirection = UKismetMathLibrary::TransformDirection(T, PrevDirection);
+		DodgeDirection.Z = 0;
+		LaunchCharacter(DodgeDirection * 750, true, false);
+
 		Anim->PlayDodgeMontage();
 		Anim->JumpToDodgeMontageSection(DodgeDirString);
 	}
