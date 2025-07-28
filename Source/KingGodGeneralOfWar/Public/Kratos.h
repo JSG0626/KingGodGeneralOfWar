@@ -9,7 +9,6 @@
 #include "Kratos.generated.h"
 
 const float PlayerMaxSpeed = 900.0f; // 플레이어 최대 속도. (달리기)
-const FVector DefaultCameraOffset = FVector(0, 50, 70);
 const FRotator DefaultCameraAngle = FRotator(0);
 const float DefaultTargetTargetArmLength = 147;
 const float DefaultTargetFOV = 90;
@@ -157,6 +156,7 @@ public:
 
 	// Damage Function
 	// if Kratos get damage, return true; else return false;
+	UFUNCTION(BlueprintCallable)
 	bool Damage(AActor* Attacker, int DamageValue, EHitType HitType, bool IsMelee);
 	void LaunchKratos(float LaunchScale = 2000);
 
@@ -417,7 +417,7 @@ public:
 	EAttackType CurrentAttackType;
 
 private:
-
+	FVector DefaultCameraOffset;
 	FRotator TargetCameraRotation;
 	FRotator TargetActorRotation;
 	float TargetGuardScale = 0;
@@ -426,7 +426,7 @@ private:
 
 	float TargetFOV = DefaultTargetFOV;
 	float TargetTargetArmLength = DefaultTargetTargetArmLength;
-	FVector TargetCameraOffset = DefaultCameraOffset;
+	FVector TargetCameraOffset;
 	FRotator TargetCameraAngle = FRotator(0);
 
 	bool bLockOn;

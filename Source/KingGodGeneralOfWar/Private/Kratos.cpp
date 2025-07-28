@@ -281,6 +281,9 @@ void AKratos::BeginPlay()
 	}
 	GuardHitCnt = GUARD_MAX_COUNT;
 
+	DefaultCameraOffset = SpringArmComp->SocketOffset;
+	TargetCameraOffset = DefaultCameraOffset;
+
 	/*HpBarUI = CreateWidget<UPlayerHPUI>(GetWorld(), HpBarUIFactory);
 	HpBarUI->AddToViewport();*/
 
@@ -1031,7 +1034,7 @@ void AKratos::SetState(EPlayerState NextState)
 		TargetFOV = RUN_FOV;
 		break;
 	case EPlayerState::Attack:
-		TargetCameraOffset = FVector(0, 50, 77);
+		//TargetCameraOffset = FVector(0, 50, 77);
 		//TargetFOV = ATTACK_FOV;
 		break;
 	case EPlayerState::Guard:
