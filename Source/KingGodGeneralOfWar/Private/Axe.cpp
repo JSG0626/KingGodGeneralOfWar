@@ -13,7 +13,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "FlyingAxe.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
-
+#include "BaseEnemy.h"
 const float AXE_DAMAGE = 3;
 const int BLOOD_VFX_MAX = 7;
 // Sets default values
@@ -65,52 +65,64 @@ void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 	Me->IncreaseTargetCameraOffset(FVector(0, 0, -10));
 	MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactoryArr[FMath::RandRange(0, BLOOD_VFX_MAX)], EdgeComp->GetComponentLocation());
-	auto* Thor = Cast<ABDThor>(OtherActor);
-	EAttackDirectionType attackDirection = EAttackDirectionType::UP;
-	if (Thor)
+
+	//Me->SetGlobalTimeDilation(0.004f, 0.04f);
+	Me->SetAnimationSpeedSlow(0.1f, 0.01f);
+	ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
+	if (Enemy)
 	{
-		attackDirection = Me->GetAttackDirection();
-		Thor->fsm->Damage(AXE_DAMAGE, attackDirection);
+		DealDamage(Enemy, FGenericAttackParams(Me, AXE_DAMAGE, 5, Me->GetAttackDirection()));
 	}
 	else
 	{
-		auto AwakenThor = Cast<AAwakenThor>(OtherActor);
-		if (AwakenThor)
+		auto* Thor = Cast<ABDThor>(OtherActor);
+		EAttackDirectionType attackDirection = EAttackDirectionType::UP;
+		if (Thor)
 		{
 			attackDirection = Me->GetAttackDirection();
-			bool bThorDead = AwakenThor->getFSM()->SetDamage(AXE_DAMAGE, attackDirection);
-			if (bThorDead)
+			Thor->fsm->Damage(AXE_DAMAGE, attackDirection);
+		}
+		else
+		{
+			auto AwakenThor = Cast<AAwakenThor>(OtherActor);
+			if (AwakenThor)
 			{
-				Me->SetState(EPlayerState::NoneMovable);
+				attackDirection = Me->GetAttackDirection();
+				bool bThorDead = AwakenThor->getFSM()->SetDamage(AXE_DAMAGE, attackDirection);
+				if (bThorDead)
+				{
+					Me->SetState(EPlayerState::NoneMovable);
+				}
 			}
 		}
 	}
 
-	if (Me->CurrentAttackType == EAttackType::WEAK_ATTACK)
-	{
-		int32 curCombo = Me->GetCurrentWeakCombo();
-		if (curCombo >= 3)
-		{
-			Me->CameraShakeOnAttack(attackDirection, 1.0f);
-		}
-		else
-		{
-		}
-		Me->SetGlobalTimeDilation(0.004f, 0.04f);
+	//if (Me->CurrentAttackType == EAttackType::WEAK_ATTACK)
+	//{
+	//	int32 curCombo = Me->GetCurrentWeakCombo();
+	//	if (curCombo >= 3)
+	//	{
+	//		Me->CameraShakeOnAttack(attackDirection, 1.0f);
+	//	}
+	//	else
+	//	{
 
-	}
-	else if (Me->CurrentAttackType == EAttackType::STRONG_ATTACK)
-	{
-		Me->CameraShakeOnAttack(attackDirection, 1.1f);
-		Me->SetGlobalTimeDilation(0.004f, 0.04f);
+	//	}
+	//	Me->SetGlobalTimeDilation(0.004f, 0.04f);
 
-	}
-	else if (Me->CurrentAttackType == EAttackType::RUNE_ATTACK)
-	{
-		Me->CameraShakeOnAttack(attackDirection, 1.2f);
-		Me->SetGlobalTimeDilation(0.004f, 0.04f);
+	//}
+	//else if (Me->CurrentAttackType == EAttackType::STRONG_ATTACK)
+	//{
+	//	Me->CameraShakeOnAttack(attackDirection, 1.1f);
+	//	Me->SetGlobalTimeDilation(0.004f, 0.04f);
 
-	}
+	//}
+	//else if (Me->CurrentAttackType == EAttackType::RUNE_ATTACK)
+	//{
+	//	Me->CameraShakeOnAttack(attackDirection, 1.2f);
+	//	Me->SetGlobalTimeDilation(0.004f, 0.04f);
+
+	//}
 
 }
 

@@ -30,6 +30,9 @@ void ASG_Shield::BeginPlay()
 	Super::BeginPlay();
 	
 	MeshComp->OnComponentBeginOverlap.AddDynamic(this, &ASG_Shield::OnShieldAttackOverlap);
+
+	TargetScale = 0.0f;
+	CurrentScale = MeshComp->GetComponentScale().X;
 }
 
 // Called every frame
@@ -37,6 +40,12 @@ void ASG_Shield::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
+	if (abs(CurrentScale - TargetScale) >= 0.001f)
+	{
+		LerpScale(DeltaTime);
+	}
+	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("Shield Rotator: %s"), *MeshComp->GetComponentRotation().ToString()));
 }
 
 void ASG_Shield::OnShieldAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -79,6 +88,39 @@ void ASG_Shield::ActiveHitCollision(bool ActiveState)
 	else
 	{
 		MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
+	}
+}
+
+
+void ASG_Shield::SetTargetScale(const bool Bigger)
+{
+	TargetScale = Bigger ? MAX_SCALE * 0.7f : 0.03f;
+	bBigger = Bigger;
+}
+
+void ASG_Shield::LerpScale(float DeltaTime)
+{
+	CurrentScale = FMath::Lerp(MeshComp->GetComponentScale().X, TargetScale, DeltaTime * 20);
+	MeshComp->SetWorldScale3D(FVector(CurrentScale));
+
+	float RotationSpeedDegreesPerSecond = 360.0f; 
+	FQuat DeltaRotation = FQuat(FRotator(RotationSpeedDegreesPerSecond * DeltaTime, 0, 0));
+	MeshComp->AddRelativeRotation(DeltaRotation); 
+
+	if (abs(CurrentScale - TargetScale) < 0.001f)
+	{
+		if (TargetScale != MAX_SCALE && bBigger)
+		{
+			{
+				TargetScale = MAX_SCALE;
+			}
+		}
+		else if (TargetScale != 0.0f && !bBigger)
+		{
+			{
+				TargetScale = 0.0f;
+			}
+		}
 	}
 }
 

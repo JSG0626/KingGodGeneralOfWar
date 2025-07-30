@@ -2,3 +2,9 @@
 
 
 #include "WeaponInterface.h"
+#include "BaseEnemy.h"
+
+void IWeaponInterface::DealDamage(ABaseEnemy* Target, const FGenericAttackParams& params)
+{
+	Target->TakeDamage(params);
+}

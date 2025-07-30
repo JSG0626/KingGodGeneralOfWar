@@ -8,7 +8,7 @@
 #include "Axe.generated.h"
 
 
-UCLASS()
+UCLASS(Blueprintable)
 class KINGGODGENERALOFWAR_API AAxe : public AActor, public IWeaponInterface
 {
 	GENERATED_BODY()
@@ -68,5 +68,6 @@ public:
 	UPROPERTY()
 	class AKratos* Me;
 
-	void ActiveHitCollision(bool ActiveState);
+
+	virtual void ActiveHitCollision(bool ActiveState) override;
 };

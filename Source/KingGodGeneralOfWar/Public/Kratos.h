@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputAction.h"
 #include "Blueprint/UserWidget.h"
+#include <KratosStates/KratosState.h>
 #include "Kratos.generated.h"
 
 const float PlayerMaxSpeed = 900.0f; // 플레이어 최대 속도. (달리기)
@@ -21,28 +22,19 @@ enum class EPlayerState : uint8
 	Run UMETA(DisplayName = "Run"),
 	Dodge UMETA(DisplayName = "Dodge"),
 	Roll UMETA(DisplayName = "Roll"),
-	Attack UMETA(DisplayName = "Attack"),
+	WAttack UMETA(DisplayName = "WAttack"),
+	SAttack UMETA(DisplayName = "SAttack"),
 	Aim UMETA(DisplayName = "Aim"),
 	GuardStart UMETA(DisplayName = "GuardStart"),
 	Parry UMETA(DisplayName = "Parry"),
 	Guard UMETA(DisplayName = "Guard"),
 	GuardHit UMETA(DisplayName = "GuardHit"),
-	GuardEnd UMETA(DisplayName = "GuardEnd"),
 	NoneMovable UMETA(DisplayName = "NoneMovable"),
 	Hit UMETA(DisplayName = "Hit"),
 	Die UMETA(DisplayName = "Die"),
-
 };
 
-UENUM(BlueprintType)
-enum class EHitType : uint8
-{
-	STAGGER UMETA(DisplayName = "STAGGER"),
-	NB_HIGH UMETA(DisplayName = "NB_HIGH"),
-	NB_MEDIUM UMETA(DisplayName = "STAGGER"),
-	NB_LOW UMETA(DisplayName = "NB_LOW"),
-	STUN UMETA(DisplayName = "STUN"),
-};
+
 
 UENUM()
 enum class EAttackDirectionType : uint8
@@ -79,6 +71,9 @@ public:
 	// Sets default values for this character's properties
 	AKratos();
 
+private:
+	bool bLerpPlayerRotation = false;
+	int LeprPlayerRotationScale = 1;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -132,7 +127,7 @@ public:
 	void OnMyActionAimOff(const FInputActionValue& value);
 
 	UFUNCTION()
-	void OnMyActionWithdrawAxe(const FInputActionValue& value);
+	void OnMyActionAbility(const FInputActionValue& value);
 
 	UFUNCTION()
 	void OnMyActionRuneBase(const FInputActionValue& value);
@@ -150,7 +145,7 @@ public:
 
 	// Axe Throwing
 	void OnHideAxe();
-	void ThrowAxe(FRotator TargetRot);
+	void ThrowAxe();
 	void WithdrawAxe();
 	void CatchFlyingAxe();
 
@@ -182,12 +177,13 @@ public:
 	int32 GetCurrentWeakCombo();
 	int32 GetCurrentStrongCombo();
 	void SetGlobalTimeDilation(float Duration, float SlowScale);
+	void SetAnimationSpeedSlow(float Duration, float SlowScale);
 
 	UFUNCTION(BlueprintCallable)
 	void SetState(EPlayerState NextState);
-private:
+	//private:
 
-	// Weak Attack Combo
+		// Weak Attack Combo
 	void WeakAttackStartComboState();
 	void WeakAttackEndComboState();
 
@@ -246,7 +242,7 @@ public:
 	class UInputAction* IA_SetDamage;
 
 	// UClass Pointer
-	class AActor* LockTarget;
+	class ABaseEnemy* LockTarget;
 
 	UPROPERTY()
 	class USG_KratosAnim* Anim;
@@ -267,6 +263,10 @@ public:
 
 	UPROPERTY()
 	class AAxe* Axe;
+
+	UPROPERTY()
+	class UCharacterMovementComponent* CMC;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<class ASG_Shield> ShieldFactory;
@@ -390,7 +390,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<class UUserWidget> AimWidgetClass;
 	UPROPERTY()
-	class UUserWidget* AimWidget;
+	class UPlayerAimUI* AimWidget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxHP = 100;
@@ -400,7 +400,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 
-	float RollVelocityThreshhold ;
+	float RollVelocityThreshhold;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EPlayerState State = EPlayerState::Idle;
@@ -416,11 +416,13 @@ public:
 
 	EAttackType CurrentAttackType;
 
-private:
+public:
+
+
 	FVector DefaultCameraOffset;
 	FRotator TargetCameraRotation;
 	FRotator TargetActorRotation;
-	float TargetGuardScale = 0;
+	float TargetShieldScale = 0;
 	FVector Direction;
 	FVector PrevDirection;
 
@@ -450,4 +452,17 @@ private:
 	bool bIsAxeWithdrawing;
 
 	int GuardHitCnt;
+
+	void InitializeStates();
+	UPROPERTY()
+	TMap<EPlayerState, TScriptInterface<IKratosState>> KratosStates;
+	TScriptInterface<IKratosState> CurrentState;
+	void SetKratosState(const EPlayerState& NewState, const FGenericStateParams& params = FGenericStateParams());
+	bool CanComboAttack;
+	bool bIsRunning;
+
+	const float DEFAULT_FOV = 90;
+
+	void ActiveLerpPlayerRotation(FRotator TargetRotation, int Scale);
+	float SetHP(const float NewHP);
 };

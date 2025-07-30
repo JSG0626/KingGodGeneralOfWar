@@ -6,6 +6,9 @@
 #include "RuneAttackField.h"
 #include "Kismet/GameplayStatics.h"
 #include "Animation/AnimMontage.h"
+#include "Camera/CameraComponent.h"
+#include <Kismet/KismetMathLibrary.h>
+
 USG_KratosAnim::USG_KratosAnim()
 {
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> TempAttackMontage(
@@ -66,7 +69,12 @@ USG_KratosAnim::USG_KratosAnim()
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> TempParryAttackMontage(
 		TEXT("/ Script / Engine.AnimMontage'/Game/JSG/Animations/AM_Kratos_ParryAttack.AM_Kratos_ParryAttack'")
 	);
-	if (TempParryAttackMontage.Succeeded())	ParryAttackMontage = TempParryAttackMontage.Object;
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> TempParryMontage(
+		TEXT("/ Script / Engine.AnimMontage'/Game/JSG/Animations/AM_Parry.AM_Parry'")
+	);
+	
+	if (TempParryMontage.Succeeded())	ParryMontage = TempParryMontage.Object;
 }
 
 void USG_KratosAnim::NativeUpdateAnimation(float DeltaTime)
@@ -122,7 +130,7 @@ bool USG_KratosAnim::PlayAxeThrowMontage()
 	if (!Montage_IsPlaying(AxeThrowMontage))
 	{
 		Montage_Play(AxeThrowMontage, 1.0f);
-		TargetRotation = Me->GetControlRotation();
+		//TargetRotation = Me->GetControlRotation();
 		return true;
 	}
 	return false;
@@ -132,18 +140,6 @@ void USG_KratosAnim::PlayAxeWithdrawMontage()
 {
 	if (!Me) return;
 	Montage_Play(AxeWithdrawMontage);
-	//
-	//
-	//FTimerHandle handle;
-	//GetWorld()->GetTimerManager().SetTimer(handle, [&]()
-	//	{
-	//		if (AxeWithdrawMontage)
-	//		{
-	//			Montage_Play(AxeWithdrawMontage);
-	//		}
-
-	//	}, 1.15f, false);
-	//	//}, 1.35f, false);
 }
 
 void USG_KratosAnim::PlayRuneBaseMontage()
@@ -167,6 +163,12 @@ void USG_KratosAnim::PlayRuneAttackMontage()
 {
 	if (!Montage_IsPlaying(RuneAttackMontage))
 		Montage_Play(RuneAttackMontage);
+}
+
+void USG_KratosAnim::PlayParryMontage()
+{
+	Montage_Play(ParryMontage);
+
 }
 
 void USG_KratosAnim::PlayParryAttackMontage()
@@ -214,6 +216,44 @@ void USG_KratosAnim::JumpToHitMontageSection(FString SectionName)
 	Montage_JumpToSection(FName(*SectionName), HitMontage);
 }
 
+void USG_KratosAnim::ActiveLookAt(bool Active)
+{
+	bActiveLookAt = Active;
+	if (!Active) return;
+
+	FRotator ActorRotation = Me->GetActorRotation();
+	FRotator ControlRotation = Me->GetControlRotation();
+	FRotator RelativeControlRotation = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, ActorRotation);
+	float ClampedRelativePitch = FMath::ClampAngle(RelativeControlRotation.Pitch, -20.0f, 20.0f); // 상하 제한
+	float ClampedRelativeYaw = FMath::ClampAngle(RelativeControlRotation.Yaw, -60.0f, 60.0f);   // 좌우 제한
+
+	// 5. 제한된 상대적인 Pitch와 Yaw를 사용하여 새로운 회전 값을 만듭니다.
+	// Roll은 보통 0으로 유지합니다 (고개가 옆으로 기울어지는 것은 드물기 때문).
+	FRotator ClampedRelativeRotator = FRotator(ClampedRelativePitch, ClampedRelativeYaw, 0.0f);
+
+	// 6. 이 상대 회전을 캐릭터의 ActorRotation에 다시 적용하여,
+	// 월드 공간에서 목이 실제로 바라볼 '제한된' 방향을 계산합니다.
+	FRotator LookAtWorldRotation = ActorRotation + ClampedRelativeRotator;
+
+	// 7. 'neck_01' 본의 월드 위치를 가져옵니다. 이것이 시선의 '시작점'이 됩니다.
+	FVector NeckBoneLocation = FVector::ZeroVector;
+	if (Me && Me->GetMesh())
+	{
+		NeckBoneLocation = Me->GetMesh()->GetBoneLocation(FName(TEXT("neck_01")));
+		// 만약 neck_01 본이 없다면 적절한 다른 본 (예: head)을 사용하세요.
+	}
+	else
+	{
+		// 메시가 없으면 캐릭터의 위치에서 시작하도록 폴백 (예: 눈높이)
+		NeckBoneLocation = Me->GetActorLocation() + FVector(0, 0, Me->GetDefaultHalfHeight());
+	}
+
+
+	// 8. LookAtWorldRotation이 가리키는 방향으로 일정 거리 떨어진 목표 지점을 계산합니다.
+	float LookAtDistance = 500.0f; // 목이 바라볼 가상의 목표 지점까지의 거리
+	LookAtTarget = NeckBoneLocation + LookAtWorldRotation.Vector() * LookAtDistance;
+}
+
 void USG_KratosAnim::AnimNotify_AttackHitCheck()
 {
 	OnAttackHitCheck.Broadcast();
@@ -232,6 +272,7 @@ void USG_KratosAnim::AnimNotify_NextAttackCheck()
 void USG_KratosAnim::AnimNotify_NextWeakAttackCheck()
 {
 	OnNextWeakAttackCheck.Broadcast();
+	Me->CanComboAttack = true;
 }
 
 void USG_KratosAnim::AnimNotify_MovableCheck()
@@ -250,10 +291,11 @@ void USG_KratosAnim::AnimNotify_GuardLoopStartCheck()
 
 void USG_KratosAnim::AnimNotify_HideAxe()
 {
+	UE_LOG(LogTemp, Display, TEXT("HideAxe"));
 	if (Me)
 	{
 		Me->OnHideAxe();
-		Me->ThrowAxe(TargetRotation);
+		Me->ThrowAxe();
 	}
 }
 
@@ -298,10 +340,6 @@ void USG_KratosAnim::AnimNotify_SpawnEarthCrack()
 	Me->OnMySpawnEarthCrack();
 }
 
-void USG_KratosAnim::AnimNotify_AttackComboEnd()
-{
-	Me->OnMyAttackComboEnd();
-}
 
 void USG_KratosAnim::AnimNotify_InitAttackType()
 {

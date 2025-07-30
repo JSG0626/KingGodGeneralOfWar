@@ -33,5 +33,12 @@ public:
 	UFUNCTION()
 	void OnShieldAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	void ActiveHitCollision(bool active);
+	virtual void ActiveHitCollision(bool active) override;
+	void SetTargetScale(const bool Bigger);
+private:
+	const float MAX_SCALE = 0.08f;
+	float TargetScale = 0.0f;
+	float CurrentScale = 0.0f;
+	bool bBigger = false;
+	void LerpScale(float DeltaTime);
 };

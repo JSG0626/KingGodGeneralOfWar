@@ -39,13 +39,15 @@ public:
 	void PlayAxeWithdrawMontage();
 	void PlayDashAttackMontage();
 	void PlayRuneAttackMontage();
+	void PlayParryMontage();
 	void PlayParryAttackMontage();
-
 	void JumpToAttackMontageSection(int32 NewSection);
 	void JumpToDodgeMontageSection(FString SectionName);
 	void JumpToRollMontageSection(FString SectionName);
 	void JumpToGuardMontageSection(FString SectionName);
 	void JumpToHitMontageSection(FString SectionName);
+
+	void ActiveLookAt(bool Active);
 
 	FOnNextAttackCheckDelegate OnNextAttackCheck;
 	FOnAttackHitCheckDelegate OnAttackHitCheck;
@@ -61,6 +63,13 @@ public:
 	float Direction;
 	UPROPERTY(BlueprintReadOnly)
 	float Speed;
+	UPROPERTY(BlueprintReadWrite)
+	bool bMeshSpaceRotationBlend = false ;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FVector LookAtTarget ;
+
+
 
 	UPROPERTY()
 	class UAnimMontage* WeakAttackMontage ;
@@ -91,6 +100,9 @@ public:
 
 	UPROPERTY()
 	class UAnimMontage* RuneAttackMontage;
+
+	UPROPERTY()
+	class UAnimMontage* ParryMontage ;
 
 	UPROPERTY()
 	class UAnimMontage* ParryAttackMontage ;
@@ -151,9 +163,6 @@ private:
 	void AnimNotify_SpawnEarthCrack();
 
 	UFUNCTION()
-	void AnimNotify_AttackComboEnd();
-
-	UFUNCTION()
 	void AnimNotify_InitAttackType();
 
 	UFUNCTION()
@@ -182,5 +191,6 @@ private:
 	FName GetRollMontageSection(int32 Section);
 	FName GetGuardMontageSection(int32 Section);
 
-	FRotator TargetRotation;
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess))
+	bool bActiveLookAt;
 };

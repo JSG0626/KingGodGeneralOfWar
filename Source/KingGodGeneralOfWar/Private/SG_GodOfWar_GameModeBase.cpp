@@ -20,7 +20,7 @@ void ASG_GodOfWar_GameModeBase::BeginPlay()
 	BDThorFadeOutUI = Cast<UBDthorFadeOut>(CreateWidget(GetWorld(), BDThorFadeOutFactory));
 
 	if (GEngine) {
-		GEngine->bEnableOnScreenDebugMessages = false; //디버그 메세지 안보이게 하기
+		//GEngine->bEnableOnScreenDebugMessages = false; //디버그 메세지 안보이게 하기
 	}
 }
 

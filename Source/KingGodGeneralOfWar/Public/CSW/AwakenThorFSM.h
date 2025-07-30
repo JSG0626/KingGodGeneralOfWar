@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Kratos.h"
 #include "Components/ActorComponent.h"
+#include "KingGodGeneralOfWar.h"
 #include "AwakenThorFSM.generated.h"
 
 UENUM(BlueprintType)

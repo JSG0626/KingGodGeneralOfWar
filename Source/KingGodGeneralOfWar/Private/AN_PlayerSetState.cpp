@@ -18,4 +18,5 @@ void UAN_PlayerSetState::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 
 	AKratos* kratos = CastChecked<AKratos>(pawn);
 	kratos->SetState(NewState);
+	kratos->SetKratosState(NewState);
 }

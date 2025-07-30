@@ -14,19 +14,19 @@ void USG_AN_CharacterMove::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 	UAnimInstance* anim = MeshComp->GetAnimInstance();
 	if (anim == nullptr) return;
 
-	APawn* pawn = anim->TryGetPawnOwner();
-	if (pawn == nullptr) return;
+	Pawn = anim->TryGetPawnOwner();
+	if (Pawn == nullptr) return;
 
-	CMC = Cast<UCharacterMovementComponent>(pawn->GetComponentByClass(UCharacterMovementComponent::StaticClass()));
+	CMC = Cast<UCharacterMovementComponent>(Pawn->GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 	if (CMC == nullptr) return;
 
 	OriginWalkSpeed = CMC->MaxWalkSpeed;
 	CMC->MaxWalkSpeed = NewWalkSpeed;
 
 	Direction.Normalize();
-
 	FTransform ActorTransform = CMC->GetActorTransform();
 	WorldDirection = UKismetMathLibrary::TransformDirection(ActorTransform, Direction);
+	CMC->Velocity = WorldDirection * NewWalkSpeed;
 }
 
 void USG_AN_CharacterMove::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
@@ -37,7 +37,7 @@ void USG_AN_CharacterMove::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeq
 		return;
 	}
 
-	CMC->AddInputVector(WorldDirection);
+	Pawn->AddMovementInput(WorldDirection, 1.0f);
 }
 
 void USG_AN_CharacterMove::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)

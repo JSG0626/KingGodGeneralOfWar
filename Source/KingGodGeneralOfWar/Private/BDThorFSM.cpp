@@ -18,6 +18,7 @@
 #include "CSW/CSWGameMode.h"
 #include "Components/CapsuleComponent.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
+#include "KingGodGeneralOfWar.h"
 
 
 // Sets default values for this component's properties
