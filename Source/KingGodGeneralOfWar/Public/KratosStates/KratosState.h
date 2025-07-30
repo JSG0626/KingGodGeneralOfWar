@@ -111,11 +111,12 @@ public:
 	// 상태를 처리하는 함수. 기본적으로 아무 행동도 하지 않음
 	virtual void HandleIdle(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleMove(const FGenericStateParams& params = FGenericStateParams()) {}
-	virtual void HandleWAttack(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleGuard(const FGenericStateParams& params = FGenericStateParams()) {}
-	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleParry(const FGenericStateParams& params = FGenericStateParams()) {};
+	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) {}
+	virtual void HandleWAttack(const FGenericStateParams& params = FGenericStateParams()) {}
+	virtual void HandleSAttack(const FGenericStateParams& params = FGenericStateParams()) {};
 
 	// 기본적으로 즉시 이동이 가능한 상태들을 다루는 메소드
 	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams());

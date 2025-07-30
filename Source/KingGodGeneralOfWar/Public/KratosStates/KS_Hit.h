@@ -20,5 +20,6 @@ class KINGGODGENERALOFWAR_API UKS_Hit : public UObject, public IKratosState
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
 	virtual void ExitState(const FGenericStateParams& params) override;
 
+	virtual bool CanHandleHit() const override { return false; };
 private:
 };

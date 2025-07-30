@@ -186,6 +186,8 @@ private:
 	UFUNCTION()
 	void AnimNotify_DelayEnd();
 	
+	UFUNCTION()
+	void AnimNotify_EndDodge() ;
 
 	FName GetAttackMontageSection(int32 Section);
 	FName GetRollMontageSection(int32 Section);

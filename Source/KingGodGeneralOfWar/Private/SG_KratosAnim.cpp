@@ -179,21 +179,23 @@ void USG_KratosAnim::PlayParryAttackMontage()
 
 void USG_KratosAnim::JumpToAttackMontageSection(int32 NewSection)
 {
-	if (Montage_IsPlaying(StrongAttackMontage))
-	{
-		Montage_JumpToSection(GetAttackMontageSection(NewSection), StrongAttackMontage);
-		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("StrongAttackMontage"));
-	}
-	else if (Montage_IsPlaying(WeakAttackMontage))
-	{
-		Montage_JumpToSection(GetAttackMontageSection(NewSection), WeakAttackMontage);
-		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("StrongAttackMontage"));
-	}
-	else if (Montage_IsPlaying(RuneAttackMontage))
-	{
-		Montage_JumpToSection(GetAttackMontageSection(NewSection), RuneAttackMontage);
-		//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("StrongAttackMontage"));
-	}
+	Montage_JumpToSection(GetAttackMontageSection(NewSection), nullptr);
+
+	//if (Montage_IsPlaying(StrongAttackMontage))
+	//{
+	//	Montage_JumpToSection(GetAttackMontageSection(NewSection), StrongAttackMontage);
+	//	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("StrongAttackMontage"));
+	//}
+	//else if (Montage_IsPlaying(WeakAttackMontage))
+	//{
+	//	Montage_JumpToSection(GetAttackMontageSection(NewSection), WeakAttackMontage);
+	//	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("StrongAttackMontage"));
+	//}
+	//else if (Montage_IsPlaying(RuneAttackMontage))
+	//{
+	//	Montage_JumpToSection(GetAttackMontageSection(NewSection), RuneAttackMontage);
+	//	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("StrongAttackMontage"));
+	//}
 }
 
 void USG_KratosAnim::JumpToDodgeMontageSection(FString SectionName)
@@ -218,9 +220,11 @@ void USG_KratosAnim::JumpToHitMontageSection(FString SectionName)
 
 void USG_KratosAnim::ActiveLookAt(bool Active)
 {
-	bActiveLookAt = Active;
-	if (!Active) return;
-
+	if (!Active)
+	{
+		bActiveLookAt = false;
+		return;
+	}
 	FRotator ActorRotation = Me->GetActorRotation();
 	FRotator ControlRotation = Me->GetControlRotation();
 	FRotator RelativeControlRotation = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, ActorRotation);
@@ -252,6 +256,7 @@ void USG_KratosAnim::ActiveLookAt(bool Active)
 	// 8. LookAtWorldRotation이 가리키는 방향으로 일정 거리 떨어진 목표 지점을 계산합니다.
 	float LookAtDistance = 500.0f; // 목이 바라볼 가상의 목표 지점까지의 거리
 	LookAtTarget = NeckBoneLocation + LookAtWorldRotation.Vector() * LookAtDistance;
+	bActiveLookAt = true;
 }
 
 void USG_KratosAnim::AnimNotify_AttackHitCheck()
@@ -266,12 +271,11 @@ void USG_KratosAnim::AnimNotify_AttackEndCheck()
 
 void USG_KratosAnim::AnimNotify_NextAttackCheck()
 {
-	OnNextAttackCheck.Broadcast();
+	Me->CanComboAttack = true;
 }
 
 void USG_KratosAnim::AnimNotify_NextWeakAttackCheck()
 {
-	OnNextWeakAttackCheck.Broadcast();
 	Me->CanComboAttack = true;
 }
 
@@ -326,13 +330,13 @@ void USG_KratosAnim::AnimNotify_GetUPCameraSet()
 
 void USG_KratosAnim::AnimNotify_RuneReady()
 {
-	Me->OnMyRuneReady();
+	//Me->OnMyRuneReady();
 }
 
 void USG_KratosAnim::AnimNotify_RuneAttackEnd()
 {
-	Me->OnMyRuneAttackEnd();
-	Montage_SetPlayRate(GuardMontage, 0.5f);
+	//Me->OnMyRuneAttackEnd();
+	//Montage_SetPlayRate(GuardMontage, 0.5f);
 }
 
 void USG_KratosAnim::AnimNotify_SpawnEarthCrack()
@@ -380,6 +384,11 @@ void USG_KratosAnim::AnimNotify_DelayEnd()
 {
 	Montage_SetPlayRate(AxeThrowMontage, 1.0f);
 
+}
+
+void USG_KratosAnim::AnimNotify_EndDodge()
+{
+	Me->bEvade = false;
 }
 
 

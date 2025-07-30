@@ -13,6 +13,8 @@
 #include "BDThorFSM.h"
 #include "Kismet/GameplayStatics.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
+#include "BaseEnemy.h"
+
 const float LerpInit = 0.022;
 const float AXE_THROW_DAMAGE = 2;
 // Sets default values
@@ -96,7 +98,7 @@ void AFlyingAxe::Tick(float DeltaTime)
 			}
 			else
 			{
-				if (Me->State != EPlayerState::Hit)
+				if (Me)
 				{
 					Me->CatchFlyingAxe();
 					this->Destroy();
@@ -139,26 +141,37 @@ void AFlyingAxe::Tick(float DeltaTime)
 void AFlyingAxe::FlyingAxeOnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	bHit = true;
-	SetActorEnableCollision(false); // 충돌 비활성화
+	ActiveHitCollision(false);
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("SetActorEnableCollision(false)")));
-	auto* Thor = Cast<ABDThor>(OtherActor);
-	if (Thor)
+
+	ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
+	if (Enemy)
 	{
-		Thor->fsm->Damage(AXE_THROW_DAMAGE, AttackTypeDirectionArr[static_cast<int8>(EAttackType::AXE_THROW_ATTACK)][bWithdrawing]);
+		DealDamage(Enemy, FGenericAttackParams(Me, FLYING_AXE_DAMAGE, FLYING_AXE_STUN_DAMAGE, EAttackDirectionType::UP));
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
-		//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
 		AttachToComponent(OtherComp, FAttachmentTransformRules::KeepWorldTransform);
 	}
 	else
 	{
-		auto AwakenThor = Cast<AAwakenThor>(OtherActor);
-		if (AwakenThor)
+		auto* Thor = Cast<ABDThor>(OtherActor);
+		if (Thor)
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, UEnum::GetValueAsString(AttackTypeDirectionArr[static_cast<int8>(EAttackType::AXE_THROW_ATTACK)][isWithdraw]));
-			AwakenThor->getFSM()->SetDamage(AXE_THROW_DAMAGE, AttackTypeDirectionArr[static_cast<int8>(EAttackType::AXE_THROW_ATTACK)][bWithdrawing]);
+			Thor->fsm->Damage(AXE_THROW_DAMAGE, AttackTypeDirectionArr[static_cast<int8>(EAttackType::AXE_THROW_ATTACK)][bWithdrawing]);
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
 			//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
 			AttachToComponent(OtherComp, FAttachmentTransformRules::KeepWorldTransform);
+		}
+		else
+		{
+			auto AwakenThor = Cast<AAwakenThor>(OtherActor);
+			if (AwakenThor)
+			{
+				//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, UEnum::GetValueAsString(AttackTypeDirectionArr[static_cast<int8>(EAttackType::AXE_THROW_ATTACK)][isWithdraw]));
+				AwakenThor->getFSM()->SetDamage(AXE_THROW_DAMAGE, AttackTypeDirectionArr[static_cast<int8>(EAttackType::AXE_THROW_ATTACK)][bWithdrawing]);
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
+				//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
+				AttachToComponent(OtherComp, FAttachmentTransformRules::KeepWorldTransform);
+			}
 		}
 	}
 	if (!bWithdrawing)
@@ -178,5 +191,10 @@ void AFlyingAxe::BackToPlayer()
 	CurLocation = GetActorLocation();
 	this->SetActorEnableCollision(true); // 충돌 비활성화
 	this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+}
+
+void AFlyingAxe::ActiveHitCollision(bool Active)
+{
+	SetActorEnableCollision(Active); 
 }
 

@@ -38,7 +38,6 @@ void UKS_Aim::TickState(const FGenericStateParams& params, float DeltaTime)
 		{
 			ControlRotation.Yaw -= 20.0f;
 		}
-		DrawDebugLine(GetWorld(), Me->GetMesh()->GetBoneLocation(FName(TEXT("neck_01"))), Me->GetMesh()->GetBoneLocation(FName(TEXT("neck_01"))) + ControlRotation.Vector() * 500, FColor::Red);
 		Anim->LookAtTarget = Me->GetMesh()->GetBoneLocation(FName(TEXT("neck_01"))) + ControlRotation.Vector() * 500;
 	}
 	

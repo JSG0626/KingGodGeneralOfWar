@@ -13,8 +13,8 @@ void UKS_Dodge::EnterState(const FGenericStateParams& params)
 	// Roll
 	if (Me->GetVelocity().Size() >= Me->RollVelocityThreshhold)
 	{
+		Me->bEvade = true;
 		FString DodgeDirString = GetDodgeDirection(Me->PrevDirection);
-		StateLog(FString::Printf(TEXT("DodgeString: %s"), *DodgeDirString));
 
 		Anim->PlayRollMontage();
 		Anim->JumpToRollMontageSection(DodgeDirString);
@@ -43,10 +43,17 @@ void UKS_Dodge::ExitState(const FGenericStateParams& params)
 	bDashing = false;
 }
 
+bool UKS_Dodge::CanHandleHit() const
+{
+	return !bDashing && !Me->bEvade;
+}
+
 void UKS_Dodge::HandleDodge(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Dash -> Roll"));
 	bDashing = false;
+
+	Me->bEvade = true;
 
 	FRotator rotate = Me->GetController()->GetControlRotation();
 	Me->SetActorRotation(rotate);

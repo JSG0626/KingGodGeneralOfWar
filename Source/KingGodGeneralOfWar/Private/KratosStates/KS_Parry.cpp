@@ -51,7 +51,14 @@ void UKS_Parry::EnterState(const FGenericStateParams& params)
 		if (AttackParams.Attacker)
 		{
 			ABaseEnemy* Enemy = Cast<ABaseEnemy>(AttackParams.Attacker);
-			Enemy->TakeDamage(FGenericAttackParams(Me, PARRY_DAMAGE, PARRY_STUN_DAMAGE, EAttackDirectionType::LEFT));
+			if (Enemy)
+			{
+				Enemy->TakeDamage(FGenericAttackParams(Me, PARRY_DAMAGE, PARRY_STUN_DAMAGE, EAttackDirectionType::LEFT));
+			}
+			else
+			{
+
+			}
 		}
 	}
 }

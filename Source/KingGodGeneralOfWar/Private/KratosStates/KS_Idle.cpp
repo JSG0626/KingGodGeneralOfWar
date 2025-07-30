@@ -13,14 +13,13 @@ void UKS_Idle::EnterState(const FGenericStateParams& params)
 	Me->TargetCameraOffset = Me->DefaultCameraOffset;
 	Me->TargetCameraAngle = FRotator(0);
 	Me->TargetTargetArmLength = 143;
-	Me->bIsDodging = false;
-	Me->bIsAttacking = false;
 	Me->TargetShieldScale = 0.0f;
 	Anim->StopAllMontages(0.3f);
 
 	Direction = Me->GetVelocity();
 	Direction.Normalize();
 
+	TickTime = 0;
 }
 
 void UKS_Idle::TickState( const FGenericStateParams& params, float DeltaTime)
@@ -45,12 +44,16 @@ void UKS_Idle::ExitState(const FGenericStateParams& params)
 
 	CurrentMoveScale = 0.56f;
 	Anim->ActiveLookAt(false);
-	TickTime = 0;
 }
 
 void UKS_Idle::HandleWAttack(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::WAttack);
+}
+
+void UKS_Idle::HandleSAttack(const FGenericStateParams& params)
+{
+	Me->SetKratosState(EPlayerState::SAttack);
 }
 
 void UKS_Idle::HandleGuard(const FGenericStateParams& params)

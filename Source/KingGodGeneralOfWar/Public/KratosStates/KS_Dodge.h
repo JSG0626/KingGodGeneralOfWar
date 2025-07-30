@@ -21,7 +21,7 @@ public:
 	virtual void ExitState(const FGenericStateParams& params) override;
 
 	virtual bool CanHandleDodge() const override { return bDashing; }
-	virtual bool CanHandleHit() const override { return false; }
+	virtual bool CanHandleHit() const override;
 
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
 private:

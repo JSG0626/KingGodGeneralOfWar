@@ -5,27 +5,28 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "KratosState.h"
-#include "KS_WAttack.generated.h"
+#include "KS_SAttack.generated.h"
 
 /**
- *
+ * 
  */
-UCLASS(Blueprintable)
-class KINGGODGENERALOFWAR_API UKS_WAttack : public UObject, public IKratosState
+UCLASS()
+class KINGGODGENERALOFWAR_API UKS_SAttack : public UObject, public IKratosState
 {
 	GENERATED_BODY()
 
-public:
+	public:
 	virtual void EnterState(const FGenericStateParams& params) override;
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
 	virtual void ExitState(const FGenericStateParams& params) override;
 
-	virtual bool CanHandleWAttack() const override { return true; }
+	virtual bool CanHandleSAttack() const override { return true; }
 	virtual bool CanHandleDodge() const override { return true; }
 
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
-	virtual void HandleWAttack(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleSAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 
 private:
 	int CurrentAttackNum = 1;
+
 };

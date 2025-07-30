@@ -156,12 +156,9 @@ public:
 	void LaunchKratos(float LaunchScale = 2000);
 
 	// Rune
-	void OnMyRuneReady();
-	void OnMyRuneAttackEnd();
 	void OnMyRuneAttackCameraSet();
 	void OnMySpawnEarthCrack();
 
-	void OnMyAttackComboEnd();
 	void OnMyInitAttackType();
 
 	void OnMyAttackProgress();
@@ -182,10 +179,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetState(EPlayerState NextState);
 	//private:
-
-		// Weak Attack Combo
-	void WeakAttackStartComboState();
-	void WeakAttackEndComboState();
 
 	// Strong Attack Combo
 	void StrongAttackStartComboState();
@@ -432,10 +425,7 @@ public:
 	FRotator TargetCameraAngle = FRotator(0);
 
 	bool bLockOn;
-	bool bIsAttacking;
-	bool bIsDodging;
-	bool bParrying = false;
-	bool bRuneReady;
+	bool bEvade;
 	bool bGuardStagger = false;
 	bool bSuperArmor;
 

@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WeaponInterface.h"
 #include "FlyingAxe.generated.h"
 
 UCLASS()
-class KINGGODGENERALOFWAR_API AFlyingAxe : public AActor
+class KINGGODGENERALOFWAR_API AFlyingAxe : public AActor, public IWeaponInterface
 {
 	GENERATED_BODY()
 	
@@ -71,4 +72,10 @@ public:
 	float LerpAlpha;
 	float WithdrawRotationScale = -20;
 
+	UPROPERTY(EditDefaultsOnly)
+	float FLYING_AXE_DAMAGE = 10;
+	UPROPERTY(EditDefaultsOnly)
+	float FLYING_AXE_STUN_DAMAGE = 5;
+
+	virtual void ActiveHitCollision(bool Active) override;
 };
