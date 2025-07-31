@@ -56,7 +56,6 @@ USG_KratosAnim::USG_KratosAnim()
 	);
 	if (TempRuneBaseMontage.Succeeded())	RuneBaseMontage = TempRuneBaseMontage.Object;
 
-
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> TempRuneAttackMontage(
 		TEXT("/Script/Engine.AnimMontage'/Game/JSG/Animations/AM_Hells_Touch.AM_Hells_Touch'")
 	);
@@ -74,8 +73,13 @@ USG_KratosAnim::USG_KratosAnim()
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> TempParryMontage(
 		TEXT("/ Script / Engine.AnimMontage'/Game/JSG/Animations/AM_Parry.AM_Parry'")
 	);
-	
 	if (TempParryMontage.Succeeded())	ParryMontage = TempParryMontage.Object;
+
+	static ConstructorHelpers::FObjectFinder <UAnimMontage> TempDieMontage(
+		TEXT("/ Script / Engine.AnimMontage'/Game/JSG/Animations/AM_Die.AM_Die'")
+	);
+	
+	if (TempDieMontage.Succeeded())	DieMontage = TempDieMontage.Object;
 }
 
 void USG_KratosAnim::NativeUpdateAnimation(float DeltaTime)
@@ -169,13 +173,17 @@ void USG_KratosAnim::PlayRuneAttackMontage()
 void USG_KratosAnim::PlayParryMontage()
 {
 	Montage_Play(ParryMontage);
-
 }
 
 void USG_KratosAnim::PlayParryAttackMontage()
 {
 	if (!Montage_IsPlaying(ParryAttackMontage))
 		Montage_Play(ParryAttackMontage);
+}
+
+void USG_KratosAnim::PlayDieMontage()
+{
+	Montage_Play(DieMontage);
 }
 
 void USG_KratosAnim::JumpToAttackMontageSection(int32 NewSection)

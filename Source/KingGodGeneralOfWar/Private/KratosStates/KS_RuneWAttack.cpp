@@ -20,6 +20,7 @@ void UKS_RuneWAttack::TickState(const FGenericStateParams& params, float DeltaTi
 void UKS_RuneWAttack::ExitState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("RuneWAttack Exit"));
+	Anim->Montage_Stop(0);
 }
 
 void UKS_RuneWAttack::HandleDodge(const FGenericStateParams& params)

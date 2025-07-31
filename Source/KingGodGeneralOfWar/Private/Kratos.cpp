@@ -40,6 +40,7 @@
 #include <KratosStates/KS_Parry.h>
 #include <KratosStates/KS_SAttack.h>
 #include <KratosStates/KS_RuneWAttack.h>
+#include <KratosStates/KS_Die.h>
 
 // Sets default values
 
@@ -723,6 +724,10 @@ void AKratos::InitializeStates()
 	state = NewObject<UKS_RuneWAttack>(this);
 	state->SetUp(this);
 	KratosStates.Add({ EPlayerState::RuneWAttack, state });
+
+	state = NewObject<UKS_Die>(this);
+	state->SetUp(this);
+	KratosStates.Add({ EPlayerState::Die, state });
 
 	SetKratosState(EPlayerState::Idle);
 }

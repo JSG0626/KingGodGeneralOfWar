@@ -41,6 +41,7 @@ public:
 	void PlayRuneAttackMontage();
 	void PlayParryMontage();
 	void PlayParryAttackMontage();
+	void PlayDieMontage();
 	void JumpToAttackMontageSection(int32 NewSection);
 	void JumpToDodgeMontageSection(FString SectionName);
 	void JumpToRollMontageSection(FString SectionName);
@@ -108,7 +109,10 @@ public:
 	class UAnimMontage* ParryAttackMontage ;
 
 	UPROPERTY()
-	UAnimMontage* HitMontage;
+	class UAnimMontage* HitMontage;
+
+	UPROPERTY()
+	class UAnimMontage* DieMontage ;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class ARuneAttackField> RuneAttackFieldFactory;
