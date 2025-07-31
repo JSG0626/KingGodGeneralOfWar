@@ -4,24 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "ANS_SetAxeRotation.generated.h"
+#include "ANS_SetShieldRotation.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
-class KINGGODGENERALOFWAR_API UANS_SetAxeRotation : public UAnimNotifyState
+class KINGGODGENERALOFWAR_API UANS_SetShieldRotation : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
 private:
 	FRotator OriginRotation;
-	class AAxe* Axe;
+	class ASG_Shield* Shield;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRotator NewRotation;
 
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
-	//virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

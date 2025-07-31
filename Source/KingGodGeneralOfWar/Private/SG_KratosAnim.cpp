@@ -360,10 +360,6 @@ void USG_KratosAnim::AnimNotify_AttackProgress()
 	Me->OnMyAttackProgress();
 }
 
-void USG_KratosAnim::AnimNotify_GuardDisappear()
-{
-	Me->OnMyGuardDisappear();
-}
 
 void USG_KratosAnim::AnimNotify_LaunchCharacterInStrongAttack()
 {
@@ -394,16 +390,6 @@ void USG_KratosAnim::AnimNotify_DelayEnd()
 void USG_KratosAnim::AnimNotify_EndDodge()
 {
 	Me->bEvade = false;
-}
-
-void USG_KratosAnim::AnimNotify_AppearShield()
-{
-	Me->Shield->SetTargetScale(true);
-}
-
-void USG_KratosAnim::AnimNotify_DisappearShield()
-{
-	Me->Shield->SetTargetScale(false);
 }
 
 

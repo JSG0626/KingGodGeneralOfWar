@@ -15,17 +15,25 @@ public:
 	// Sets default values for this character's properties
 	ABaseEnemy();
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy")
 	float MaxHP = 100;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy")
 	float MaxStunGuage = 50;
-
+	UPROPERTY(EditDefaultsOnly)
+	class UWidgetComponent* HPUIComp ;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UEnemyHPUI> HPUIFactory ;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
+	class ACharacter* CurrentTarget ;
+
 private:
+	UPROPERTY(EditDefaultsOnly)
+	class UEnemyHPUI* HPUI ;
 	float CurHP;
 	float CurStunGuage;
 
@@ -47,6 +55,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* PlayerCamera ;
-
-	virtual bool TakeDamage(const struct FGenericAttackParams& params);
+	
+	UFUNCTION(BlueprintCallable)
+	virtual bool GetDamage(const struct FGenericAttackParams& params);
 };

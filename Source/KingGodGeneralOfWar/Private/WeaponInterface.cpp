@@ -6,5 +6,5 @@
 
 void IWeaponInterface::DealDamage(ABaseEnemy* Target, const FGenericAttackParams& params)
 {
-	Target->TakeDamage(params);
+	Target->GetDamage(params);
 }

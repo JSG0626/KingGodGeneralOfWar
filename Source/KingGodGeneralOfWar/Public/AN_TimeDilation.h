@@ -15,7 +15,7 @@ class KINGGODGENERALOFWAR_API UAN_TimeDilation : public UAnimNotify
 	GENERATED_BODY()
 	
 public:
-	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override ;
+	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override ;
 
 	UPROPERTY(EditAnywhere)
 	float Duration = 0.015f;

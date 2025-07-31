@@ -9,6 +9,7 @@ void UKS_Dodge::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Dodge Enter"));
 	FRotator rotate = Me->GetController()->GetControlRotation();
+	rotate.Pitch = 0;
 	Me->SetActorRotation(rotate);
 	// Roll
 	if (Me->GetVelocity().Size() >= Me->RollVelocityThreshhold)
@@ -56,6 +57,7 @@ void UKS_Dodge::HandleDodge(const FGenericStateParams& params)
 	Me->bEvade = true;
 
 	FRotator rotate = Me->GetController()->GetControlRotation();
+	rotate.Pitch = 0;
 	Me->SetActorRotation(rotate);
 	Anim->Montage_Stop(0.1f, Anim->DodgeMontage);
 	FString DodgeDirString = GetDodgeDirection(Me->PrevDirection);

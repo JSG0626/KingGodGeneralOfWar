@@ -75,7 +75,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	float FLYING_AXE_DAMAGE = 10;
 	UPROPERTY(EditDefaultsOnly)
-	float FLYING_AXE_STUN_DAMAGE = 5;
+	float FLYING_AXE_STUN_DAMAGE = 3;
 
 	virtual void ActiveHitCollision(bool Active) override;
 };

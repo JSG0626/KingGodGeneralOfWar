@@ -10,6 +10,9 @@ void UKS_RuneWAttack::EnterState(const FGenericStateParams& params)
 	StateLog(TEXT("RuneWAttack Enter"));
 	Me->CurrentAttackType = EAttackType::RUNE_ATTACK;
 
+	//FRotator rotate = Me->GetController()->GetControlRotation();
+	//rotate.Pitch = 0;
+	//Me->SetActorRotation(rotate);
 	Anim->PlayRuneAttackMontage();
 }
 
@@ -25,7 +28,7 @@ void UKS_RuneWAttack::ExitState(const FGenericStateParams& params)
 
 void UKS_RuneWAttack::HandleDodge(const FGenericStateParams& params)
 {
-
+	Me->SetKratosState(EPlayerState::Dodge);
 }
 
 void UKS_RuneWAttack::HandleHit(const FGenericStateParams& params)

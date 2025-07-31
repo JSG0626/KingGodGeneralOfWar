@@ -5,7 +5,6 @@
 #include "Kratos.h"
 #include "SG_Shield.h"
 #include "SG_KratosAnim.h"
-#include <NiagaraFunctionLibrary.h>
 #include <Components/ArrowComponent.h>
 #include <BaseEnemy.h>
 #include <WeaponInterface.h>
@@ -23,12 +22,9 @@ void UKS_Parry::EnterState(const FGenericStateParams& params)
 	FEnemyAttackParams AttackParams = params.AttackParams;
 
 	GetWorld()->SpawnActor<AActor>(Me->ParryingLightFactory, Shield->LightPosition->GetComponentTransform())->AttachToActor(Shield, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	//UNiagaraFunctionLibrary::SpawnSystemAttached(Me->ParryVFX, Shield->LightPosition, TEXT("ParryVFX"), Shield->LightPosition->GetComponentLocation(), Shield->LightPosition->GetComponentRotation(), EAttachLocation::KeepWorldPosition, true);
-	UNiagaraFunctionLibrary::SpawnSystemAttached(Me->ShockWaveVFX, Shield->LightPosition, TEXT("ShockWaveVFX"), Shield->LightPosition->GetComponentLocation(), Shield->LightPosition->GetComponentRotation(), EAttachLocation::KeepWorldPosition, true);
 
 	Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 0.5f);
 	Anim->PlayParryMontage();
-	//Anim->JumpToGuardMontageSection(TEXT("Guard_Parrying"));
 	if (AttackParams.bMelee)
 	{
 		//auto* Thor = Cast<ABDThor>(Attacker);
@@ -53,7 +49,7 @@ void UKS_Parry::EnterState(const FGenericStateParams& params)
 			ABaseEnemy* Enemy = Cast<ABaseEnemy>(AttackParams.Attacker);
 			if (Enemy)
 			{
-				Enemy->TakeDamage(FGenericAttackParams(Me, PARRY_DAMAGE, PARRY_STUN_DAMAGE, EAttackDirectionType::LEFT));
+				Enemy->GetDamage(FGenericAttackParams(Me, PARRY_DAMAGE, PARRY_STUN_DAMAGE, EAttackDirectionType::LEFT));
 			}
 			else
 			{

@@ -25,7 +25,7 @@ void UANS_SetAxeRotation::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeq
 	Axe = Kratos->Axe;
 	if (Axe == nullptr) return;
 
-	Axe->SetActorRelativeRotation(NewAxeRotation);
+	Axe->SetActorRelativeRotation(NewRotation);
 }
 
 void UANS_SetAxeRotation::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
