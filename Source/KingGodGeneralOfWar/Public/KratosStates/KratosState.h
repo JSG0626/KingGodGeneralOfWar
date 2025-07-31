@@ -78,6 +78,7 @@ protected:
 	class AKratos* Me;
 	class USG_KratosAnim* Anim;
 	bool InputOn;
+	FVector TargetLookAtPos;
 
 	// Debug Setting
 	bool bShowLog = true;
@@ -86,7 +87,7 @@ protected:
 	bool bShowTickLog = false;
 	void StateLog(const FString& message, bool isTickLog = false) const;
 
-	virtual void LookAtProcess(FRotator offset = FRotator(0));
+	virtual void LookAtProcess(float DeltaTime, FRotator offset = FRotator(0));
 
 public:
 	virtual void SetUp(class AKratos* kratos);
@@ -118,6 +119,7 @@ public:
 	virtual void HandleWAttack(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleSAttack(const FGenericStateParams& params = FGenericStateParams()) {};
 
-	// 기본적으로 즉시 이동이 가능한 상태들을 다루는 메소드
+	// 기본적으로 즉시 전환이 가능한 상태들을 다루는 메소드
 	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams());
+	virtual void HandleDie(const FGenericStateParams& params = FGenericStateParams());
 };

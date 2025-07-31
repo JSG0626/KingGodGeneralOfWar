@@ -99,7 +99,7 @@ public:
 	class UAnimMontage* RuneBaseMontage;
 
 	UPROPERTY()
-	class UAnimMontage* RuneAttackMontage;
+	class UAnimMontage* RuneWAttackMontage;
 
 	UPROPERTY()
 	class UAnimMontage* ParryMontage ;
@@ -124,7 +124,7 @@ private:
 	void AnimNotify_AttackEndCheck();
 
 	UFUNCTION()
-	void AnimNotify_NextAttackCheck() ;
+	void AnimNotify_AbleNextAttack() ;
 
 	UFUNCTION()
 	void AnimNotify_NextWeakAttackCheck();
@@ -132,8 +132,6 @@ private:
 	UFUNCTION()
 	void AnimNotify_MovableCheck();
 
-	UFUNCTION()
-	void AnimNotify_GuardLoopStartCheck();
 	
 	UFUNCTION()
 	void AnimNotify_HideAxe();
@@ -188,6 +186,12 @@ private:
 	
 	UFUNCTION()
 	void AnimNotify_EndDodge() ;
+
+	UFUNCTION()
+	void AnimNotify_AppearShield() ;
+
+	UFUNCTION()
+	void AnimNotify_DisappearShield();
 
 	FName GetAttackMontageSection(int32 Section);
 	FName GetRollMontageSection(int32 Section);

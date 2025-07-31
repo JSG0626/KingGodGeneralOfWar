@@ -39,6 +39,7 @@
 #include "KingGodGeneralOfWar.h"
 #include <KratosStates/KS_Parry.h>
 #include <KratosStates/KS_SAttack.h>
+#include <KratosStates/KS_RuneWAttack.h>
 
 // Sets default values
 
@@ -718,6 +719,10 @@ void AKratos::InitializeStates()
 	state = NewObject<UKS_SAttack>(this);
 	state->SetUp(this);
 	KratosStates.Add({ EPlayerState::SAttack, state });
+
+	state = NewObject<UKS_RuneWAttack>(this);
+	state->SetUp(this);
+	KratosStates.Add({ EPlayerState::RuneWAttack, state });
 
 	SetKratosState(EPlayerState::Idle);
 }

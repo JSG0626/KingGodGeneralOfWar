@@ -63,9 +63,14 @@ void UKS_WAttack::HandleDodge(const FGenericStateParams& params)
 
 void UKS_WAttack::HandleWAttack(const FGenericStateParams& params)
 {
-	//UE_LOG(LogTemp, Display, TEXT("HandleWAttack, CurrentAttckNum: %d"), CurrentAttackNum);
-	//Me->CanComboAttack = false;
-	//Anim->JumpToAttackMontageSection(CurrentAttackNum++);
-	//UGameplayStatics::PlaySound2D(GetWorld(), Me->WeakAttackSoundArr[Me->CurrentWeakCombo], 1, 1, 0.8f);
 	InputOn = true;
+}
+
+void UKS_WAttack::HandleGuard(const FGenericStateParams& params)
+{
+	bGuardInputOn = true;
+	if (InputOn)
+	{
+		Me->SetKratosState(EPlayerState::RuneWAttack);
+	}
 }

@@ -31,17 +31,18 @@ void IKratosState::StateLog(const FString& message, bool isTickLog) const
 	}
 }
 
-void IKratosState::LookAtProcess(FRotator offset)
+void IKratosState::LookAtProcess(float DeltaTime, FRotator offset)
 {
 	FRotator ActorRotation = Me->GetActorRotation();
 	FRotator ControlRotation = Me->GetControlRotation() + offset;
 	FRotator RelativeControlRotation = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, ActorRotation);
+	if (RelativeControlRotation.Yaw <= -30 || RelativeControlRotation.Yaw >= 90) return;
+		
 	float ClampedRelativePitch = FMath::ClampAngle(RelativeControlRotation.Pitch, -20.0f, 20.0f); // 상하 제한
-	float ClampedRelativeYaw = FMath::ClampAngle(RelativeControlRotation.Yaw, -45.0f, 45.0f);   // 좌우 제한
 
 	// 5. 제한된 상대적인 Pitch와 Yaw를 사용하여 새로운 회전 값을 만듭니다.
 	// Roll은 보통 0으로 유지합니다 (고개가 옆으로 기울어지는 것은 드물기 때문).
-	FRotator ClampedRelativeRotator = FRotator(ClampedRelativePitch, ClampedRelativeYaw, 0.0f);
+	FRotator ClampedRelativeRotator = FRotator(ClampedRelativePitch, RelativeControlRotation.Yaw, 0.0f);
 
 	// 6. 이 상대 회전을 캐릭터의 ActorRotation에 다시 적용하여,
 	// 월드 공간에서 목이 실제로 바라볼 '제한된' 방향을 계산합니다.
@@ -63,7 +64,8 @@ void IKratosState::LookAtProcess(FRotator offset)
 
 	// 8. LookAtWorldRotation이 가리키는 방향으로 일정 거리 떨어진 목표 지점을 계산합니다.
 	float LookAtDistance = 500.0f; // 목이 바라볼 가상의 목표 지점까지의 거리
-	Anim->LookAtTarget = NeckBoneLocation + LookAtWorldRotation.Vector() * LookAtDistance;
+	TargetLookAtPos = NeckBoneLocation + LookAtWorldRotation.Vector() * LookAtDistance;
+	Anim->LookAtTarget = FMath::Lerp(Anim->LookAtTarget, TargetLookAtPos, DeltaTime * 3);
 }
 
 void IKratosState::SetUp(AKratos* kratos)
@@ -76,4 +78,9 @@ void IKratosState::SetUp(AKratos* kratos)
 void IKratosState::HandleHit(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::Hit, params);
+}
+
+void IKratosState::HandleDie(const FGenericStateParams& params)
+{
+	Me->SetKratosState(EPlayerState::Die, params);
 }

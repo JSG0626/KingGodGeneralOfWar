@@ -11,20 +11,16 @@ void UKS_Hit::EnterState(const FGenericStateParams& params)
 	FEnemyAttackParams AttackParams = params.AttackParams;
 	
 	const float CurHP = Me->SetHP(Me->CurHP - AttackParams.Damage);
-	if (Me->bSuperArmor)
-	{
-		ExitState(params);
-		return;
-	}
 
 	if (CurHP == 0)
 	{
-		Anim->PlayHitMontage();
+		HandleDie();
+		/*Anim->PlayHitMontage();
 		Anim->JumpToHitMontageSection(TEXT("Death"));
 		Me->TargetCameraOffset = FVector(0, 50, -60);
 		Me->TargetCameraAngle = FRotator(10, 0, 0);
 		Me->TargetTargetArmLength = 180;
-		Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 1);
+		Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 1);*/
 	}
 	else
 	{

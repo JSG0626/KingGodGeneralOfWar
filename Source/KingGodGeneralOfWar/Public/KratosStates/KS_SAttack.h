@@ -22,11 +22,13 @@ class KINGGODGENERALOFWAR_API UKS_SAttack : public UObject, public IKratosState
 
 	virtual bool CanHandleSAttack() const override { return true; }
 	virtual bool CanHandleDodge() const override { return true; }
+	virtual bool CanHandleGuard() const override { return true; }
 
-	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleSAttack(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleGuard(const FGenericStateParams& params = FGenericStateParams()) override;
 
 private:
 	int CurrentAttackNum = 1;
-
+	bool bGuardInputOn;
 };

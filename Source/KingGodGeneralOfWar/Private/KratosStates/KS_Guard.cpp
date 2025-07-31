@@ -70,7 +70,14 @@ void UKS_Guard::HandleDodge(const FGenericStateParams& params)
 
 void UKS_Guard::HandleWAttack(const FGenericStateParams& params)
 {
-	StateLog(TEXT("Rune Attack A"));
+	if (Me->bAxeGone)
+	{
+		StateLog(TEXT("Axe Return Attack"));
+	}
+	else
+	{
+		Me->SetKratosState(EPlayerState::RuneWAttack);
+	}
 }
 
 void UKS_Guard::HandleHit(const FGenericStateParams& params)

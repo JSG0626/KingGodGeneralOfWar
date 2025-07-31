@@ -31,11 +31,11 @@ void UKS_Idle::TickState( const FGenericStateParams& params, float DeltaTime)
 
 	TickTime += DeltaTime;
 
-	if (TickTime >= 2.0f)
+	if (TickTime >= 1.0f)
 	{
 		Anim->ActiveLookAt(true);
+		LookAtProcess(DeltaTime);
 	}
-	LookAtProcess();
 }
 
 void UKS_Idle::ExitState(const FGenericStateParams& params)

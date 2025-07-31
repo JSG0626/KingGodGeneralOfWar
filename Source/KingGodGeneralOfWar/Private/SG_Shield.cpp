@@ -66,8 +66,6 @@ void ASG_Shield::OnShieldAttackOverlap(UPrimitiveComponent* OverlappedComponent,
 		if (bThorDead)
 		{
 			auto* Me = Cast<AKratos>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-			if (Me)
-				Me->SetState(EPlayerState::NoneMovable);
 		}
 	}
 

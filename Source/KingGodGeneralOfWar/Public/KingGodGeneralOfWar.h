@@ -13,3 +13,11 @@ enum class EHitType : uint8
 	NB_LOW UMETA(DisplayName = "NB_LOW"),
 	STUN UMETA(DisplayName = "STUN"),
 };
+
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	AXE UMETA(DisplayName = "AXE"),
+	SHIELD UMETA(DisplayName = "SHIELD"),
+	HAND UMETA(DisplayName = "HAND"),
+};

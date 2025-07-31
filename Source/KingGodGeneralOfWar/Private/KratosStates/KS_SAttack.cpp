@@ -17,6 +17,7 @@ void UKS_SAttack::EnterState(const FGenericStateParams& params)
 		// 맨손 공격
 		return;
 	}
+	bGuardInputOn = false;
 	CurrentAttackNum = 1;
 	Anim->PlayStrongAttackMontage();
 	Anim->JumpToAttackMontageSection(CurrentAttackNum++);
@@ -56,10 +57,16 @@ void UKS_SAttack::HandleDodge(const FGenericStateParams& params)
 	Me->SetKratosState(EPlayerState::Dodge);
 }
 
+void UKS_SAttack::HandleGuard(const FGenericStateParams& params)
+{
+	bGuardInputOn = true;
+	if (InputOn)
+	{
+		//Me->SetKratosState(EPlayerState::RuneSAttack);
+	}
+}
+
 void UKS_SAttack::HandleSAttack(const FGenericStateParams& params)
 {
-	//UE_LOG(LogTemp, Display, TEXT("HandleSAttack, CurrentAttckNum: %d"), CurrentAttackNum);
-	//Me->CanComboAttack = false;
-	//Anim->JumpToAttackMontageSection(CurrentAttackNum++);
 	InputOn = true;
 }

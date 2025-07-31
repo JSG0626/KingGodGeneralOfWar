@@ -8,6 +8,7 @@
 #include "Animation/AnimMontage.h"
 #include "Camera/CameraComponent.h"
 #include <Kismet/KismetMathLibrary.h>
+#include "SG_Shield.h"
 
 USG_KratosAnim::USG_KratosAnim()
 {
@@ -57,9 +58,9 @@ USG_KratosAnim::USG_KratosAnim()
 
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> TempRuneAttackMontage(
-		TEXT("/Script/Engine.AnimMontage'/Game/JSG/Animations/AM_Kratos_RuneAttack.AM_Kratos_RuneAttack'")
+		TEXT("/Script/Engine.AnimMontage'/Game/JSG/Animations/AM_Hells_Touch.AM_Hells_Touch'")
 	);
-	if (TempRuneAttackMontage.Succeeded())	RuneAttackMontage = TempRuneAttackMontage.Object;
+	if (TempRuneAttackMontage.Succeeded())	RuneWAttackMontage = TempRuneAttackMontage.Object;
 
 	static ConstructorHelpers::FObjectFinder <UAnimMontage> TempHitMontage(
 		TEXT("Script / Engine.AnimMontage'/Game/JSG/Animations/AM_Kratos_Hit.AM_Kratos_Hit'")
@@ -161,8 +162,8 @@ void USG_KratosAnim::PlayDashAttackMontage()
 
 void USG_KratosAnim::PlayRuneAttackMontage()
 {
-	if (!Montage_IsPlaying(RuneAttackMontage))
-		Montage_Play(RuneAttackMontage);
+	if (!Montage_IsPlaying(RuneWAttackMontage))
+		Montage_Play(RuneWAttackMontage);
 }
 
 void USG_KratosAnim::PlayParryMontage()
@@ -191,9 +192,9 @@ void USG_KratosAnim::JumpToAttackMontageSection(int32 NewSection)
 	//	Montage_JumpToSection(GetAttackMontageSection(NewSection), WeakAttackMontage);
 	//	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("StrongAttackMontage"));
 	//}
-	//else if (Montage_IsPlaying(RuneAttackMontage))
+	//else if (Montage_IsPlaying(RuneWAttackMontage))
 	//{
-	//	Montage_JumpToSection(GetAttackMontageSection(NewSection), RuneAttackMontage);
+	//	Montage_JumpToSection(GetAttackMontageSection(NewSection), RuneWAttackMontage);
 	//	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("StrongAttackMontage"));
 	//}
 }
@@ -220,6 +221,11 @@ void USG_KratosAnim::JumpToHitMontageSection(FString SectionName)
 
 void USG_KratosAnim::ActiveLookAt(bool Active)
 {
+	if (Active == bActiveLookAt)
+	{
+		return;
+	}
+
 	if (!Active)
 	{
 		bActiveLookAt = false;
@@ -269,7 +275,7 @@ void USG_KratosAnim::AnimNotify_AttackEndCheck()
 	OnAttackEndCheck.Broadcast();
 }
 
-void USG_KratosAnim::AnimNotify_NextAttackCheck()
+void USG_KratosAnim::AnimNotify_AbleNextAttack()
 {
 	Me->CanComboAttack = true;
 }
@@ -282,15 +288,6 @@ void USG_KratosAnim::AnimNotify_NextWeakAttackCheck()
 void USG_KratosAnim::AnimNotify_MovableCheck()
 {
 	OnMovableCheck.Broadcast();
-}
-
-void USG_KratosAnim::AnimNotify_GuardLoopStartCheck()
-{
-	if (Me)
-	{
-		if (Me->State == EPlayerState::GuardStart)
-			Me->State = EPlayerState::Guard;
-	}
 }
 
 void USG_KratosAnim::AnimNotify_HideAxe()
@@ -389,6 +386,16 @@ void USG_KratosAnim::AnimNotify_DelayEnd()
 void USG_KratosAnim::AnimNotify_EndDodge()
 {
 	Me->bEvade = false;
+}
+
+void USG_KratosAnim::AnimNotify_AppearShield()
+{
+	Me->Shield->SetTargetScale(true);
+}
+
+void USG_KratosAnim::AnimNotify_DisappearShield()
+{
+	Me->Shield->SetTargetScale(false);
 }
 
 
