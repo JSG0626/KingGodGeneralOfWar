@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "BDThorFSM.h"
@@ -44,9 +44,6 @@ void UBDThorFSM::BeginPlay()
 
 	//애니메이션 할당
 	anim = Cast<UBDThorAnim>(me->GetMesh()->GetAnimInstance());
-
-	//체력 설정
-	BDCurrentHP = BDMaxHp;
 
 	if (GEngine) {
 		GEngine->bEnableOnScreenDebugMessages = false; //디버그 메세지 안보이게 하기
@@ -291,28 +288,15 @@ BDThorGeneralState UBDThorFSM::RandomChange()
 }
 
 //데미지를 받을 시 발생하는 함수, 두번째는 애니메이션을 재생할 히트 방향을 말한다.
-void UBDThorFSM::Damage(float DamageNum, EAttackDirectionType AtkDir)
+void UBDThorFSM::Damage(EAttackDirectionType AtkDir)
 {
-
-	BDCurrentHP -= DamageNum;
-
-	//me->UpdateHpUI(); //체력 설정
-
-	me->GameMode->SetEnemyHpBar(BDCurrentHP / BDMaxHp); //체력 설정
-
 	BDGetHitDirectionString(AtkDir);
 
+	if (me)
 	me->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);  // 이동 재활성화
 
 	//피격 상태로 변경한다.
 	mState = BDThorGeneralState::BDDamage;
-
-	if (BDCurrentHP <= 50.0f) {
-		//me->GameMode->GoToNextPhase(); //다음 페이즈로 넘어간다.
-		me->GameMode->PlayHpUIFadeOutAnim(); //토르 UI를 끈다.
-		me->GameMode->EndFirstThor(); //시퀀스를 재생한다.
-		me->Destroy();
-	}
 
 	//UE_LOG(LogTemp, Warning, TEXT("BDThor damage!"));
 
@@ -760,11 +744,12 @@ void UBDThorFSM::BDEndState()
 	else if (mState == BDThorGeneralState::BDDamage) {
 		UE_LOG(LogTemp, Warning, TEXT("EndDamage"));
 
-		//체력이 남아있다면
-		if (BDCurrentHP > 0) {
-			//BDSetState(BDThorGeneralState::BDAvoidance);
-			BDSetState(BDThorGeneralState::BDRandomChange); //상태 랜덤 지정
-		}
+		BDSetState(BDThorGeneralState::BDRandomChange); //상태 랜덤 지정
+		////체력이 남아있다면
+		//if (BDCurrentHP > 0) {
+		//	//BDSetState(BDThorGeneralState::BDAvoidance);
+		//	
+		//}
 	}
 }
 

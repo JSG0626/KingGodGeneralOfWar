@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Move.h"
@@ -6,6 +6,7 @@
 #include <Kismet/KismetMathLibrary.h>
 void UKS_Move::EnterState(const FGenericStateParams& params)
 {
+	// 이동 상태 진입
 	StateLog(TEXT("Move Enter"));
 }
 

@@ -184,7 +184,7 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 
 	// VInterpTo를 사용해 부드럽게 타겟을 추적
 	const FVector NextLocation = FMath::Lerp(PrevLocation, TargetLocation, ReturningInterpAlpha);
-	UE_LOG(LogTemp, Display, TEXT("ReturningInterpAlpha: %f"), ReturningInterpAlpha);
+	//UE_LOG(LogTemp, Display, TEXT("ReturningInterpAlpha: %f"), ReturningInterpAlpha);
 	ReturningInterpAlpha += ReturningAlphaDelta;
 	if (ReturningInterpAlpha > 1.0f)
 	{

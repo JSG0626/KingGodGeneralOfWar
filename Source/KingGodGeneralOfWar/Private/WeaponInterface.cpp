@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "WeaponInterface.h"
@@ -14,9 +14,9 @@ void IWeaponInterface::SetAttackScale(const float AttackScale)
 void IWeaponInterface::DealDamage(ABaseEnemy* Target, const FGenericAttackParams& params)
 {
     UGameplayStatics::PlaySoundAtLocation(
-        Target->GetWorld(),             // ¿ùµå ÄÁÅØ½ºÆ®¸¦ Á¦°øÇÏ´Â ¿ÀºêÁ§Æ® (º¸Åë this¸¦ »ç¿ë)
-        GetBaseHitSound(),  // Àç»ýÇÒ »ç¿îµå Å¥
-        Target->GetActorLocation()       // »ç¿îµå°¡ ¹ß»ýÇÒ ¿ùµå À§Ä¡
+        Target->GetWorld(),             // ì›”ë“œ ì»¨í…ìŠ¤íŠ¸ë¥¼ ì œê³µí•˜ëŠ” ì˜¤ë¸Œì íŠ¸ (ë³´í†µ thisë¥¼ ì‚¬ìš©)
+        GetBaseHitSound(),  // ìž¬ìƒí•  ì‚¬ìš´ë“œ í
+        Target->GetActorLocation()       // ì‚¬ìš´ë“œê°€ ë°œìƒí•  ì›”ë“œ ìœ„ì¹˜
     );
 	Target->GetDamage(params);
 }

@@ -1,13 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "BaseEnemy.h"
 #include "BDThor.generated.h"
 
 UCLASS()
-class KINGGODGENERALOFWAR_API ABDThor : public ACharacter
+class KINGGODGENERALOFWAR_API ABDThor : public ABaseEnemy
 {
 	GENERATED_BODY()
 
@@ -28,17 +28,17 @@ public:
 
 public:
 	
-	//Àû °ü¸® ÄÄÆ÷³ÍÆ® Å¬·¡½º
+	//ì  ê´€ë¦¬ ì»´í¬ë„ŒíŠ¸ í´ë˜ìŠ¤
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = FSMComponent)
-	class UBDThorFSM* fsm; //Åä¸£ FSM
+	class UBDThorFSM* fsm; //í† ë¥´ FSM
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = weapon)
-	class UStaticMeshComponent* BDWeapon; //¹«±â ÄÄÆ÷³ÍÆ®
+	class UStaticMeshComponent* BDWeapon; //ë¬´ê¸° ì»´í¬ë„ŒíŠ¸
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = weapon)
-	class UCapsuleComponent* BDWeaponCol; //¹«±â Äİ¸®Àü
+	class UCapsuleComponent* BDWeaponCol; //ë¬´ê¸° ì½œë¦¬ì „
 
-	//¸ö Äİ¸®Àü
+	//ëª¸ ì½œë¦¬ì „
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess))
 	UCapsuleComponent* HeadCapsule;
 
@@ -66,13 +66,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess))
 	UCapsuleComponent* LUpLegCapsule;
 
-	//°ø°İÇÒ ¶§ ¼ÕÀ¸·Î À§Ä¡ ¹Ù²Ù±â
+	//ê³µê²©í•  ë•Œ ì†ìœ¼ë¡œ ìœ„ì¹˜ ë°”ê¾¸ê¸°
 	UFUNCTION()
 	void EquipWeapon();
 
-	bool IsWeaponHold; //¹«±â°¡ ¼Õ¿¡ ÀÕÀ»¶§ true
+	bool IsWeaponHold; //ë¬´ê¸°ê°€ ì†ì— ì‡ì„ë•Œ true
 
-	//¸ÁÄ¡ °ø°İÀÌ ¾Æ´Ò¶© Ç×»ó Çã¸®Ãã¿¡ ¸ÁÄ¡ ´Ş±â
+	//ë§ì¹˜ ê³µê²©ì´ ì•„ë‹ë• í•­ìƒ í—ˆë¦¬ì¶¤ì— ë§ì¹˜ ë‹¬ê¸°
 	UFUNCTION()
 	void DrawWeapon();
 
@@ -80,14 +80,14 @@ public:
 	void EquipRight();
 
 	UFUNCTION()
-	void HiddenWeapon(); //¹«±â ¾îµğ¼­µµ ¾Èº¸ÀÌ°Ô ÇÏ±â : ¹«±â¸¦ ´øÁ³À» ¶§ È£Ãâ
-	void visibleWeapon(); //¹«±â¸¦ ¾Èº¸ÀÌ°Ô ÇßÀ¸¸é ´Ù½Ã º¸ÀÌ°Ô ÇÏ±â : ¹«±â ´øÁö°í ³­ µÚ¿¡ È£Ãâ
+	void HiddenWeapon(); //ë¬´ê¸° ì–´ë””ì„œë„ ì•ˆë³´ì´ê²Œ í•˜ê¸° : ë¬´ê¸°ë¥¼ ë˜ì¡Œì„ ë•Œ í˜¸ì¶œ
+	void visibleWeapon(); //ë¬´ê¸°ë¥¼ ì•ˆë³´ì´ê²Œ í–ˆìœ¼ë©´ ë‹¤ì‹œ ë³´ì´ê²Œ í•˜ê¸° : ë¬´ê¸° ë˜ì§€ê³  ë‚œ ë’¤ì— í˜¸ì¶œ
 
-	//¹Ù¶÷ °ø°İÇÒ ¶§ ³ÖÀ» ¾×ÅÍ Å¬·¡½º
+	//ë°”ëŒ ê³µê²©í•  ë•Œ ë„£ì„ ì•¡í„° í´ë˜ìŠ¤
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AWindSlash> SlashFat;
 
-	//¸ÁÄ¡ ³¯¸±¶§ ¾µ °øÀå
+	//ë§ì¹˜ ë‚ ë¦´ë•Œ ì“¸ ê³µì¥
 	UPROPERTY(EditDefaultsOnly, Category = weapon)
 	TSubclassOf<class ABDThorMjolnir> MjolnirFactory;
 
@@ -96,18 +96,18 @@ public:
 
 
 	UFUNCTION(BlueprintCallable, Category = weapon)
-	void BDHammerThrowHit(); //¸ÁÄ¡¸¦ Fire ÇÏ´Â ´É·Â
+	void BDHammerThrowHit(); //ë§ì¹˜ë¥¼ Fire í•˜ëŠ” ëŠ¥ë ¥
 
-	//¹Ù¶÷À» ³¯·Á¼­ µ¥¹ÌÁö ÁÖ±â
+	//ë°”ëŒì„ ë‚ ë ¤ì„œ ë°ë¯¸ì§€ ì£¼ê¸°
 	UFUNCTION(BlueprintCallable, Category = weapon)
-	void BDHammerWindSlash(); //¹Ù¶÷ ³¯¸®´Â ´É·Â
+	void BDHammerWindSlash(); //ë°”ëŒ ë‚ ë¦¬ëŠ” ëŠ¥ë ¥
 
 	
 	UPROPERTY(EditDefaultsOnly)
 	class ACSWGameMode* GameMode;
 
 
-	////UI º¸¿©ÁÖ±â
+	////UI ë³´ì—¬ì£¼ê¸°
 	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = UI)
 	//TSubclassOf<UUserWidget> BDThorHPClass;
 
@@ -121,5 +121,8 @@ public:
 	void BDWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class UCameraShakeBase> BDCameraShake; //ÁÖ¸Ô ÈÖµÑ·¯Ä¥¶§ Ä«¸Ş¶ó ½¦ÀÌÅ© ³Ö±â
+	TSubclassOf<class UCameraShakeBase> BDCameraShake; //ì£¼ë¨¹ íœ˜ë‘˜ëŸ¬ì¹ ë•Œ ì¹´ë©”ë¼ ì‰ì´í¬ ë„£ê¸°
+
+	// BaseEnemy's Interface
+	virtual bool GetDamage(const struct FGenericAttackParams& params) override;
 };

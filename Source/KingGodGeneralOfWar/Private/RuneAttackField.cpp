@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "RuneAttackField.h"
@@ -49,7 +49,7 @@ void ARuneAttackField::OnFieldOverlap(UPrimitiveComponent* OverlappedComponent, 
 	const float fieldDamage = 6;
 	const float fieldDalay = 0.25;
 
-	if (Thor)
+	/*if (Thor)
 	{
 		Thor->fsm->Damage(fieldDamage, EAttackDirectionType::UP);
 		FTimerHandle handle;
@@ -75,7 +75,7 @@ void ARuneAttackField::OnFieldOverlap(UPrimitiveComponent* OverlappedComponent, 
 		{
 			auto* Me = Cast<AKratos>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 		}
-	}
+	}*/
 
 }
 

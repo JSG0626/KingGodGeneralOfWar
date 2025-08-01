@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -36,6 +36,8 @@ protected:
 	UPROPERTY()
 	class ACharacter* CurrentTarget ;
 
+	float CurHP;
+	float CurStunGuage;
 private:
 	UPROPERTY()
 	class UEnemyHPUI* HPUI ;
@@ -44,8 +46,6 @@ private:
 	class UUserWidget* LockOnUI ;
 
 	
-	float CurHP;
-	float CurStunGuage;
 
 	virtual void SetHP(float Damage);
 	virtual void SetStunGuage(float StunDamage);
@@ -63,9 +63,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ActiveLockOnUI(bool ActiveState);
 
-	//UPROPERTY(VisibleAnywhere)
-	//class UCameraComponent* PlayerCamera ;
-	//
 	UFUNCTION(BlueprintCallable)
 	virtual bool GetDamage(const struct FGenericAttackParams& params);
 };

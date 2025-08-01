@@ -75,7 +75,7 @@ void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 	}
 	else
 	{
-		auto* Thor = Cast<ABDThor>(OtherActor);
+		/*auto* Thor = Cast<ABDThor>(OtherActor);
 		EAttackDirectionType attackDirection = EAttackDirectionType::UP;
 		if (Thor)
 		{
@@ -90,7 +90,7 @@ void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 				attackDirection = Me->GetAttackDirection();
 				AwakenThor->getFSM()->SetDamage(AXE_DAMAGE, attackDirection);
 			}
-		}
+		}*/
 	}
 
 	//if (Me->CurrentAttackType == EAttackType::WEAK_ATTACK)

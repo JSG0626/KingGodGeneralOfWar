@@ -19,9 +19,9 @@ ABaseEnemy::ABaseEnemy()
 	HPUIComp->SetWidgetSpace(EWidgetSpace::Screen);
 	HPUIComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> TempLockOnUIClass(TEXT("/ Script / UMGEditor.WidgetBlueprint'/Game/JSG/UI/WBP_LockOn.WBP_LockOn'"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> TempLockOnUIClass(TEXT("/ Script / UMGEditor.WidgetBlueprint'/Game/JSG/UI/WBP_LockOn'"));
 	if (TempLockOnUIClass.Succeeded())	LockOnUIFactory = TempLockOnUIClass.Class;
-	
+	else UE_LOG(LogTemp, Display, TEXT("LockOnUIFactory is nullptr"));
 	LockOnUIComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("LockUIComp"));
 	LockOnUIComp->SetupAttachment(GetMesh());
 	LockOnUIComp->SetWidgetClass(LockOnUIFactory);
@@ -46,6 +46,8 @@ void ABaseEnemy::BeginPlay()
 	}
 
 	LockOnUI = Cast<UUserWidget>(LockOnUIComp->GetWidget());
+	ActiveLockOnUI(false);
+
 	check(LockOnUI);
 }
 
@@ -101,10 +103,9 @@ void ABaseEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void ABaseEnemy::ActiveLockOnUI(bool ActiveState)
 {
-	if (LockOnUI)
+	if (LockOnUIComp)
 	{
 		LockOnUIComp->SetVisibility(ActiveState);
-		//LockOnUI->SetVisibility(ActiveState ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 	}
 }
 

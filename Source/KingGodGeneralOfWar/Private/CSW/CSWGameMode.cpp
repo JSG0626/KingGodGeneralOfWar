@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "CSW/CSWGameMode.h"
@@ -44,11 +44,11 @@ void ACSWGameMode::BeginPlay()
 	InGameWidget = CreateWidget<UInGameWidget>(GetWorld(), WBP_InGame);
 	if (InGameWidget)
 		InGameWidget->AddToViewport();
-	
+
 	HitWidget = CreateWidget<UHitWidget>(GetWorld(), WBP_Hit);
 	if (HitWidget)
 		HitWidget->AddToViewport();
-	
+
 	StartFirstPhase();
 	//StartSecondPhase();
 }
@@ -56,7 +56,7 @@ void ACSWGameMode::BeginPlay()
 void ACSWGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	
+
 }
 
 void ACSWGameMode::SetEnemyHpBar(float Percent)
@@ -81,7 +81,7 @@ void ACSWGameMode::PlayHpUIFadeInAnim()
 
 void ACSWGameMode::PlayHpUIFadeOutAnim()
 {
-	InGameWidget->PlayFadeOutAnim();	
+	InGameWidget->PlayFadeOutAnim();
 }
 
 void ACSWGameMode::StartFirstPhase()
@@ -119,7 +119,7 @@ void ACSWGameMode::EndWithFail()
 	EndGameWidget = CreateWidget<UUserWidget>(GetWorld(), WBP_GameFail);
 	if (EndGameWidget)
 		EndGameWidget->AddToViewport();
-	 
+
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController)
 	{
@@ -135,59 +135,57 @@ void ACSWGameMode::EndWithSucceed()
 	// 페이드인
 	if (SQ_FinalFadeIn)
 	{
-		
-		
+
+
 		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("SQ_FinalFadeIn")));
 		ALevelSequenceActor* outActor;
 		ULevelSequencePlayer* SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), SQ_FinalFadeIn, FMovieSceneSequencePlaybackSettings(), outActor);
 		SequencePlayer->Play();
 		SequencePlayer->OnFinished.AddDynamic(this, &ACSWGameMode::PlayFinalSequence);
 	}
-	
+
 }
 
 void ACSWGameMode::EndFirstThor()
 {
 	ABDThor* BDThor = Cast<ABDThor>(UGameplayStatics::GetActorOfClass(GetWorld(), ABDThor::StaticClass()));
 
-	if (BDThor->fsm->BDCurrentHP <= 50.0f) {
-		AudioComp->Stop();
-		AmbientAudioComp->Stop();
-		if (SQ_middleScene)
-		{
-			ALevelSequenceActor* outActor;
-			ULevelSequencePlayer* BDSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), SQ_middleScene, FMovieSceneSequencePlaybackSettings(), outActor);
-			
-			// ������ ����� ������ GoToNextPhase�� ȣ���ϵ��� ���ε�
-			//BDSequencePlayer->OnFinished.AddDynamic(this, &ACSWGameMode::GoToNextPhase);
+	AudioComp->Stop();
+	AmbientAudioComp->Stop();
+	if (SQ_middleScene)
+	{
+		ALevelSequenceActor* outActor;
+		ULevelSequencePlayer* BDSequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(GetWorld(), SQ_middleScene, FMovieSceneSequencePlaybackSettings(), outActor);
 
-			if (BDSequencePlayer)
+		// ������ ����� ������ GoToNextPhase�� ȣ���ϵ��� ���ε�
+		//BDSequencePlayer->OnFinished.AddDynamic(this, &ACSWGameMode::GoToNextPhase);
+
+		if (BDSequencePlayer)
+		{
+			BDSequencePlayer->Play();
+			FTimerHandle tmp0;
+			GetWorld()->GetTimerManager().SetTimer(tmp0, []()
 			{
-				BDSequencePlayer->Play();
-				FTimerHandle tmp0;
-				GetWorld()->GetTimerManager().SetTimer(tmp0, []()
-				{
-						
-				},
-				2.f, false);
-				FTimerHandle handle;
-				// �������� ���� �� �Լ��� ȣ���ϵ��� Ÿ�̸� ���� (��: 10�� ��)
-				GetWorld()->GetTimerManager().SetTimer(
-					handle,
-					this,
-					&ACSWGameMode::GoToNextPhase,
-					23.f, // �������� ��� �ð��� ���⿡ �ش��ϴ� �ð����� ����
-					false
-				);
-			}
-			
+
+			},
+			2.f, false);
+			FTimerHandle handle;
+			// �������� ���� �� �Լ��� ȣ���ϵ��� Ÿ�̸� ���� (��: 10�� ��)
+			GetWorld()->GetTimerManager().SetTimer(
+				handle,
+				this,
+				&ACSWGameMode::GoToNextPhase,
+				23.f, // �������� ��� �ð��� ���⿡ �ش��ϴ� �ð����� ����
+				false
+			);
 		}
+
 	}
 }
 
 void ACSWGameMode::PlayFinalSequence()
 {
-	if(SQ_FinalScene)
+	if (SQ_FinalScene)
 	{
 		AKratos* player = Cast<AKratos>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
