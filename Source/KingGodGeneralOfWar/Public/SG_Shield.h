@@ -30,6 +30,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	
 	class UArrowComponent* LightPosition;
+	UPROPERTY(EditDefaultsOnly)
+	class USoundCue* BaseHitSoundCue;
 
 	UFUNCTION()
 	void OnShieldAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -38,9 +40,11 @@ public:
 
 	virtual void ActiveHitCollision(bool active) override;
 	void SetTargetScale(const bool Bigger);
+	virtual class USoundCue* GetBaseHitSound() const override;
 private:
 	UPROPERTY()
 	class AKratos* Me ;
+
 
 	
 	const float MAX_SCALE = 0.08f;

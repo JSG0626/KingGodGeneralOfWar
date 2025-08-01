@@ -40,6 +40,10 @@ protected:
 	float BaseAttackPower = 10.0f;
 	float CurrentAttackScale = 1.0f;
 	float CurrentStunAttackScale = 10.0f;
+
+	
+	virtual class USoundCue* GetBaseHitSound() const = 0;
+
 public:
 	virtual void ActiveHitCollision(bool ActiveState) = 0;
 	void SetAttackScale(const float AttackScale);

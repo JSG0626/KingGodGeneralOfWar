@@ -110,6 +110,11 @@ void ASG_Shield::SetTargetScale(const bool Bigger)
 	bBigger = Bigger;
 }
 
+USoundCue* ASG_Shield::GetBaseHitSound() const
+{
+	return BaseHitSoundCue;
+}
+
 void ASG_Shield::LerpScale(float DeltaTime)
 {
 	CurrentScale = FMath::Lerp(MeshComp->GetComponentScale().X, TargetScale, DeltaTime * 20);

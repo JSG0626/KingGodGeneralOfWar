@@ -57,6 +57,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UNiagaraSystem* BloodVFXFactory;
 
+	UPROPERTY(EditDefaultsOnly)
+	class USoundCue* BaseHitSoundCue;
+
 	UFUNCTION()
 	void FlyingAxeOnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	void BackToPlayer();
@@ -78,4 +81,6 @@ public:
 	float FLYING_AXE_STUN_DAMAGE = 3;
 
 	virtual void ActiveHitCollision(bool Active) override;
+
+	virtual class USoundCue* GetBaseHitSound() const override;
 };

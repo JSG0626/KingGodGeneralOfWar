@@ -712,6 +712,7 @@ void AKratos::SetGlobalTimeDilation(float Duration, float SlowScale)
 void AKratos::SetAnimationSpeedSlow(float Duration, float SlowScale)
 {
 	const float OriginScale = Anim->Montage_GetPlayRate(nullptr);
+	if (OriginScale <= 0.2) return;
 	UE_LOG(LogTemp, Display, TEXT("SetAnimationSpeedSlow, OriginScale: %f"), OriginScale);
 	Anim->Montage_SetPlayRate(nullptr, SlowScale);
 	FTimerHandle handle;

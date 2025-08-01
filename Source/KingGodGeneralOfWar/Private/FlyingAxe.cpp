@@ -141,15 +141,12 @@ void AFlyingAxe::Tick(float DeltaTime)
 void AFlyingAxe::FlyingAxeOnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	bHit = true;
-	//ActiveHitCollision(false);
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("SetActorEnableCollision(false)")));
 
 	ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
 	if (Enemy)
 	{
 		DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, EAttackDirectionType::UP));
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
-		AttachToComponent(OtherComp, FAttachmentTransformRules::KeepWorldTransform);
 	}
 	else
 	{
@@ -158,24 +155,21 @@ void AFlyingAxe::FlyingAxeOnComponentBeginOverlap(UPrimitiveComponent* Overlappe
 		{
 			Thor->fsm->Damage(AXE_THROW_DAMAGE, AttackTypeDirectionArr[static_cast<int8>(EAttackType::AXE_THROW_ATTACK)][bWithdrawing]);
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
-			//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
-			AttachToComponent(OtherComp, FAttachmentTransformRules::KeepWorldTransform);
 		}
 		else
 		{
 			auto AwakenThor = Cast<AAwakenThor>(OtherActor);
 			if (AwakenThor)
 			{
-				//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, UEnum::GetValueAsString(AttackTypeDirectionArr[static_cast<int8>(EAttackType::AXE_THROW_ATTACK)][isWithdraw]));
 				AwakenThor->getFSM()->SetDamage(AXE_THROW_DAMAGE, AttackTypeDirectionArr[static_cast<int8>(EAttackType::AXE_THROW_ATTACK)][bWithdrawing]);
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
-				//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
-				AttachToComponent(OtherComp, FAttachmentTransformRules::KeepWorldTransform);
 			}
 		}
 	}
 	if (!bWithdrawing)
 	{
+		ActiveHitCollision(false);
+		AttachToComponent(OtherComp, FAttachmentTransformRules::KeepWorldTransform);
 		SubMeshComp->SetRelativeRotation(HitArrowComp->GetRelativeRotation());
 	}
 }
@@ -196,5 +190,10 @@ void AFlyingAxe::BackToPlayer()
 void AFlyingAxe::ActiveHitCollision(bool Active)
 {
 	SetActorEnableCollision(Active); 
+}
+
+USoundCue* AFlyingAxe::GetBaseHitSound() const
+{
+	return BaseHitSoundCue;
 }
 

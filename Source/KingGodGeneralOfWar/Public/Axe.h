@@ -52,12 +52,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	class UNiagaraSystem* BloodVFX8Factory;
 
-
 	UPROPERTY()
 	TArray<class UNiagaraSystem*> BloodVFXFactoryArr;
 
-	UFUNCTION()
-	void OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UPROPERTY(EditDefaultsOnly)
+	class USoundCue* BaseHitSoundCue;
+
 
 	UPROPERTY(EditDefaultsOnly)
 	class UArrowComponent* EdgeComp;
@@ -68,6 +68,12 @@ public:
 	UPROPERTY()
 	class AKratos* Me;
 
+	UFUNCTION()
+	void OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	virtual void ActiveHitCollision(bool ActiveState) override;
+
+	virtual class USoundCue* GetBaseHitSound() const override;
+
 };
+
