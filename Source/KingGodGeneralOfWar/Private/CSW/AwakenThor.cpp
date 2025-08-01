@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "CSW/AwakenThor.h"
@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/PointLightComponent.h"
 #include "CSW/AwakenThorFSM.h"
+#include "KingGodGeneralOfWar.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
@@ -257,20 +258,15 @@ UAwakenThorFSM* AAwakenThor::getFSM() const
 	return Fsm;
 }
 
-bool AAwakenThor::SetHp(float Damage)
-{
-	if (Hp <= Damage)
-	{
-		Hp = 0;
-		return true;
-	}
-	Hp -= Damage;
-	return false;
-}
-
 float AAwakenThor::GetHpPercent() const
 {
-	return Hp / MaxHp;
+	return CurHP / MaxHP;
+}
+
+bool AAwakenThor::GetDamage(const FGenericAttackParams& params)
+{
+	Super::GetDamage(params);
+	return Fsm->SetDamage(CurHP, params.Direction, params.bSuperAttack);
 }
 
 void AAwakenThor::SetThorLocation(FVector NewLoc)

@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
@@ -13,25 +13,8 @@ class UWeaponInterface : public UInterface
 	GENERATED_BODY()
 };
 
-USTRUCT(BlueprintType)
-struct FGenericAttackParams
-{
-	GENERATED_BODY()
-	
-	UPROPERTY(BlueprintReadWrite)
-	class ACharacter* Instigator;
-	UPROPERTY(BlueprintReadWrite)
-	float Damage;
-	UPROPERTY(BlueprintReadWrite)
-	float StunDamage;
-	UPROPERTY(BlueprintReadWrite)
-	EAttackDirectionType Direction;
 
-	FGenericAttackParams() : Instigator(nullptr), Damage(0.0f), StunDamage(0.0f), Direction(EAttackDirectionType::LEFT) {}
-	FGenericAttackParams(class ACharacter* _Instigator, float _Damage, float _StunDamage, EAttackDirectionType _Direction) : Instigator(_Instigator), Damage(_Damage), StunDamage(_StunDamage), Direction(_Direction) {}
-};
-
-/* Ω«¡¶ ¿Œ≈Õ∆‰¿ÃΩ∫ º±æ. */
+/* Ïã§Ï†ú Ïù∏ÌÑ∞ÌéòÏù¥Ïä§ ÏÑ†Ïñ∏. */
 class KINGGODGENERALOFWAR_API IWeaponInterface
 {
 	GENERATED_BODY()

@@ -1,13 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "BaseEnemy.h"
 #include "AwakenThor.generated.h"
 
 UCLASS()
-class KINGGODGENERALOFWAR_API AAwakenThor : public ACharacter
+class KINGGODGENERALOFWAR_API AAwakenThor : public ABaseEnemy
 {
 	GENERATED_BODY()
 
@@ -47,9 +47,10 @@ public:
 	void DrawWeapon();
 
 	class UAwakenThorFSM* getFSM() const;
-	bool SetHp(float Damage);
-	float GetHpPercent() const;
 	
+	float GetHpPercent() const;
+	virtual bool GetDamage(const struct FGenericAttackParams& params) override;
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess))
 	class UAwakenThorFSM* Fsm;
@@ -106,10 +107,4 @@ private:
 	
 	UFUNCTION()
 	void SetThorLocation(FVector NewLoc);
-
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess))
-	float MaxHp = 100.f;
-
-	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess))
-	float Hp = MaxHp;
 };

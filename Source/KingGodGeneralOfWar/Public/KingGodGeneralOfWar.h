@@ -1,8 +1,9 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GenericAttackParams.h"
 
 UENUM(BlueprintType)
 enum class EHitType : uint8

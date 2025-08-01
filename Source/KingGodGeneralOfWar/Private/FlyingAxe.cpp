@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "FlyingAxe.h"
@@ -132,7 +132,7 @@ void AFlyingAxe::TickState_Flying(float DeltaTime)
 {
 	// 1. 월드에 설정된 중력 값을 가져옵니다.
 	const float GravityZ = GetWorld()->GetGravityZ();
-	const FVector GravityAcceleration = FVector(0.0f, 0.0f, GravityZ);
+	const FVector GravityAcceleration = FVector(0.0f, 0.0f, GravityZ * 2);
 
 	// 2. 중력 가속도를 현재 속도에 더해 포물선 운동을 시뮬레이션합니다.
 	CurrentVelocity += GravityAcceleration * DeltaTime;

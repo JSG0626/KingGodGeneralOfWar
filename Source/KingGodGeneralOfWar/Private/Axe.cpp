@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Axe.h"
@@ -71,7 +71,7 @@ void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 	ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
 	if (Enemy)
 	{
-		DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, Me->GetAttackDirection()));
+		DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale));
 	}
 	else
 	{

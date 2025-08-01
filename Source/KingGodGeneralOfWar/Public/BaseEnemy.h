@@ -63,6 +63,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ActiveLockOnUI(bool ActiveState);
 
+	// 플레이어가 적에게 데미지를 줄 때 호출하는 함수
+	// 공격으로 적이 죽는다면 true를 반환
 	UFUNCTION(BlueprintCallable)
 	virtual bool GetDamage(const struct FGenericAttackParams& params);
 };

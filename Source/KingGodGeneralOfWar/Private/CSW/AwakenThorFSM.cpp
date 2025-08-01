@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "CSW/AwakenThorFSM.h"
@@ -411,17 +411,15 @@ void UAwakenThorFSM::OnEnd()
 	Me->EquipWeapon();
 }
 
-bool UAwakenThorFSM::SetDamage(float Damage, EAttackDirectionType AtkDir, bool bSuperAttack)
+bool UAwakenThorFSM::SetDamage(float CurHP, EAttackDirectionType AtkDir, bool bSuperAttack)
 {
 	if (State == EAwakenThorState::Die)
 		return true;
 	
-	bool isDie = Me->SetHp(Damage);
-	
 	if (GameMode)
 		GameMode->SetEnemyHpBar(Me->GetHpPercent());
 
-	if (isDie)
+	if (CurHP == 0)
 	{
 		State = EAwakenThorState::Die;
 		if (!DecalZone.IsEmpty())
@@ -445,7 +443,7 @@ bool UAwakenThorFSM::SetDamage(float Damage, EAttackDirectionType AtkDir, bool b
 		return true;
 	}
 
-	ArmorGage += Damage * 3;
+	ArmorGage += 15;
 	UE_LOG(LogTemp, Warning, TEXT("%f"), ArmorGage);
 	if (ArmorGage >= 100.f)
 	{

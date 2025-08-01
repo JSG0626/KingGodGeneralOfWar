@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -7,30 +7,15 @@
 #include "InputAction.h"
 #include "Blueprint/UserWidget.h"
 #include <KratosStates/KratosState.h>
+#include "KingGodGeneralOfWar.h"
 #include "Kratos.generated.h"
+
 
 const float PlayerMaxSpeed = 900.0f; // 플레이어 최대 속도. (달리기)
 const FRotator DefaultCameraAngle = FRotator(0);
 const float DefaultTargetTargetArmLength = 147;
 const float DefaultTargetFOV = 90;
 
-
-
-UENUM()
-enum class EAttackDirectionType : uint8
-{
-	DOWN = 0 UMETA(DisplayName = "DOWN"),
-	UP  UMETA(DisplayName = "UP"),
-	LEFT UMETA(DisplayName = "LEFT"),
-	RIGHT UMETA(DisplayName = "RIGHT"),
-};
-
-const EAttackDirectionType AttackTypeDirectionArr[5][5] = {
-	/*WeakCombo*/	{EAttackDirectionType::DOWN, EAttackDirectionType::RIGHT, EAttackDirectionType::LEFT, EAttackDirectionType::LEFT,},
-	/*StrongCombo*/	{EAttackDirectionType::DOWN, EAttackDirectionType::RIGHT, EAttackDirectionType::LEFT, EAttackDirectionType::UP, EAttackDirectionType::DOWN},
-	/*RuneAttack*/	{EAttackDirectionType::DOWN, EAttackDirectionType::LEFT, EAttackDirectionType::RIGHT, EAttackDirectionType::DOWN, EAttackDirectionType::UP},
-	/*AxeThrow*/	{EAttackDirectionType::DOWN, EAttackDirectionType::UP,}
-};
 
 UENUM()
 enum class EAttackType : uint8
@@ -150,7 +135,6 @@ public:
 
 	void CameraShakeOnAttack(EAttackDirectionType attackDir = EAttackDirectionType::UP, float scale = 1.0f);
 	FString GetPlayerStateString();
-	EAttackDirectionType GetAttackDirection();
 	int32 GetCurrentWeakCombo();
 	int32 GetCurrentStrongCombo();
 	void SetGlobalTimeDilation(float Duration, float SlowScale);
