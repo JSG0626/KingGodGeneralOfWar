@@ -183,8 +183,8 @@ void AFlyingAxe::BackToPlayer()
 	bWithdrawing = true;
 	bRising = true;
 	CurLocation = GetActorLocation();
-	this->SetActorEnableCollision(true); // 충돌 비활성화
-	this->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	SetActorEnableCollision(true); 
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 }
 
 void AFlyingAxe::ActiveHitCollision(bool Active)

@@ -1044,9 +1044,13 @@ void AKratos::OnMyActionAbility(const FInputActionValue& value)
 {
 	if (bAxeGone && !bIsAxeWithdrawing)
 	{
-		WithdrawAxe();
 		bIsAxeWithdrawing = true;
+		WithdrawAxe();
 		UGameplayStatics::PlaySound2D(GetWorld(), AxeWithdrawSound, 1, 1, 0.07f);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("bAxeGone: %d, bIsAxeWithdrawing: %d"), bAxeGone, bIsAxeWithdrawing);
 	}
 }
 
@@ -1074,8 +1078,20 @@ void AKratos::ThrowAxe()
 
 void AKratos::WithdrawAxe()
 {
-	Anim->PlayAxeWithdrawMontage();
-	FlyingAxe->BackToPlayer();
+	const float dist = FVector::Dist(GetActorLocation(), FlyingAxe->GetActorLocation());
+	if (State != EPlayerState::Dodge)
+	{
+		Anim->PlayAxeWithdrawMontage();
+	}
+	if (dist <= DirectGrabRange)
+	{
+		CatchFlyingAxe();
+		FlyingAxe->Destroy();
+	}
+	else
+	{
+		FlyingAxe->BackToPlayer();
+	}
 }
 
 void AKratos::CatchFlyingAxe()

@@ -386,6 +386,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CurHP;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float DirectGrabRange = 300.0f ;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 
 	float RollVelocityThreshhold;
