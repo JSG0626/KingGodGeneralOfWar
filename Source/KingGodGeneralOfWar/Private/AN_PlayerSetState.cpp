@@ -17,6 +17,5 @@ void UAN_PlayerSetState::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 	if (pawn == nullptr) return;
 
 	AKratos* kratos = CastChecked<AKratos>(pawn);
-	kratos->SetState(NewState);
 	kratos->SetKratosState(NewState);
 }

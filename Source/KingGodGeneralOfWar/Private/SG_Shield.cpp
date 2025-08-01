@@ -9,6 +9,7 @@
 #include "CSW/AwakenThor.h"
 #include "BDThorFSM.h"
 #include "CSW/AwakenThorFSM.h"
+#include "BaseEnemy.h"
 
 const float SHIELD_DAMAGE = 2;
 
@@ -30,9 +31,6 @@ void ASG_Shield::BeginPlay()
 	Super::BeginPlay();
 	
 	MeshComp->OnComponentBeginOverlap.AddDynamic(this, &ASG_Shield::OnShieldAttackOverlap);
-
-	TargetScale = 0.0f;
-	CurrentScale = MeshComp->GetComponentScale().X;
 }
 
 // Called every frame
@@ -50,31 +48,47 @@ void ASG_Shield::Tick(float DeltaTime)
 
 void ASG_Shield::OnShieldAttackOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleAxe"), true);
-
-	auto* Thor = Cast<ABDThor>(OtherActor);
-
-	if (Thor)
+	Me->SetAnimationSpeedSlow(0.1f, 0.01f);
+	ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
+	if (Enemy)
 	{
-		Thor->fsm->Damage(SHIELD_DAMAGE, EAttackDirectionType::UP);
+		DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, EAttackDirectionType::UP));
 	}
 	else
 	{
-		auto AwakenThor = Cast<AAwakenThor>(OtherActor);
+		//auto* Thor = Cast<ABDThor>(OtherActor);
 
-		bool bThorDead = AwakenThor->getFSM()->SetDamage(SHIELD_DAMAGE, EAttackDirectionType::UP);
-		if (bThorDead)
-		{
-			auto* Me = Cast<AKratos>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-		}
+		//if (Thor)
+		//{
+		//	Thor->fsm->Damage(SHIELD_DAMAGE, EAttackDirectionType::UP);
+		//}
+		//else
+		//{
+		//	auto AwakenThor = Cast<AAwakenThor>(OtherActor);
+
+		//	bool bThorDead = AwakenThor->getFSM()->SetDamage(SHIELD_DAMAGE, EAttackDirectionType::UP);
+		//	if (bThorDead)
+		//	{
+		//		auto* Me = Cast<AKratos>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+		//	}
+		//}
+
+		//UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.01f);
+		//FTimerHandle handle;
+		//GetWorld()->GetTimerManager().SetTimer(handle, [&]()
+		//	{
+		//		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+		//	}, 0.001f, false);
 	}
+}
 
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.01f);
-	FTimerHandle handle;
-	GetWorld()->GetTimerManager().SetTimer(handle, [&]()
-		{
-			UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
-		}, 0.001f, false);
+void ASG_Shield::Init(AKratos* _Me)
+{
+	MeshComp->SetWorldScale3D(FVector(0));
+	SetTargetScale(false);
+	TargetScale = 0.0f;
+	CurrentScale = MeshComp->GetComponentScale().X;
+	Me = _Me;
 }
 
 void ASG_Shield::ActiveHitCollision(bool ActiveState)

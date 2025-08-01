@@ -51,7 +51,7 @@ public:
 
 	// Other Actor Interfaces
 	UFUNCTION(BlueprintImplementableEvent)
-	void SetBillboardVisible(bool Visible, class UCameraComponent* Camera);
+	void SetBillboardVisible(bool Visible, class UCameraComponent* Camera = nullptr);
 
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* PlayerCamera ;

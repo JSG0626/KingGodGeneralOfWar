@@ -322,7 +322,7 @@ void AKratos::Tick(float DeltaTime)
 		CurrentState->TickState(FGenericStateParams(), DeltaTime);
 	}
 	PlayerMove();
-	LockTargetFunc(DeltaTime);
+	LockOnTargetTick(DeltaTime);
 
 	// 플레이어 로테이션 선형 보간
 	if (bLerpPlayerRotation)
@@ -387,7 +387,75 @@ void AKratos::PlayerMove()
 	//AddMovementInput(ForwardDirection, MoveScale);
 }
 
-FORCEINLINE void AKratos::LockTargetFunc(float DeltaTime)
+void AKratos::SetLockOnTarget()
+{
+	float lockOnRadius = 1000000.0f;
+	FVector cameraForwardVector = UKismetMathLibrary::GetForwardVector(CameraComp->USceneComponent::K2_GetComponentRotation());
+	FVector actorLocation = GetActorLocation() + cameraForwardVector * 500;
+	FVector endLocation = GetActorLocation() + cameraForwardVector * 5000;
+	float Radius = 500;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(TEnumAsByte<EObjectTypeQuery>(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)));
+	TArray<AActor*> ActorsToIgnore;
+	//EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::ForDuration;
+	EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::None;
+	TArray<FHitResult> OutHits;
+	bool bIgnoreSelf = false;
+	FLinearColor TraceColor = FLinearColor::White;
+	FLinearColor TraceHitColor = FLinearColor::Red;
+	float DrawTime = 3.0f;
+	FCollisionObjectQueryParams ObjectQueryParams;
+
+	bLockOn = UKismetSystemLibrary::SphereTraceMultiForObjects(
+		GetWorld(),
+		actorLocation,
+		endLocation,
+		Radius,
+		ObjectTypes,
+		false,
+		ActorsToIgnore,
+		DrawDebugType,
+		OutHits,
+		bIgnoreSelf,
+		TraceColor,
+		TraceHitColor,
+		DrawTime
+	);
+
+	if (bLockOn)
+	{
+		const FVector ActorLocation = GetActorLocation();
+		FVector CameraForward = CameraComp->GetForwardVector();
+		FVector ToTarget;
+		float MaxDot = 0.0f;
+		int LockTargetIdx = 0;
+		for (int i = 0; i < OutHits.Num(); i++)
+		{
+			ToTarget = OutHits[i].GetActor()->GetActorLocation() - ActorLocation;
+			ToTarget.Normalize();
+			float Dot = FVector::DotProduct(CameraForward, ToTarget);
+			UE_LOG(LogTemp, Display, TEXT("Actor: %s, Dot: %f"), *OutHits[i].GetActor()->GetName(), Dot);
+			if (Dot >= MaxDot)
+			{
+				MaxDot = Dot;
+				LockTargetIdx = i;
+			}
+		}
+
+		ABaseEnemy* NewTarget = Cast<ABaseEnemy>(OutHits[LockTargetIdx].GetActor());
+		if (NewTarget != nullptr)
+		{
+			if (LockTarget != nullptr && LockTarget != NewTarget)
+			{
+				LockTarget->SetBillboardVisible(false);
+			}
+			LockTarget = NewTarget;
+			LockTarget->SetBillboardVisible(true, CameraComp);
+		}
+	}
+}
+
+FORCEINLINE void AKratos::LockOnTargetTick(float DeltaTime)
 {
 	if (!IsValid(LockTarget))
 	{
@@ -401,8 +469,8 @@ FORCEINLINE void AKratos::LockTargetFunc(float DeltaTime)
 		FRotator playerCameraRotation = GetController()->AController::GetControlRotation();
 
 		TargetCameraRotation = UKismetMathLibrary::FindLookAtRotation(CameraComp->GetComponentLocation(), LockTarget->GetActorLocation());
-		FRotator ToCameraRotation = UKismetMathLibrary::RLerp(playerCameraRotation, TargetCameraRotation, DeltaTime * 6, true);
-		GetController()->AController::SetControlRotation(ToCameraRotation);
+		//FRotator ToCameraRotation = UKismetMathLibrary::RLerp(playerCameraRotation, TargetCameraRotation, DeltaTime * 30, true);
+		GetController()->AController::SetControlRotation(TargetCameraRotation);
 		//GetController()->AController::SetControlRotation(FRotator(TargetCameraRotation));
 	}
 }
@@ -497,11 +565,11 @@ void AKratos::SetShield()
 	Shield = GetWorld()->SpawnActor<ASG_Shield>(ShieldFactory, GetMesh()->GetSocketTransform(TEXT("hand_lShieldSocket")), param);
 	if (Shield)
 	{
+		Shield->SetOwner(this);
 		Shield->K2_AttachToComponent(GetMesh(), TEXT("hand_lShieldSocket"), EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 		Shield->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
+		Shield->Init(this);
 	}
-	Shield->MeshComp->SetWorldScale3D(FVector(0));
-	Shield->SetTargetScale(false);
 }
 
 
@@ -604,7 +672,6 @@ void AKratos::OnMySetThorDamage()
 
 void AKratos::CameraShakeOnAttack(EAttackDirectionType attackDir, float scale)
 {
-
 	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(AttackShakeFactoryArr[static_cast<int8>(attackDir)], scale);
 }
 
@@ -776,6 +843,11 @@ void AKratos::OnMyActionLook(const FInputActionValue& value)
 
 	AddControllerPitchInput(-v.Y);
 	AddControllerYawInput(v.X);
+
+	if (bLockOn)
+	{
+
+	}
 }
 
 void AKratos::OnMyActionDodge(const FInputActionValue& value)
@@ -822,48 +894,7 @@ void AKratos::OnMyActionLockOn(const FInputActionValue& value)
 		return;
 	}
 
-	float lockOnRadius = 1000000.0f;
-	FVector cameraForwardVector = UKismetMathLibrary::GetForwardVector(CameraComp->USceneComponent::K2_GetComponentRotation());
-	FVector actorLocation = GetActorLocation() + cameraForwardVector * 500;
-	FVector endLocation = GetActorLocation() + cameraForwardVector * 5000;
-	float Radius = 500;
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(TEnumAsByte<EObjectTypeQuery>(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)));
-	TArray<AActor*> ActorsToIgnore;
-	//EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::ForDuration;
-	EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::None;
-	FHitResult OutHit;
-	bool bIgnoreSelf = false;
-	FLinearColor TraceColor = FLinearColor::White;
-	FLinearColor TraceHitColor = FLinearColor::Red;
-	float DrawTime = 3.0f;
-	FCollisionObjectQueryParams ObjectQueryParams;
-
-	bLockOn = UKismetSystemLibrary::SphereTraceSingleForObjects(
-		GetWorld(),
-		actorLocation,
-		endLocation,
-		Radius,
-		ObjectTypes,
-		false,
-		ActorsToIgnore,
-		DrawDebugType,
-		OutHit,
-		bIgnoreSelf,
-		TraceColor,
-		TraceHitColor,
-		DrawTime
-	);
-
-	if (bLockOn)
-	{
-		LockTarget = Cast<ABaseEnemy>(OutHit.GetActor());
-		if (nullptr != LockTarget)
-		{
-			LockTarget->SetBillboardVisible(true, CameraComp);
-		}
-	}
-
+	SetLockOnTarget();
 }
 
 void AKratos::OnMyActionIdle(const FInputActionValue& value)
@@ -1042,6 +1073,7 @@ void AKratos::ThrowAxe()
 
 void AKratos::WithdrawAxe()
 {
+	Anim->PlayAxeWithdrawMontage();
 	FlyingAxe->BackToPlayer();
 }
 
@@ -1053,95 +1085,13 @@ void AKratos::CatchFlyingAxe()
 
 	if (State != EPlayerState::Hit && State != EPlayerState::Dodge)
 	{
-		Anim->PlayAxeWithdrawMontage();
+		Anim->JumpToWithdrawMontageSection(TEXT("Catch"));
 	}
 
 	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(CatchAxeShakeFactory, 0.2f);
 }
 
-void AKratos::SetState(EPlayerState NextState)
-{
-	////UE_LOG(LogTemp, Display, TEXT("%s -> %s"), *UEnum::GetValueAsString(State), *UEnum::GetValueAsString(NextState));
-	//switch (State)
-	//{
-	//case EPlayerState::Dodge:
-	//	bEvade = false;
-	//	break;
 
-	//case EPlayerState::WAttack:
-	//	bIsAttacking = false;
-
-	//	break;
-	//case EPlayerState::Parry:
-	//	bParrying = false;
-	//	break;
-
-	//case EPlayerState::GuardStart:
-	//case EPlayerState::Guard:
-	//	GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	//	break;
-	//}
-
-	//State = NextState;
-
-	//switch (NextState)
-	//{
-	//case EPlayerState::Idle:
-	//	TargetFOV = DefaultTargetFOV;
-	//	TargetCameraOffset = DefaultCameraOffset;
-	//	TargetCameraAngle = FRotator(0);
-	//	TargetTargetArmLength = 143;
-	//	bEvade = false;
-	//	bIsAttacking = false;
-	//	break;
-	//case EPlayerState::Run:
-	//	TargetFOV = RUN_FOV;
-	//	break;
-	//case EPlayerState::WAttack:
-	//	//TargetCameraOffset = FVector(0, 50, 77);
-	//	//TargetFOV = ATTACK_FOV;
-	//	break;
-	//case EPlayerState::Guard:
-	//case EPlayerState::GuardStart:
-	//	TargetFOV = GUARD_FOV;
-	//	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	//	break;
-	//case EPlayerState::Aim:
-	//	TargetFOV = AIM_FOV;
-	//	break;
-	//case EPlayerState::Parry:
-	//	bParrying = true;
-	//	TargetFOV = PARRY_FOV;
-	//	break;
-	//case EPlayerState::Hit:
-	//	WeakAttackEndComboState();
-	//	StrongAttackEndComboState();
-	//	bIsAttacking = false;
-	//	bParrying = false;
-	//	bEvade = false;
-	//	bGuardStagger = false;
-	//	bSuperArmor = false;
-	//	break;
-	//default:
-	//	TargetFOV = TargetFOV;
-	//	break;
-	//}
-}
-
-
-void AKratos::StrongAttackStartComboState()
-{
-	//CanNextStrongCombo = true;
-	//bIsStrongComboInputOn = false;
-	//CurrentStrongCombo = FMath::Clamp<int8>(CurrentStrongCombo + 1, 1, 4);
-}
-
-void AKratos::StrongAttackEndComboState()
-{
-	//bIsStrongComboInputOn = false;
-	//CanNextStrongCombo = false;
-	//CurrentStrongCombo = 0;
-}
 
 bool AKratos::Damage(AActor* Attacker, int DamageValue, EHitType HitType, bool IsMelee)
 {
@@ -1149,120 +1099,7 @@ bool AKratos::Damage(AActor* Attacker, int DamageValue, EHitType HitType, bool I
 	{
 		CurrentState->HandleHit(FEnemyAttackParams(Attacker, DamageValue, HitType, IsMelee));
 	}
-
-
-	//// 회피 상태
-	//if (State == EPlayerState::Dodge)
-	//{
-	//	//GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, TEXT("회피 성공"));
-	//}
-	//// 가드 상태
-	//else if (State == EPlayerState::Guard)
-	//{
-	//	Anim->JumpToGuardMontageSection(TEXT("Guard_Block"));
-	//	// 가드 성공, 가드 카운트 --;
-	//	if (GuardHitCnt >= 1)
-	//	{
-	//		LaunchCharacter(GetActorForwardVector() * -1 * 1500, true, false);
-	//		GetWorld()->SpawnActor<AActor>(GuardBlockLightFactory, Shield->GetActorTransform())->AttachToActor(Shield, FAttachmentTransformRules::KeepWorldTransform);
-	//		UNiagaraFunctionLibrary::SpawnSystemAttached(GuardBlockVFX, Shield->LightPosition, TEXT("GuardBlockVFX"), Shield->LightPosition->GetComponentLocation(), Shield->LightPosition->GetComponentRotation(), EAttachLocation::KeepWorldPosition, true);
-	//		GuardHitCnt -= 1;
-	//		// 가드 성공 카메라 쉐이크
-
-	//	}
-	//	// 가드 크러쉬
-	//	else
-	//	{
-	//		SetState(EPlayerState::NoneMovable);
-	//		LaunchCharacter(GetActorForwardVector() * -1 * 3000, true, false);
-	//		UNiagaraFunctionLibrary::SpawnSystemAttached(GuardCrashVFX, Shield->LightPosition, TEXT("GuardBlockVFX"), Shield->LightPosition->GetComponentLocation(), Shield->LightPosition->GetComponentRotation(), EAttachLocation::KeepWorldPosition, true);
-	//		Anim->JumpToGuardMontageSection(TEXT("Guard_Stagger"));
-	//		GuardHitCnt = GUARD_MAX_COUNT;
-	//		bGuardStagger = true;
-	//		TargetShieldScale = 0.0f;
-	//		// 가드 파괴 카메라 쉐이크
-	//	}
-	//}
-	//// 패링 가능 상태
-	//else if (State == EPlayerState::GuardStart)
-	//{
-	//	GetWorld()->SpawnActor<AActor>(ParryingLightFactory, Shield->LightPosition->GetComponentTransform())->AttachToActor(Shield, FAttachmentTransformRules::KeepWorldTransform);
-	//	UNiagaraFunctionLibrary::SpawnSystemAttached(ParryVFX, Shield->LightPosition, TEXT("ParryVFX"), Shield->LightPosition->GetComponentLocation(), Shield->LightPosition->GetComponentRotation(), EAttachLocation::KeepWorldPosition, true);
-	//	UNiagaraFunctionLibrary::SpawnSystemAttached(ShockWaveVFX, Shield->LightPosition, TEXT("ShockWaveVFX"), Shield->LightPosition->GetComponentLocation(), Shield->LightPosition->GetComponentRotation(), EAttachLocation::KeepWorldPosition, true);
-	//	//UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ParryVFX, Shield->GetActorLocation(), FRotator(0), FVector(0.0001f));
-
-	//	CameraShakeOnAttack(EAttackDirectionType::DOWN, 0.5f);
-	//	Anim->JumpToGuardMontageSection(TEXT("Guard_Parrying"));
-	//	SetState(EPlayerState::Parry);
-	//	if (IsMelee)
-	//	{
-	//		auto* Thor = Cast<ABDThor>(Attacker);
-
-	//		if (Thor)
-	//		{
-	//			Thor->fsm->Damage(PARRYING_DAMAGE, EAttackDirectionType::UP);
-	//		}
-	//		else
-	//		{
-	//			auto AwakenThor = Cast<AAwakenThor>(Attacker);
-
-	//			//AwakenThor->getFSM()->SetDamage(PARRYING_DAMAGE, EAttackDirectionType::UP, true);
-	//			bool bThorDead = AwakenThor->getFSM()->SetDamage(PARRYING_DAMAGE, EAttackDirectionType::UP);
-	//			if (bThorDead)
-	//			{
-	//				SetState(EPlayerState::NoneMovable);
-	//			}
-	//		}
-	//	}
-	//}
-	//else if (State == EPlayerState::Hit || State == EPlayerState::Parry || State == EPlayerState::Die)
-	//{
-
-	//}
-	// 기본 피격
-	else
-	{
-		//CurHP -= FMath::Max(DamageValue, 0);
-		/*CurHP = FMath::Max(CurHP - DamageValue, 0);
-		if (GameMode)
-		{
-			GameMode->SetPlayerHpBar(CurHP / MaxHP);
-			GameMode->PlayHitWidgetAnim();
-		}
-
-		if (bSuperArmor) return false;
-		if (CurHP == 0)
-		{
-			SetState(EPlayerState::Die);
-			Anim->PlayHitMontage();
-			Anim->JumpToHitMontageSection(TEXT("Death"));
-			TargetCameraOffset = FVector(0, 50, -60);
-			TargetCameraAngle = FRotator(10, 0, 0);
-			TargetTargetArmLength = 180;
-			CameraShakeOnAttack(EAttackDirectionType::DOWN, 1);
-
-			return true;
-		}
-
-		Anim->PlayHitMontage();
-		Anim->JumpToHitMontageSection(GetHitSectionName(HitType));
-		UGameplayStatics::PlaySound2D(GetWorld(), HitSound2, 1, 1, 0.2f);
-		if (HitType == EHitType::NB_HIGH)
-		{
-			TargetCameraOffset = FVector(0, 50, -60);
-			TargetCameraAngle = FRotator(20, 0, 0);
-			TargetTargetArmLength = 190;
-			CameraShakeOnAttack(EAttackDirectionType::DOWN, 1);
-		}
-		else if (HitType == EHitType::STAGGER)
-			CameraShakeOnAttack(EAttackDirectionType::DOWN, .1);
-		else
-			CameraShakeOnAttack(EAttackDirectionType::DOWN, .5);
-
-		SetState(EPlayerState::Hit);
-		return true;*/
-	}
-	return false;
+	return true;
 }
 
 void AKratos::LaunchKratos(float LaunchScale)

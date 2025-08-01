@@ -141,13 +141,13 @@ void AFlyingAxe::Tick(float DeltaTime)
 void AFlyingAxe::FlyingAxeOnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	bHit = true;
-	ActiveHitCollision(false);
+	//ActiveHitCollision(false);
 	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("SetActorEnableCollision(false)")));
 
 	ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
 	if (Enemy)
 	{
-		DealDamage(Enemy, FGenericAttackParams(Me, FLYING_AXE_DAMAGE, FLYING_AXE_STUN_DAMAGE, EAttackDirectionType::UP));
+		DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, EAttackDirectionType::UP));
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
 		AttachToComponent(OtherComp, FAttachmentTransformRules::KeepWorldTransform);
 	}

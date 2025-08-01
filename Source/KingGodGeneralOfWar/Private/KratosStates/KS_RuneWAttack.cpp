@@ -10,9 +10,9 @@ void UKS_RuneWAttack::EnterState(const FGenericStateParams& params)
 	StateLog(TEXT("RuneWAttack Enter"));
 	Me->CurrentAttackType = EAttackType::RUNE_ATTACK;
 
-	//FRotator rotate = Me->GetController()->GetControlRotation();
-	//rotate.Pitch = 0;
-	//Me->SetActorRotation(rotate);
+	FRotator rotate = Me->GetController()->GetControlRotation();
+	rotate.Pitch = 0;
+	Me->SetActorRotation(rotate);
 	Anim->PlayRuneAttackMontage();
 }
 

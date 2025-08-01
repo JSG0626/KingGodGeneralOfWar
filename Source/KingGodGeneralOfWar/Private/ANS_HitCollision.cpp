@@ -27,11 +27,13 @@ void UANS_HitCollision::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeque
 	{
 		Shield = TScriptInterface<IWeaponInterface>(Kratos->Shield);
 		Shield->ActiveHitCollision(true);
+		Shield->SetAttackScale(AttackScale);
 	}
 	else if (WeaponType == EWeaponType::AXE)
 	{
 		Axe = TScriptInterface<IWeaponInterface>(Kratos->Axe);
 		Axe->ActiveHitCollision(true);
+		Axe->SetAttackScale(AttackScale);
 	}
 }
 

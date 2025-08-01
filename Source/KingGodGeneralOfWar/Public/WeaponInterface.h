@@ -36,8 +36,12 @@ class KINGGODGENERALOFWAR_API IWeaponInterface
 {
 	GENERATED_BODY()
 
+protected:
+	float BaseAttackPower = 10.0f;
+	float CurrentAttackScale = 1.0f;
+	float CurrentStunAttackScale = 10.0f;
 public:
 	virtual void ActiveHitCollision(bool ActiveState) = 0;
-
+	void SetAttackScale(const float AttackScale);
 	void DealDamage(class ABaseEnemy* Target, const FGenericAttackParams& params);
 };

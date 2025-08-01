@@ -71,7 +71,7 @@ void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 	ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
 	if (Enemy)
 	{
-		DealDamage(Enemy, FGenericAttackParams(Me, AXE_DAMAGE, 5, Me->GetAttackDirection()));
+		DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, Me->GetAttackDirection()));
 	}
 	else
 	{

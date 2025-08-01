@@ -178,19 +178,12 @@ public:
 	void SetGlobalTimeDilation(float Duration, float SlowScale);
 	void SetAnimationSpeedSlow(float Duration, float SlowScale);
 
-	UFUNCTION(BlueprintCallable)
-	void SetState(EPlayerState NextState);
-	//private:
-
-	// Strong Attack Combo
-	void StrongAttackStartComboState();
-	void StrongAttackEndComboState();
-
-
 	void PlayerMove();
 	void SetWeapon();
 	void SetShield();
-	void LockTargetFunc(float DeltaTime);
+
+	void SetLockOnTarget();
+	void LockOnTargetTick(float DeltaTime);
 
 	FString GetHitSectionName(EHitType hitType);
 	FString GetDodgeDirection();

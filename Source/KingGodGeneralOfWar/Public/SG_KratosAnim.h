@@ -44,6 +44,7 @@ public:
 	void PlayDieMontage();
 	void JumpToAttackMontageSection(int32 NewSection);
 	void JumpToDodgeMontageSection(FString SectionName);
+	void JumpToWithdrawMontageSection(FString SectionName);
 	void JumpToRollMontageSection(FString SectionName);
 	void JumpToGuardMontageSection(FString SectionName);
 	void JumpToHitMontageSection(FString SectionName);

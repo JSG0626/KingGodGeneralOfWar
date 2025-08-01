@@ -212,6 +212,11 @@ void USG_KratosAnim::JumpToDodgeMontageSection(FString SectionName)
 	Montage_JumpToSection(FName(*SectionName), DodgeMontage);
 }
 
+void USG_KratosAnim::JumpToWithdrawMontageSection(FString SectionName)
+{
+	Montage_JumpToSection(FName(*SectionName), AxeWithdrawMontage);
+}
+
 void USG_KratosAnim::JumpToRollMontageSection(FString SectionName)
 {
 	Montage_JumpToSection(FName(*SectionName), RollMontage);

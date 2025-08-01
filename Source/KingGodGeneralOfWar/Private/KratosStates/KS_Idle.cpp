@@ -14,7 +14,7 @@ void UKS_Idle::EnterState(const FGenericStateParams& params)
 	Me->TargetCameraAngle = FRotator(0);
 	Me->TargetTargetArmLength = 143;
 	Me->TargetShieldScale = 0.0f;
-	Anim->StopAllMontages(0.3f);
+	//Anim->StopAllMontages(0.3f);
 
 	Direction = Me->GetVelocity();
 	Direction.Normalize();

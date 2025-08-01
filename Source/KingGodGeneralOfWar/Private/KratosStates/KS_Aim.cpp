@@ -89,5 +89,8 @@ void UKS_Aim::HandleWAttack(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Throw Axe"));
 
-	Anim->PlayAxeThrowMontage();
+	if (!Me->bAxeGone)
+	{
+		Anim->PlayAxeThrowMontage();
+	}
 }
