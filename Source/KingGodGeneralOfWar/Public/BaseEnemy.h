@@ -21,8 +21,13 @@ public:
 	float MaxStunGuage = 50;
 	UPROPERTY(EditDefaultsOnly)
 	class UWidgetComponent* HPUIComp ;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY()
 	TSubclassOf<class UEnemyHPUI> HPUIFactory ;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UWidgetComponent* LockOnUIComp;
+	UPROPERTY()
+	TSubclassOf<class UEnemyHPUI> LockOnUIFactory;
 
 protected:
 	// Called when the game starts or when spawned
@@ -32,8 +37,13 @@ protected:
 	class ACharacter* CurrentTarget ;
 
 private:
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY()
 	class UEnemyHPUI* HPUI ;
+
+	UPROPERTY()
+	class UUserWidget* LockOnUI ;
+
+	
 	float CurHP;
 	float CurStunGuage;
 
@@ -50,12 +60,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	// Other Actor Interfaces
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetBillboardVisible(bool Visible, class UCameraComponent* Camera = nullptr);
+	UFUNCTION(BlueprintCallable)
+	void ActiveLockOnUI(bool ActiveState);
 
-	UPROPERTY(VisibleAnywhere)
-	class UCameraComponent* PlayerCamera ;
-	
+	//UPROPERTY(VisibleAnywhere)
+	//class UCameraComponent* PlayerCamera ;
+	//
 	UFUNCTION(BlueprintCallable)
 	virtual bool GetDamage(const struct FGenericAttackParams& params);
 };

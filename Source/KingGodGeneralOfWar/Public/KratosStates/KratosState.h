@@ -51,7 +51,7 @@ struct FGenericStateParams
 	FVector2D Vector2D;
 	FTransform Transform;
 	FEnemyAttackParams AttackParams;
-
+	EPlayerState PrevState;
 	FGenericStateParams() = default;
 
 	FGenericStateParams(int v) : Integer(v) {}

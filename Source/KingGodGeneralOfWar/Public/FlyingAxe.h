@@ -80,9 +80,8 @@ private:
 	// 현재 도끼의 상태
 	EAxeState CurrentState = EAxeState::Flying;
 
-	// 소유자 캐릭터 참조 (기존 Me 변수 대체)
 	UPROPERTY()
-	class AKratos* Me; // AYourCharacter는 실제 캐릭터 클래스명으로 변경해주세요.
+	class AKratos* Me;
 
 	// 상태별 로직을 처리할 함수
 	void TickState_Flying(float DeltaTime);

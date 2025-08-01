@@ -5,6 +5,7 @@
 #include "WeaponInterface.h"
 #include "EnemyHPUI.h"
 #include <Components/WidgetComponent.h>
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ABaseEnemy::ABaseEnemy()
@@ -15,8 +16,19 @@ ABaseEnemy::ABaseEnemy()
 	HPUIComp->SetupAttachment(GetMesh());
 	HPUIComp->SetRelativeLocation(FVector{ 0, 0, 180 });
 	HPUIComp->SetWidgetClass(HPUIFactory);
-	HPUIComp->SetWidgetSpace(EWidgetSpace::World);
+	HPUIComp->SetWidgetSpace(EWidgetSpace::Screen);
 	HPUIComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> TempLockOnUIClass(TEXT("/ Script / UMGEditor.WidgetBlueprint'/Game/JSG/UI/WBP_LockOn.WBP_LockOn'"));
+	if (TempLockOnUIClass.Succeeded())	LockOnUIFactory = TempLockOnUIClass.Class;
+	
+	LockOnUIComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("LockUIComp"));
+	LockOnUIComp->SetupAttachment(GetMesh());
+	LockOnUIComp->SetWidgetClass(LockOnUIFactory);
+	LockOnUIComp->SetWidgetSpace(EWidgetSpace::Screen);
+	LockOnUIComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Enemy"), true);
 }
 
 // Called when the game starts or when spawned
@@ -32,6 +44,9 @@ void ABaseEnemy::BeginPlay()
 		HPUI->SetHPBar(1);
 		HPUI->SetStunGuageBar(1);
 	}
+
+	LockOnUI = Cast<UUserWidget>(LockOnUIComp->GetWidget());
+	check(LockOnUI);
 }
 
 void ABaseEnemy::SetHP(float Damage)
@@ -82,6 +97,15 @@ void ABaseEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void ABaseEnemy::ActiveLockOnUI(bool ActiveState)
+{
+	if (LockOnUI)
+	{
+		LockOnUIComp->SetVisibility(ActiveState);
+		//LockOnUI->SetVisibility(ActiveState ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	}
 }
 
 bool ABaseEnemy::GetDamage(const FGenericAttackParams& params)

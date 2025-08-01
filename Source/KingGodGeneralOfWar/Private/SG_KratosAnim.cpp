@@ -3,6 +3,7 @@
 
 #include "SG_KratosAnim.h"
 
+#include "KingGodGeneralOfWar.h"
 #include "RuneAttackField.h"
 #include "Kismet/GameplayStatics.h"
 #include "Animation/AnimMontage.h"

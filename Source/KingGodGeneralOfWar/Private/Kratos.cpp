@@ -447,11 +447,15 @@ void AKratos::SetLockOnTarget()
 		{
 			if (LockTarget != nullptr && LockTarget != NewTarget)
 			{
-				LockTarget->SetBillboardVisible(false);
+				LockTarget->ActiveLockOnUI(false);
 			}
 			LockTarget = NewTarget;
-			LockTarget->SetBillboardVisible(true, CameraComp);
+			LockTarget->ActiveLockOnUI(true);
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("적 없음"));
 	}
 }
 
@@ -464,14 +468,9 @@ FORCEINLINE void AKratos::LockOnTargetTick(float DeltaTime)
 	}
 	if (bLockOn)
 	{
-		// GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, TEXT("LockSystem On"));
-
 		FRotator playerCameraRotation = GetController()->AController::GetControlRotation();
-
 		TargetCameraRotation = UKismetMathLibrary::FindLookAtRotation(CameraComp->GetComponentLocation(), LockTarget->GetActorLocation());
-		//FRotator ToCameraRotation = UKismetMathLibrary::RLerp(playerCameraRotation, TargetCameraRotation, DeltaTime * 30, true);
 		GetController()->AController::SetControlRotation(TargetCameraRotation);
-		//GetController()->AController::SetControlRotation(FRotator(TargetCameraRotation));
 	}
 }
 
@@ -890,7 +889,7 @@ void AKratos::OnMyActionLockOn(const FInputActionValue& value)
 	if (bLockOn)
 	{
 		bLockOn = false;
-		LockTarget->SetBillboardVisible(false, CameraComp);
+		LockTarget->ActiveLockOnUI(false);
 		LockTarget = nullptr;
 		return;
 	}
