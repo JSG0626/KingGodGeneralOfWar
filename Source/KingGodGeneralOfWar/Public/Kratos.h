@@ -363,6 +363,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	class USoundBase* WeakAttack3Sound;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	class USoundBase* GrabAxeSound;
+
+	
 	UPROPERTY()
 	TArray<class USoundBase*> WeakAttackSoundArr;
 
@@ -387,7 +391,7 @@ public:
 	float CurHP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float DirectGrabRange = 300.0f ;
+	float DirectGrabRange = 400.0f ;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 

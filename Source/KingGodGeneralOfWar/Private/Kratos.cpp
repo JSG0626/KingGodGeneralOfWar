@@ -1046,7 +1046,7 @@ void AKratos::OnMyActionAbility(const FInputActionValue& value)
 	{
 		bIsAxeWithdrawing = true;
 		WithdrawAxe();
-		UGameplayStatics::PlaySound2D(GetWorld(), AxeWithdrawSound, 1, 1, 0.07f);
+		//UGameplayStatics::PlaySound2D(GetWorld(), AxeWithdrawSound, 1, 1, 0.07f);
 	}
 	else
 	{
@@ -1096,6 +1096,8 @@ void AKratos::WithdrawAxe()
 
 void AKratos::CatchFlyingAxe()
 {
+	UGameplayStatics::PlaySound2D(GetWorld(), GrabAxeSound);
+
 	Axe->MeshComp->SetVisibility(true, true);
 	bAxeGone = false;
 	bIsAxeWithdrawing = false;

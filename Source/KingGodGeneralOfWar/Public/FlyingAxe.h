@@ -7,22 +7,25 @@
 #include "WeaponInterface.h"
 #include "FlyingAxe.generated.h"
 
+
+UENUM(BlueprintType)
+enum class EAxeState : uint8
+{
+	Idle,     // 대기
+	Flying,   // 앞으로 날아가는 중
+	Stuck,    // 어딘가에 박혀있는 상태
+	Rising,   // 회수 시 위로 떠오르는 중
+	Returning // 플레이어에게 돌아오는 중
+};
+
 UCLASS()
-class KINGGODGENERALOFWAR_API AFlyingAxe : public AActor, public IWeaponInterface
+class AFlyingAxe : public AActor, public IWeaponInterface
 {
 	GENERATED_BODY()
-	
-public:	
+	// ...
+public:
 	// Sets default values for this actor's properties
 	AFlyingAxe();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditDefaultsOnly)
 	class UCapsuleComponent* CapsuleComp;
@@ -51,9 +54,6 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UArrowComponent* WithdrawRotation;
 
-	UPROPERTY()
-	class AKratos* Me;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UNiagaraSystem* BloodVFXFactory;
 
@@ -64,23 +64,49 @@ public:
 	void FlyingAxeOnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	void BackToPlayer();
 
-	FVector TargetLocation;
-	FVector CurLocation;
-
-	float MoveSpeed = 4000.0f;
-	float RotationSpeed = 90.0f;
-	bool bHit;
-	bool bWithdrawing;
-	bool bRising;
-	float LerpAlpha;
-	float WithdrawRotationScale = -20;
-
 	UPROPERTY(EditDefaultsOnly)
-	float FLYING_AXE_DAMAGE = 10;
+	float FLYING_AXE_DAMAGE = 1;
 	UPROPERTY(EditDefaultsOnly)
 	float FLYING_AXE_STUN_DAMAGE = 3;
 
 	virtual void ActiveHitCollision(bool Active) override;
 
 	virtual class USoundCue* GetBaseHitSound() const override;
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+private:
+	// 현재 도끼의 상태
+	EAxeState CurrentState = EAxeState::Flying;
+
+	// 소유자 캐릭터 참조 (기존 Me 변수 대체)
+	UPROPERTY()
+	class AKratos* Me; // AYourCharacter는 실제 캐릭터 클래스명으로 변경해주세요.
+
+	// 상태별 로직을 처리할 함수
+	void TickState_Flying(float DeltaTime);
+	void TickState_Rising(float DeltaTime);
+	void TickState_Returning(float DeltaTime);
+
+	// 상태 전환 및 처리 헬퍼 함수
+	void HandleCatch();
+
+	// 리팩토링된 상수 값
+	static const float FLYING_MOVE_SPEED;
+	static const float FLYING_ROTATION_SPEED;
+	static const float RISING_LERP_SPEED;
+	static const float RETURNING_INTERP_SPEED;
+	static const float CATCH_DISTANCE_THRESHOLD;
+
+	// 상태 관련 변수
+	float RotationSpeed = 1;
+	float CurrentFlySpeed;
+	FVector PrevLocation;
+	FVector TargetLocation;
+	FVector CurrentVelocity;
+
+	float ReturningInterpAlpha = 0.0f;
+	float ReturningAlphaDelta = 0.02f;
+
 };

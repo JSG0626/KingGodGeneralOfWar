@@ -17,6 +17,7 @@ void UKS_WAttack::EnterState(const FGenericStateParams& params)
 	if (Me->bAxeGone)
 	{
 		// 맨손 공격
+		Me->SetKratosState(EPlayerState::Idle);
 		return;
 	}
 
