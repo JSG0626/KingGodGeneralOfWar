@@ -156,7 +156,7 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	RandScale = 0.2f;
 	Axis += FVector(FMath::RandRange(-RandScale, RandScale));
 	const FQuat RotationDelta(Axis, RotationSpeed * DeltaTime);
-	//RotationSpeed += DeltaTime * 30;
+	RotationSpeed += DeltaTime * 10;
 	AddActorWorldRotation(RotationDelta);
 
 
@@ -233,7 +233,7 @@ void AFlyingAxe::BackToPlayer()
 	else
 	{
 		PrevLocation = GetActorLocation();
-		ReturningAlphaDelta /= 2;
+		ReturningAlphaDelta /= 4;
 		CurrentState = EAxeState::Returning;
 	}
 }

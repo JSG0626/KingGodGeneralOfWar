@@ -61,7 +61,7 @@ void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 {
 	/*Me->IncreaseTargetTargetArmLength(-5);
 	Me->IncreaseTargetCameraOffset(FVector(0, 0, -10));*/
-	//MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
+	ActiveHitCollision(false);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactoryArr[FMath::RandRange(0, BLOOD_VFX_MAX)], EdgeComp->GetComponentLocation());
 
 	//Me->SetGlobalTimeDilation(0.004f, 0.04f);
