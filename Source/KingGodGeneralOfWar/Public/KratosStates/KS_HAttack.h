@@ -2,29 +2,31 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "KratosState.h"
-#include "KS_RuneWAttack.generated.h"
+#include "KS_HAttack.generated.h"
 
 /**
  * 
  */
-UCLASS()
-class KINGGODGENERALOFWAR_API UKS_RuneWAttack : public UKratosState
+UCLASS(Blueprintable)
+class KINGGODGENERALOFWAR_API UKS_HAttack : public UKratosState
 {
 	GENERATED_BODY()
 
-public:
+	public:
 	virtual void EnterState(const FGenericStateParams& params) override;
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
 	virtual void ExitState(const FGenericStateParams& params) override;
 
+	virtual bool CanHandleSAttack() const override { return true; }
 	virtual bool CanHandleDodge() const override { return true; }
-	
+	virtual bool CanHandleGuard() const override { return true; }
+
+	virtual void HandleSAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
-	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleGuard(const FGenericStateParams& params = FGenericStateParams()) override;
 
 private:
 	int CurrentAttackNum = 1;
-
+	bool bGuardInputOn;
 };

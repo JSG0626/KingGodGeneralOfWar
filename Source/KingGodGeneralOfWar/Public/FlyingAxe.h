@@ -95,6 +95,7 @@ private:
 	FVector TargetLocation;
 	FVector CurrentVelocity;
 	float FlyingTime = 0.0f;
+	FVector AxeMeshOffset;
 
 	float ReturningInterpAlpha = 0.0f;
 	float ReturningAlphaDelta = 0.02f;

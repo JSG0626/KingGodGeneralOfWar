@@ -28,17 +28,20 @@
 #include "CSW/CSWGameMode.h"
 #include "Sound/SoundBase.h"
 #include "PlayerAimUI.h"
+#include <BaseEnemy.h>
+
+#include "KratosStates/PlayerStateMappingDataAsset.h"
 #include "KratosStates/KS_Idle.h"
-#include "KratosStates/KS_LAttack.h"
 #include <KratosStates/KS_Move.h>
 #include <KratosStates/KS_Dodge.h>
 #include <KratosStates/KS_Guard.h>
-#include <KratosStates/KS_Aim.h>
-#include <BaseEnemy.h>
-#include <KratosStates/KS_Hit.h>
 #include <KratosStates/KS_Parry.h>
-#include <KratosStates/KS_SAttack.h>
-#include <KratosStates/KS_RuneWAttack.h>
+#include <KratosStates/KS_Aim.h>
+#include "KratosStates/KS_LAttack.h"
+#include <KratosStates/KS_HAttack.h>
+#include <KratosStates/KS_LRunicAttack.h>
+#include <KratosStates/KS_HRunicAttack.h>
+#include <KratosStates/KS_Hit.h>
 #include <KratosStates/KS_Die.h>
 
 // Sets default values
@@ -167,7 +170,7 @@ void AKratos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		input->BindAction(IA_LockOn, ETriggerEvent::Started, this, &AKratos::OnMyActionLockOn);
 		input->BindAction(IA_DebugKey, ETriggerEvent::Started, this, &AKratos::OnMyActionDebugKey);
 
-		input->BindAction(IA_WeakAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionWAttack);
+		input->BindAction(IA_WeakAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionLAttack);
 		input->BindAction(IA_StrongAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionSAttack);
 		input->BindAction(IA_Aim, ETriggerEvent::Triggered, this, &AKratos::OnMyActionAimOn);
 		input->BindAction(IA_Aim, ETriggerEvent::Completed, this, &AKratos::OnMyActionAimOff);
@@ -225,7 +228,6 @@ void AKratos::BeginPlay()
 	{
 		SetShield();
 	}
-	GuardHitCnt = GUARD_MAX_COUNT;
 
 	DefaultCameraOffset = SpringArmComp->SocketOffset;
 	TargetCameraOffset = DefaultCameraOffset;
@@ -569,9 +571,12 @@ FString AKratos::GetDodgeDirection()
 
 void AKratos::InitializeStates()
 {
-	for (int i = 0; i < StateClassSetUp.Num(); i++)
+	check(PlayerStateDataAsset);
+	for (int i = 0; i < PlayerStateDataAsset->StateClassMapData.Num(); i++)
 	{
-		const FStateClassPair& Pair = StateClassSetUp[i];
+		const FStateClassPair& Pair = PlayerStateDataAsset->StateClassMapData[i];
+		check(Pair.StateClass);
+
 		TObjectPtr<UKratosState> StateObject = NewObject<UKratosState>(this, Pair.StateClass, UEnum::GetValueAsName(Pair.State));
 		StateObject->SetUp(this);
 		UClass* ActualClass = StateObject->GetClass();
@@ -688,11 +693,11 @@ void AKratos::OnMyActionIdle(const FInputActionValue& value)
 	}
 }
 
-void AKratos::OnMyActionWAttack(const FInputActionValue& value)
+void AKratos::OnMyActionLAttack(const FInputActionValue& value)
 {
 	if (CurrentState->CanHandleLAttack())
 	{
-		CurrentState->HandleWAttack();
+		CurrentState->HandleLAttack();
 	}
 	else
 	{

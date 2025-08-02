@@ -13,7 +13,7 @@
 
 void UKS_LAttack::EnterState(const FGenericStateParams& params)
 {
-	StateLog(TEXT("WAttack Enter"));
+	StateLog(TEXT("LAttack Enter"));
 	if (Me->bAxeGone)
 	{
 		// 맨손 공격
@@ -22,21 +22,21 @@ void UKS_LAttack::EnterState(const FGenericStateParams& params)
 	}
 
 	CurrentAttackNum = 1;
-	Anim->PlayMontage(EPlayerMontage::WAttack);
+	Anim->PlayMontage(EPlayerMontage::LAttack);
 	CurrentAttackNum++;
 	//Me->CurrentAttackType = EAttackType::WEAK_ATTACK;
 }
 
 void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
-	StateLog(TEXT("WAttack Tick"), true);
+	StateLog(TEXT("LAttack Tick"), true);
 	FRotator rotate = Me->CameraComp->GetComponentRotation();
 	rotate.Pitch = 0.0f;
 	Me->SetActorRotation(UKismetMathLibrary::RLerp(Me->GetActorRotation(), rotate, DeltaTime * 4, true));
 
 	if (Me->CanComboAttack && InputOn)
 	{
-		UE_LOG(LogTemp, Display, TEXT("HandleWAttack, CurrentAttckNum: %d"), CurrentAttackNum);
+		UE_LOG(LogTemp, Display, TEXT("HandleLAttack, CurrentAttckNum: %d"), CurrentAttackNum);
 		
 		Me->CanComboAttack = false;
 		InputOn = false;
@@ -47,7 +47,7 @@ void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 
 void UKS_LAttack::ExitState(const FGenericStateParams& params)
 {
-	StateLog(TEXT("WAttack Exit"));
+	StateLog(TEXT("LAttack Exit"));
 	Me->CanComboAttack = false;
 	Me->CurrentAttackType = EAttackType::NONE;
 	InputOn = false;
@@ -62,7 +62,7 @@ void UKS_LAttack::HandleDodge(const FGenericStateParams& params)
 	Me->SetKratosState(EPlayerState::Dodge);
 }
 
-void UKS_LAttack::HandleWAttack(const FGenericStateParams& params)
+void UKS_LAttack::HandleLAttack(const FGenericStateParams& params)
 {
 	InputOn = true;
 }
@@ -72,6 +72,6 @@ void UKS_LAttack::HandleGuard(const FGenericStateParams& params)
 	bGuardInputOn = true;
 	if (InputOn)
 	{
-		Me->SetKratosState(EPlayerState::RuneWAttack);
+		Me->SetKratosState(EPlayerState::LRunicAttack);
 	}
 }

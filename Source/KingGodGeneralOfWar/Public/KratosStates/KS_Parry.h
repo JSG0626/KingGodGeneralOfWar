@@ -24,7 +24,7 @@ public:
 	virtual bool CanHandleDodge() const override { return true; }
 	virtual bool CanHandleHit() const override { return false; }
 
-	virtual void HandleWAttack(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
 private:
 	class ASG_Shield* Shield;

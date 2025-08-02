@@ -67,7 +67,7 @@ void UKS_Guard::HandleDodge(const FGenericStateParams& params)
 	Me->SetKratosState(EPlayerState::Dodge);
 }
 
-void UKS_Guard::HandleWAttack(const FGenericStateParams& params)
+void UKS_Guard::HandleLAttack(const FGenericStateParams& params)
 {
 	if (Me->bAxeGone)
 	{
@@ -75,7 +75,7 @@ void UKS_Guard::HandleWAttack(const FGenericStateParams& params)
 	}
 	else
 	{
-		Me->SetKratosState(EPlayerState::RuneWAttack);
+		Me->SetKratosState(EPlayerState::LRunicAttack);
 	}
 }
 

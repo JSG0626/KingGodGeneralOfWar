@@ -51,14 +51,14 @@ void UKS_Move::HandleIdle(const FGenericStateParams& params)
 	Me->SetKratosState(EPlayerState::Idle);
 }
 
-void UKS_Move::HandleWAttack(const FGenericStateParams& params)
+void UKS_Move::HandleLAttack(const FGenericStateParams& params)
 {
-	Me->SetKratosState(EPlayerState::WAttack);
+	Me->SetKratosState(EPlayerState::LAttack);
 }
 
 void UKS_Move::HandleSAttack(const FGenericStateParams& params)
 {
-	Me->SetKratosState(EPlayerState::SAttack);
+	Me->SetKratosState(EPlayerState::HAttack);
 }
 
 void UKS_Move::HandleGuard(const FGenericStateParams& params)

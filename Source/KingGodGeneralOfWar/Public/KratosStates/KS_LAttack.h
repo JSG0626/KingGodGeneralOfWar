@@ -27,7 +27,7 @@ public:
 	virtual bool CanHandleGuard() const override { return true; }
 
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
-	virtual void HandleWAttack(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleGuard(const FGenericStateParams& params = FGenericStateParams()) override;
 
 private:

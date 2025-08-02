@@ -30,10 +30,10 @@ enum class EPlayerState : uint8
 	Idle UMETA(DisplayName = "Idle"),
 	Move UMETA(DisplayName = "Move"),
 	Dodge UMETA(DisplayName = "Dodge"),
-	WAttack UMETA(DisplayName = "WAttack"),
-	SAttack UMETA(DisplayName = "SAttack"),
-	RuneWAttack UMETA(DisplayName = "RuneWAttack"),
-	RuneSAttack UMETA(DisplayName = "RuneSAttack"),
+	LAttack UMETA(DisplayName = "LAttack"),
+	HAttack UMETA(DisplayName = "HAttack"),
+	LRunicAttack UMETA(DisplayName = "LRunicAttack"),
+	HRunicAttack UMETA(DisplayName = "HRunicAttack"),
 	Aim UMETA(DisplayName = "Aim"),
 	Parry UMETA(DisplayName = "Parry"),
 	Guard UMETA(DisplayName = "Guard"),
@@ -49,10 +49,10 @@ enum class EPlayerMontage : uint8
 {
 	Dodge UMETA(DisplayName = "Dodge"),
 	Roll UMETA(DisplayName = "Roll"),
-	WAttack UMETA(DisplayName = "WAttack"),
-	SAttack UMETA(DisplayName = "SAttack"),
-	RuneWAttack UMETA(DisplayName = "RuneWAttack"),
-	RuneSAttack UMETA(DisplayName = "RuneSAttack"),
+	LAttack UMETA(DisplayName = "LAttack"),
+	HAttack UMETA(DisplayName = "HAttack"),
+	LRunicAttack UMETA(DisplayName = "LRunicAttack"),
+	HRunicAttack UMETA(DisplayName = "HRunicAttack"),
 	Parry UMETA(DisplayName = "Parry"),
 	Guard UMETA(DisplayName = "Guard"),
 	Ability UMETA(DisplayName = "Ability"),
@@ -65,8 +65,6 @@ enum class EPlayerMontage : uint8
 	Die UMETA(DisplayName = "Die"),
 };
 
-
-
 UENUM(BlueprintType)
 enum class EPlayerWeaponType : uint8
 {
@@ -74,4 +72,5 @@ enum class EPlayerWeaponType : uint8
 	Axe UMETA(DisplayName = "Axe"),
 	Blade UMETA(DisplayName = "Blade"),
 	Spear UMETA(DisplayName = "Spear"),
-	};
+};
+

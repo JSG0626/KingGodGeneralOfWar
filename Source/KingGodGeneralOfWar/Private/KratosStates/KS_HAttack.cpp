@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "KratosStates/KS_SAttack.h"
+#include "KratosStates/KS_HAttack.h"
 #include "Kratos.h"
 #include "SG_KratosAnim.h"
 #include <Kismet/KismetMathLibrary.h>
@@ -9,9 +9,9 @@
 #include "Axe.h"
 #include "SG_Shield.h"
 
-void UKS_SAttack::EnterState(const FGenericStateParams& params)
+void UKS_HAttack::EnterState(const FGenericStateParams& params)
 {
-	StateLog(TEXT("SAttack Enter"));
+	StateLog(TEXT("HAttack Enter"));
 	if (Me->bAxeGone)
 	{
 		// 맨손 공격
@@ -19,14 +19,14 @@ void UKS_SAttack::EnterState(const FGenericStateParams& params)
 	}
 	bGuardInputOn = false;
 	CurrentAttackNum = 1;
-	Anim->PlayMontage(EPlayerMontage::SAttack);
+	Anim->PlayMontage(EPlayerMontage::HAttack);
 	CurrentAttackNum++;
 	Me->CurrentAttackType = EAttackType::STRONG_ATTACK;
 }
 
-void UKS_SAttack::TickState(const FGenericStateParams& params, float DeltaTime)
+void UKS_HAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
-	StateLog(TEXT("SAttack Tick"), true);
+	StateLog(TEXT("HAttack Tick"), true);
 	FRotator rotate = Me->GetControlRotation();
 	rotate.Pitch = 0.0f;
 	Me->SetActorRotation(UKismetMathLibrary::RLerp(Me->GetActorRotation(), rotate, DeltaTime * 4, true));
@@ -40,9 +40,9 @@ void UKS_SAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 	}
 }
 
-void UKS_SAttack::ExitState(const FGenericStateParams& params)
+void UKS_HAttack::ExitState(const FGenericStateParams& params)
 {
-	StateLog(TEXT("WAttack Exit"));
+	StateLog(TEXT("HAttack Exit"));
 	Me->CanComboAttack = false;
 	Me->CurrentAttackType = EAttackType::NONE;
 	InputOn = false;
@@ -52,12 +52,12 @@ void UKS_SAttack::ExitState(const FGenericStateParams& params)
 }
 
 
-void UKS_SAttack::HandleDodge(const FGenericStateParams& params)
+void UKS_HAttack::HandleDodge(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::Dodge);
 }
 
-void UKS_SAttack::HandleGuard(const FGenericStateParams& params)
+void UKS_HAttack::HandleGuard(const FGenericStateParams& params)
 {
 	bGuardInputOn = true;
 	if (InputOn)
@@ -66,7 +66,7 @@ void UKS_SAttack::HandleGuard(const FGenericStateParams& params)
 	}
 }
 
-void UKS_SAttack::HandleSAttack(const FGenericStateParams& params)
+void UKS_HAttack::HandleSAttack(const FGenericStateParams& params)
 {
 	InputOn = true;
 }

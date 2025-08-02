@@ -29,7 +29,7 @@ public:
 	virtual void HandleIdle(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleMove(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
-	virtual void HandleWAttack(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleParry(const FGenericStateParams& params = FGenericStateParams()) override;
 

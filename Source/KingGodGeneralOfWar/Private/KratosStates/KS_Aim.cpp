@@ -87,7 +87,7 @@ void UKS_Aim::HandleDodge(const FGenericStateParams& params)
 	Me->SetKratosState(EPlayerState::Dodge);
 }
 
-void UKS_Aim::HandleWAttack(const FGenericStateParams& params)
+void UKS_Aim::HandleLAttack(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Throw Axe"));
 

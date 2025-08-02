@@ -45,6 +45,8 @@ void AFlyingAxe::Init(AKratos* _Me, bool _bIsHeavy)
 	IWeaponInterface::CurrentAttackScale = bIsHeavy ? HeavyScale : DefaultScale;
 	IWeaponInterface::CurrentStunAttackScale = StunDamage;
 
+	AxeMeshOffset = SubMeshComp->GetRelativeLocation();
+	SubMeshComp->SetRelativeLocation(FVector(0));
 	CurrentVelocity = GetActorForwardVector() * (bIsHeavy ? HeavyThrowingMoveSpeed : DefaultThrowingMoveSpeed);
 	PrevLocation = GetActorLocation();
 }
@@ -54,7 +56,6 @@ void AFlyingAxe::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	if (!Kratos) return;
-	UE_LOG(LogTemp, Display, TEXT("CurrentAxeState: %s"), *UEnum::GetValueAsString(CurrentState));
 	// 현재 상태에 따라 적절한 함수를 호출
 	switch (CurrentState)
 	{
@@ -196,6 +197,7 @@ bool AFlyingAxe::CollisionCheck()
 				Z.Normalize();
 				FRotator Rot = FRotationMatrix::MakeFromYZ(Y, Z).Rotator();
 				
+				SubMeshComp->SetRelativeLocation(AxeMeshOffset);
 				SetActorLocation(HitResult.Location);
 				SetActorRotation(Rot);
 				AddActorLocalRotation(FRotator(0, 180, 180));

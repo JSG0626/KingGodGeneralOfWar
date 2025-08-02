@@ -87,7 +87,7 @@ public:
 	virtual void HandleGuard(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleParry(const FGenericStateParams& params = FGenericStateParams()) {};
 	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) {}
-	virtual void HandleWAttack(const FGenericStateParams& params = FGenericStateParams()) {}
+	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleSAttack(const FGenericStateParams& params = FGenericStateParams()) {};
 
 	// 기본적으로 즉시 전환이 가능한 상태들을 다루는 메소드

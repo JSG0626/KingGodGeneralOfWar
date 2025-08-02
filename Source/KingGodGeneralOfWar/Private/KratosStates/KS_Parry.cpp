@@ -70,7 +70,7 @@ void UKS_Parry::ExitState(const FGenericStateParams& params)
 	Shield->SetTargetScale(false);
 }
 
-void UKS_Parry::HandleWAttack(const FGenericStateParams& params)
+void UKS_Parry::HandleLAttack(const FGenericStateParams& params)
 {
 }
 

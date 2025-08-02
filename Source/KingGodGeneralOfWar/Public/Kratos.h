@@ -16,17 +16,7 @@ const FRotator DefaultCameraAngle = FRotator(0);
 const float DefaultTargetTargetArmLength = 147;
 const float DefaultTargetFOV = 90;
 
-USTRUCT(BlueprintType)
-struct FStateClassPair
-{
-	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, Category = "State")
-	EPlayerState State;
-
-	UPROPERTY(EditAnywhere, Category = "State")
-	TSubclassOf<UKratosState> StateClass;
-};
 
 UENUM()
 enum class EAttackType : uint8
@@ -100,7 +90,7 @@ public:
 	void OnMyActionIdle(const FInputActionValue& value);
 
 	UFUNCTION()
-	void OnMyActionWAttack(const FInputActionValue& value);
+	void OnMyActionLAttack(const FInputActionValue& value);
 
 	UFUNCTION()
 	void OnMyActionSAttack(const FInputActionValue& value);
@@ -405,13 +395,14 @@ public:
 	bool bAxeGone;
 	bool bIsAxeWithdrawing;
 
-	int GuardHitCnt;
+	UPROPERTY(EditDefaultsOnly)
+	class UPlayerStateMappingDataAsset* PlayerStateDataAsset;
 
 	void InitializeStates();
 	void SetKratosState(const EPlayerState& NewState, const FGenericStateParams& params = FGenericStateParams());
 
-	UPROPERTY(EditDefaultsOnly, Category = "States")
-	TArray<FStateClassPair> StateClassSetUp;
+	//UPROPERTY(EditDefaultsOnly, Category = "States")
+	//TArray<FStateClassPair> StateClassSetUp;
 	UPROPERTY()
 	TMap<EPlayerState, TObjectPtr<UKratosState>> KratosStatesMap;
 	UPROPERTY()
