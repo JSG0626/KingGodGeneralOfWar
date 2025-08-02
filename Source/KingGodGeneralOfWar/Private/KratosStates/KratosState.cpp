@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KratosState.h"
@@ -6,7 +6,7 @@
 #include <Kismet/KismetMathLibrary.h>
 #include "SG_KratosAnim.h"
 
-void IKratosState::StateLog(const FString& message, bool isTickLog) const
+void UKratosState::StateLog(const FString& message, bool isTickLog) const
 {
 	if (bShowLog && (!isTickLog || bShowTickLog))
 	{
@@ -19,7 +19,7 @@ void IKratosState::StateLog(const FString& message, bool isTickLog) const
 
 		FString CustomTimeStringMilliseconds = Now.ToString(TEXT("%Y-%m-%d %H:%M:%S.%s\t:"));
 		log = CustomTimeStringMilliseconds + message;
-		// ¿¹½Ã Ãâ·Â: "2025-07-29 23:29:27.123"
+		// ì˜ˆì‹œ ì¶œë ¥: "2025-07-29 23:29:27.123"
 		if (is_uelog)
 		{
 			UE_LOG(LogTemp, Display, TEXT("%s"), *log);
@@ -31,56 +31,56 @@ void IKratosState::StateLog(const FString& message, bool isTickLog) const
 	}
 }
 
-void IKratosState::LookAtProcess(float DeltaTime, FRotator offset)
+void UKratosState::LookAtProcess(float DeltaTime, FRotator offset)
 {
 	FRotator ActorRotation = Me->GetActorRotation();
 	FRotator ControlRotation = Me->GetControlRotation() + offset;
 	FRotator RelativeControlRotation = UKismetMathLibrary::NormalizedDeltaRotator(ControlRotation, ActorRotation);
 	if (RelativeControlRotation.Yaw <= -30 || RelativeControlRotation.Yaw >= 90) return;
 		
-	float ClampedRelativePitch = FMath::ClampAngle(RelativeControlRotation.Pitch, -20.0f, 20.0f); // »óÇÏ Á¦ÇÑ
+	float ClampedRelativePitch = FMath::ClampAngle(RelativeControlRotation.Pitch, -20.0f, 20.0f); // ìƒí•˜ ì œí•œ
 
-	// 5. Á¦ÇÑµÈ »ó´ëÀûÀÎ Pitch¿Í Yaw¸¦ »ç¿ëÇÏ¿© »õ·Î¿î È¸Àü °ªÀ» ¸¸µì´Ï´Ù.
-	// RollÀº º¸Åë 0À¸·Î À¯ÁöÇÕ´Ï´Ù (°í°³°¡ ¿·À¸·Î ±â¿ï¾îÁö´Â °ÍÀº µå¹°±â ¶§¹®).
+	// 5. ì œí•œëœ ìƒëŒ€ì ì¸ Pitchì™€ Yawë¥¼ ì‚¬ìš©í•˜ì—¬ ìƒˆë¡œìš´ íšŒì „ ê°’ì„ ë§Œë“­ë‹ˆë‹¤.
+	// Rollì€ ë³´í†µ 0ìœ¼ë¡œ ìœ ì§€í•©ë‹ˆë‹¤ (ê³ ê°œê°€ ì˜†ìœ¼ë¡œ ê¸°ìš¸ì–´ì§€ëŠ” ê²ƒì€ ë“œë¬¼ê¸° ë•Œë¬¸).
 	FRotator ClampedRelativeRotator = FRotator(ClampedRelativePitch, RelativeControlRotation.Yaw, 0.0f);
 
-	// 6. ÀÌ »ó´ë È¸ÀüÀ» Ä³¸¯ÅÍÀÇ ActorRotation¿¡ ´Ù½Ã Àû¿ëÇÏ¿©,
-	// ¿ùµå °ø°£¿¡¼­ ¸ñÀÌ ½ÇÁ¦·Î ¹Ù¶óº¼ 'Á¦ÇÑµÈ' ¹æÇâÀ» °è»êÇÕ´Ï´Ù.
+	// 6. ì´ ìƒëŒ€ íšŒì „ì„ ìºë¦­í„°ì˜ ActorRotationì— ë‹¤ì‹œ ì ìš©í•˜ì—¬,
+	// ì›”ë“œ ê³µê°„ì—ì„œ ëª©ì´ ì‹¤ì œë¡œ ë°”ë¼ë³¼ 'ì œí•œëœ' ë°©í–¥ì„ ê³„ì‚°í•©ë‹ˆë‹¤.
 	FRotator LookAtWorldRotation = ActorRotation + ClampedRelativeRotator;
 
-	// 7. 'neck_01' º»ÀÇ ¿ùµå À§Ä¡¸¦ °¡Á®¿É´Ï´Ù. ÀÌ°ÍÀÌ ½Ã¼±ÀÇ '½ÃÀÛÁ¡'ÀÌ µË´Ï´Ù.
+	// 7. 'neck_01' ë³¸ì˜ ì›”ë“œ ìœ„ì¹˜ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤. ì´ê²ƒì´ ì‹œì„ ì˜ 'ì‹œìž‘ì 'ì´ ë©ë‹ˆë‹¤.
 	FVector NeckBoneLocation = FVector::ZeroVector;
 	if (Me && Me->GetMesh())
 	{
 		NeckBoneLocation = Me->GetMesh()->GetBoneLocation(FName(TEXT("neck_01")));
-		// ¸¸¾à neck_01 º»ÀÌ ¾ø´Ù¸é ÀûÀýÇÑ ´Ù¸¥ º» (¿¹: head)À» »ç¿ëÇÏ¼¼¿ä.
+		// ë§Œì•½ neck_01 ë³¸ì´ ì—†ë‹¤ë©´ ì ì ˆí•œ ë‹¤ë¥¸ ë³¸ (ì˜ˆ: head)ì„ ì‚¬ìš©í•˜ì„¸ìš”.
 	}
 	else
 	{
-		// ¸Þ½Ã°¡ ¾øÀ¸¸é Ä³¸¯ÅÍÀÇ À§Ä¡¿¡¼­ ½ÃÀÛÇÏµµ·Ï Æú¹é (¿¹: ´«³ôÀÌ)
+		// ë©”ì‹œê°€ ì—†ìœ¼ë©´ ìºë¦­í„°ì˜ ìœ„ì¹˜ì—ì„œ ì‹œìž‘í•˜ë„ë¡ í´ë°± (ì˜ˆ: ëˆˆë†’ì´)
 		NeckBoneLocation = Me->GetActorLocation() + FVector(0, 0, Me->GetDefaultHalfHeight());
 	}
 
 
-	// 8. LookAtWorldRotationÀÌ °¡¸®Å°´Â ¹æÇâÀ¸·Î ÀÏÁ¤ °Å¸® ¶³¾îÁø ¸ñÇ¥ ÁöÁ¡À» °è»êÇÕ´Ï´Ù.
-	float LookAtDistance = 500.0f; // ¸ñÀÌ ¹Ù¶óº¼ °¡»óÀÇ ¸ñÇ¥ ÁöÁ¡±îÁöÀÇ °Å¸®
+	// 8. LookAtWorldRotationì´ ê°€ë¦¬í‚¤ëŠ” ë°©í–¥ìœ¼ë¡œ ì¼ì • ê±°ë¦¬ ë–¨ì–´ì§„ ëª©í‘œ ì§€ì ì„ ê³„ì‚°í•©ë‹ˆë‹¤.
+	float LookAtDistance = 500.0f; // ëª©ì´ ë°”ë¼ë³¼ ê°€ìƒì˜ ëª©í‘œ ì§€ì ê¹Œì§€ì˜ ê±°ë¦¬
 	TargetLookAtPos = NeckBoneLocation + LookAtWorldRotation.Vector() * LookAtDistance;
 	Anim->LookAtTarget = FMath::Lerp(Anim->LookAtTarget, TargetLookAtPos, DeltaTime * 3);
 }
 
-void IKratosState::SetUp(AKratos* kratos)
+void UKratosState::SetUp(AKratos* kratos)
 {
 	Me = kratos; 
 	check(Me);
 	Anim = Me->Anim; 
 }
 
-void IKratosState::HandleHit(const FGenericStateParams& params)
+void UKratosState::HandleHit(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::Hit, params);
 }
 
-void IKratosState::HandleDie(const FGenericStateParams& params)
+void UKratosState::HandleDie(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::Die, params);
 }

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -11,7 +11,7 @@
  *
  */
 UCLASS()
-class KINGGODGENERALOFWAR_API UKS_Aim : public UObject, public IKratosState
+class KINGGODGENERALOFWAR_API UKS_Aim : public UKratosState
 {
 	GENERATED_BODY()
 
@@ -32,11 +32,13 @@ public:
 	virtual void HandleWAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 
 private:
+	const float THROW_AXE_COOLDOWN = 1.0f;
 	const float AIM_UI_MAX_DIST = 1000000.0f;
 	const float AIM_FOV = 60.0f;
 	const float WalkMoveScale = 0.3f;
 	float TargetMoveScale = WalkMoveScale;
 	float CurrentMoveScale;
+	float CoolDown = THROW_AXE_COOLDOWN;
 
 	class UPlayerAimUI* AimWidget;
 

@@ -13,7 +13,7 @@ void UKS_RuneWAttack::EnterState(const FGenericStateParams& params)
 	FRotator rotate = Me->GetController()->GetControlRotation();
 	rotate.Pitch = 0;
 	Me->SetActorRotation(rotate);
-	Anim->PlayRuneAttackMontage();
+	Anim->PlayMontage(EPlayerMontage::RuneWAttack);
 }
 
 void UKS_RuneWAttack::TickState(const FGenericStateParams& params, float DeltaTime)

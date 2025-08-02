@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Parry.h"
@@ -11,20 +11,20 @@
 
 void UKS_Parry::SetUp(AKratos* Kratos)
 {
-	IKratosState::SetUp(Kratos);
+	UKratosState::SetUp(Kratos);
 	Shield = Kratos->Shield;
 }
 
 void UKS_Parry::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Parry Enter"));
+	Anim->PlayMontage(EPlayerMontage::Parry);
 	Shield->SetTargetScale(true);
 	FEnemyAttackParams AttackParams = params.AttackParams;
 
 	GetWorld()->SpawnActor<AActor>(Me->ParryingLightFactory, Shield->LightPosition->GetComponentTransform())->AttachToActor(Shield, FAttachmentTransformRules::SnapToTargetIncludingScale);
 
 	Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 0.5f);
-	Anim->PlayParryMontage();
 	if (AttackParams.bMelee)
 	{
 		//auto* Thor = Cast<ABDThor>(Attacker);

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Aim.h"
@@ -10,7 +10,7 @@
 
 void UKS_Aim::SetUp(AKratos* Kratos)
 {
-	IKratosState::SetUp(Kratos);
+	UKratosState::SetUp(Kratos);
 
 	AimWidget = Me->AimWidget;
 }
@@ -22,11 +22,13 @@ void UKS_Aim::EnterState(const FGenericStateParams& params)
 	AimWidget->SetVisibility(ESlateVisibility::Visible);
 	Me->TargetFOV = AIM_FOV;
 	Anim->ActiveLookAt(true);
+	CoolDown = 0.0f;
 }
 
 void UKS_Aim::TickState(const FGenericStateParams& params, float DeltaTime)
 {
 	StateLog(TEXT("Aim Tick"), true);
+	CoolDown -= DeltaTime;
 
 	FRotator CameraRotator = Me->CameraComp->GetComponentRotation();
 	CameraRotator.Pitch = 0;
@@ -89,8 +91,9 @@ void UKS_Aim::HandleWAttack(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Throw Axe"));
 
-	if (!Me->bAxeGone)
+	if (!Me->bAxeGone && CoolDown <= 0)
 	{
-		Anim->PlayAxeThrowMontage();
+		CoolDown = THROW_AXE_COOLDOWN;
+		Anim->PlayMontage(EPlayerMontage::ThrowAxe);
 	}
 }

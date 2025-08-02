@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_WAttack.h"
@@ -16,15 +16,15 @@ void UKS_WAttack::EnterState(const FGenericStateParams& params)
 	StateLog(TEXT("WAttack Enter"));
 	if (Me->bAxeGone)
 	{
-		// ¸Ç¼Õ °ø°Ý
+		// ë§¨ì† ê³µê²©
 		Me->SetKratosState(EPlayerState::Idle);
 		return;
 	}
 
 	CurrentAttackNum = 1;
-	Anim->PlayWeakAttackMontage();
-	Anim->JumpToAttackMontageSection(CurrentAttackNum++);
-	Me->CurrentAttackType = EAttackType::WEAK_ATTACK;
+	Anim->PlayMontage(EPlayerMontage::WAttack);
+	CurrentAttackNum++;
+	//Me->CurrentAttackType = EAttackType::WEAK_ATTACK;
 }
 
 void UKS_WAttack::TickState(const FGenericStateParams& params, float DeltaTime)

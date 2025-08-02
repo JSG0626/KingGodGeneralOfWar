@@ -48,22 +48,20 @@ void AAxe::BeginPlay()
 	BloodVFXFactoryArr.Add(BloodVFX6Factory);
 	BloodVFXFactoryArr.Add(BloodVFX7Factory);
 	BloodVFXFactoryArr.Add(BloodVFX8Factory);
-	
 }
 
 // Called every frame
 void AAxe::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // 도끼 공격이 닿았을 때 데미지와 공격 방향을 전달
 void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	Me->IncreaseTargetTargetArmLength(-5);
-	Me->IncreaseTargetCameraOffset(FVector(0, 0, -10));
-	MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
+	/*Me->IncreaseTargetTargetArmLength(-5);
+	Me->IncreaseTargetCameraOffset(FVector(0, 0, -10));*/
+	//MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactoryArr[FMath::RandRange(0, BLOOD_VFX_MAX)], EdgeComp->GetComponentLocation());
 
 	//Me->SetGlobalTimeDilation(0.004f, 0.04f);
@@ -73,53 +71,6 @@ void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 	{
 		DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale));
 	}
-	else
-	{
-		/*auto* Thor = Cast<ABDThor>(OtherActor);
-		EAttackDirectionType attackDirection = EAttackDirectionType::UP;
-		if (Thor)
-		{
-			attackDirection = Me->GetAttackDirection();
-			Thor->fsm->Damage(AXE_DAMAGE, attackDirection);
-		}
-		else
-		{
-			auto AwakenThor = Cast<AAwakenThor>(OtherActor);
-			if (AwakenThor)
-			{
-				attackDirection = Me->GetAttackDirection();
-				AwakenThor->getFSM()->SetDamage(AXE_DAMAGE, attackDirection);
-			}
-		}*/
-	}
-
-	//if (Me->CurrentAttackType == EAttackType::WEAK_ATTACK)
-	//{
-	//	int32 curCombo = Me->GetCurrentWeakCombo();
-	//	if (curCombo >= 3)
-	//	{
-	//		Me->CameraShakeOnAttack(attackDirection, 1.0f);
-	//	}
-	//	else
-	//	{
-
-	//	}
-	//	Me->SetGlobalTimeDilation(0.004f, 0.04f);
-
-	//}
-	//else if (Me->CurrentAttackType == EAttackType::STRONG_ATTACK)
-	//{
-	//	Me->CameraShakeOnAttack(attackDirection, 1.1f);
-	//	Me->SetGlobalTimeDilation(0.004f, 0.04f);
-
-	//}
-	//else if (Me->CurrentAttackType == EAttackType::RUNE_ATTACK)
-	//{
-	//	Me->CameraShakeOnAttack(attackDirection, 1.2f);
-	//	Me->SetGlobalTimeDilation(0.004f, 0.04f);
-
-	//}
-
 }
 
 

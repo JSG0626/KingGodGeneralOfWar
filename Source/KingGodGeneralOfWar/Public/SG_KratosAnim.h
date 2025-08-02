@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -28,34 +28,15 @@ public:
 	USG_KratosAnim();
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
-	void PlayDodgeMontage();
-	void PlayRollMontage();
-	void PlayGuardMontage();
-	void PlayRuneBaseMontage();
-	void PlayHitMontage();
-	void PlayWeakAttackMontage();
-	void PlayStrongAttackMontage();
-	bool PlayAxeThrowMontage();
-	void PlayAxeWithdrawMontage();
-	void PlayDashAttackMontage();
-	void PlayRuneAttackMontage();
-	void PlayParryMontage();
-	void PlayParryAttackMontage();
-	void PlayDieMontage();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
+	TMap<EPlayerMontage, UAnimMontage*> MontageMap ;
+
+	void PlayMontage(const EPlayerMontage State, bool bJumpSection = false, const FString SectionName = TEXT("Default"));
+	
 	void JumpToAttackMontageSection(int32 NewSection);
-	void JumpToDodgeMontageSection(FString SectionName);
-	void JumpToWithdrawMontageSection(FString SectionName);
-	void JumpToRollMontageSection(FString SectionName);
-	void JumpToGuardMontageSection(FString SectionName);
-	void JumpToHitMontageSection(FString SectionName);
 
 	void ActiveLookAt(bool Active);
 
-	FOnNextAttackCheckDelegate OnNextAttackCheck;
-	FOnAttackHitCheckDelegate OnAttackHitCheck;
-	FOnAttackEndCheckDelegate OnAttackEndCheck;
-	FOnNextWeakAttackCheckDelegate OnNextWeakAttackCheck;
-	FOnMovableChekcDelegate OnMovableCheck;
 	UFUNCTION(BlueprintCallable)
 	void UpdatePlayerState();
 
@@ -71,78 +52,14 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FVector LookAtTarget ;
 
-
-
-	UPROPERTY()
-	class UAnimMontage* WeakAttackMontage ;
-
-	UPROPERTY()
-	class UAnimMontage* StrongAttackMontage ;
-
-	UPROPERTY()
-	class UAnimMontage* DodgeMontage;
-
-	UPROPERTY()
-	class UAnimMontage* RollMontage;
-
-	UPROPERTY()
-	class UAnimMontage* GuardMontage;
-
-	UPROPERTY()
-	class UAnimMontage* AxeThrowMontage;
-
-	UPROPERTY()
-	class UAnimMontage* AxeWithdrawMontage;
-
-	UPROPERTY()
-	class UAnimMontage* DashAttackMontage;
-
-	UPROPERTY()
-	class UAnimMontage* RuneBaseMontage;
-
-	UPROPERTY()
-	class UAnimMontage* RuneWAttackMontage;
-
-	UPROPERTY()
-	class UAnimMontage* ParryMontage ;
-
-	UPROPERTY()
-	class UAnimMontage* ParryAttackMontage ;
-
-	UPROPERTY()
-	class UAnimMontage* HitMontage;
-
-	UPROPERTY()
-	class UAnimMontage* DieMontage ;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<class ARuneAttackField> RuneAttackFieldFactory;
-
 	UPROPERTY()
 	class AKratos* Me;
 private:
-
-	UFUNCTION()
-	void AnimNotify_AttackHitCheck();
-
-	UFUNCTION()
-	void AnimNotify_AttackEndCheck();
-
 	UFUNCTION()
 	void AnimNotify_AbleNextAttack() ;
-
-	UFUNCTION()
-	void AnimNotify_NextWeakAttackCheck();
-
-	UFUNCTION()
-	void AnimNotify_MovableCheck();
-
 	
 	UFUNCTION()
-	void AnimNotify_HideAxe();
-
-	UFUNCTION()
-	void AnimNotify_TimeDilation();
+	void AnimNotify_ThrowAxe();
 
 	UFUNCTION()
 	void AnimNotify_FieldSpawn();
@@ -179,12 +96,6 @@ private:
 
 	UFUNCTION()
 	void AnimNotify_JumpCharacterInStrongAttack();
-
-	UFUNCTION()
-	void AnimNotify_DelayStart();
-
-	UFUNCTION()
-	void AnimNotify_DelayEnd();
 	
 	UFUNCTION()
 	void AnimNotify_EndDodge() ;

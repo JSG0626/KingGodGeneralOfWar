@@ -29,19 +29,38 @@ enum class EPlayerState : uint8
 {
 	Idle UMETA(DisplayName = "Idle"),
 	Move UMETA(DisplayName = "Move"),
-	Run UMETA(DisplayName = "Run"),
+	Dodge UMETA(DisplayName = "Dodge"),
+	WAttack UMETA(DisplayName = "WAttack"),
+	SAttack UMETA(DisplayName = "SAttack"),
+	RuneWAttack UMETA(DisplayName = "RuneWAttack"),
+	RuneSAttack UMETA(DisplayName = "RuneSAttack"),
+	Aim UMETA(DisplayName = "Aim"),
+	Parry UMETA(DisplayName = "Parry"),
+	Guard UMETA(DisplayName = "Guard"),
+	Ability UMETA(DisplayName = "Ability"),
+	GrabAxe UMETA(DisplayName = "GrabAxe"),
+	Artifact UMETA(DisplayName = "Artifact"),
+	Hit UMETA(DisplayName = "Hit"),
+	Die UMETA(DisplayName = "Die"),
+};
+
+UENUM(BlueprintType)
+enum class EPlayerMontage : uint8
+{
 	Dodge UMETA(DisplayName = "Dodge"),
 	Roll UMETA(DisplayName = "Roll"),
 	WAttack UMETA(DisplayName = "WAttack"),
 	SAttack UMETA(DisplayName = "SAttack"),
 	RuneWAttack UMETA(DisplayName = "RuneWAttack"),
 	RuneSAttack UMETA(DisplayName = "RuneSAttack"),
-	Aim UMETA(DisplayName = "Aim"),
-	//GuardStart UMETA(DisplayName = "GuardStart"),
 	Parry UMETA(DisplayName = "Parry"),
 	Guard UMETA(DisplayName = "Guard"),
-	//GuardHit UMETA(DisplayName = "GuardHit"),
-	//NoneMovable UMETA(DisplayName = "NoneMovable"),
+	Ability UMETA(DisplayName = "Ability"),
+	ThrowAxe UMETA(DisplayName = "ThrowAxe"),
+	CallAxe UMETA(DisplayName = "CallAxe"),
+	GrabAxe UMETA(DisplayName = "GrabAxe"),
+	Artifact UMETA(DisplayName = "Artifact"),
 	Hit UMETA(DisplayName = "Hit"),
 	Die UMETA(DisplayName = "Die"),
 };
+

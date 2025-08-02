@@ -1,21 +1,23 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "KratosState.h"
 #include "KS_WAttack.generated.h"
 
 /**
  *
  */
-UCLASS(Blueprintable)
-class KINGGODGENERALOFWAR_API UKS_WAttack : public UObject, public IKratosState
+UCLASS()
+class KINGGODGENERALOFWAR_API UKS_WAttack : public UKratosState
 {
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int TestInteger ;
+
 	virtual void EnterState(const FGenericStateParams& params) override;
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
 	virtual void ExitState(const FGenericStateParams& params) override;

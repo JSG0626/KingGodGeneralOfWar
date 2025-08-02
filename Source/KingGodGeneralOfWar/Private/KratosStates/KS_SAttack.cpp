@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_SAttack.h"
@@ -14,13 +14,13 @@ void UKS_SAttack::EnterState(const FGenericStateParams& params)
 	StateLog(TEXT("SAttack Enter"));
 	if (Me->bAxeGone)
 	{
-		// ¸Ç¼Õ °ø°Ý
+		// ë§¨ì† ê³µê²©
 		return;
 	}
 	bGuardInputOn = false;
 	CurrentAttackNum = 1;
-	Anim->PlayStrongAttackMontage();
-	Anim->JumpToAttackMontageSection(CurrentAttackNum++);
+	Anim->PlayMontage(EPlayerMontage::SAttack);
+	CurrentAttackNum++;
 	Me->CurrentAttackType = EAttackType::STRONG_ATTACK;
 }
 

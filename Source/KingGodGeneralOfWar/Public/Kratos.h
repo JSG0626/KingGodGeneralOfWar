@@ -16,6 +16,17 @@ const FRotator DefaultCameraAngle = FRotator(0);
 const float DefaultTargetTargetArmLength = 147;
 const float DefaultTargetFOV = 90;
 
+USTRUCT(BlueprintType)
+struct FStateClassPair
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Category = "State")
+	EPlayerState State;
+
+	UPROPERTY(EditAnywhere, Category = "State")
+	TSubclassOf<UKratosState> StateClass;
+};
 
 UENUM()
 enum class EAttackType : uint8
@@ -80,10 +91,10 @@ public:
 	void OnMyActionIdle(const FInputActionValue& value);
 
 	UFUNCTION()
-	void OnMyActionWeakAttack(const FInputActionValue& value);
+	void OnMyActionWAttack(const FInputActionValue& value);
 
 	UFUNCTION()
-	void OnMyActionStrongAttack(const FInputActionValue& value);
+	void OnMyActionSAttack(const FInputActionValue& value);
 
 	UFUNCTION()
 	void OnMyActionAimOn(const FInputActionValue& value);
@@ -97,9 +108,6 @@ public:
 	UFUNCTION()
 	void OnMyActionRuneBase(const FInputActionValue& value);
 
-	UFUNCTION()
-	void OnMontageEndedDelegated(UAnimMontage* Montage, bool bInterrupted);
-
 	void OnMyGuardDisappear();
 
 	void OnMyLaunchCharacterInStrongAttack();
@@ -109,7 +117,7 @@ public:
 	void IncreaseTargetCameraOffset(FVector value);
 
 	// Axe Throwing
-	void OnHideAxe();
+	void HideHoldingAxe();
 	void ThrowAxe();
 	void WithdrawAxe();
 	void CatchFlyingAxe();
@@ -130,13 +138,11 @@ public:
 
 	void OnMyEndWithFail();
 	void OnMyGetUPCameraSet();
-	void OnMySetThorDamage();
+	void OnMyActionDebugKey();
 
 
 	void CameraShakeOnAttack(EAttackDirectionType attackDir = EAttackDirectionType::UP, float scale = 1.0f);
 	FString GetPlayerStateString();
-	int32 GetCurrentWeakCombo();
-	int32 GetCurrentStrongCombo();
 	void SetGlobalTimeDilation(float Duration, float SlowScale);
 	void SetAnimationSpeedSlow(float Duration, float SlowScale);
 
@@ -189,9 +195,11 @@ public:
 	class UInputAction* IA_RuneBase;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_SetDamage;
+	class UInputAction* IA_DebugKey;
 
 	// UClass Pointer
+
+	UPROPERTY()
 	class ABaseEnemy* LockTarget;
 
 	UPROPERTY()
@@ -375,7 +383,6 @@ public:
 
 public:
 
-
 	FVector DefaultCameraOffset;
 	FRotator TargetCameraRotation;
 	FRotator TargetActorRotation;
@@ -390,27 +397,21 @@ public:
 
 	bool bLockOn;
 	bool bEvade;
-	bool bGuardStagger = false;
-
-	/// Attack Combo 를 위한 bool 변수 및 콤보 카운트
-	bool CanNextStrongCombo;
-	bool bIsStrongComboInputOn;
-	int CurrentStrongCombo;
-
-	bool CanNextWeakCombo;
-	bool bIsWeakComboInputOn;
-	int CurrentWeakCombo;
-
 	bool bAxeGone;
 	bool bIsAxeWithdrawing;
 
 	int GuardHitCnt;
 
 	void InitializeStates();
-	UPROPERTY()
-	TMap<EPlayerState, TScriptInterface<IKratosState>> KratosStates;
-	TScriptInterface<IKratosState> CurrentState;
 	void SetKratosState(const EPlayerState& NewState, const FGenericStateParams& params = FGenericStateParams());
+
+	UPROPERTY(EditDefaultsOnly, Category = "States")
+	TArray<FStateClassPair> StateClassSetUp;
+	UPROPERTY()
+	TMap<EPlayerState, TObjectPtr<UKratosState>> KratosStatesMap;
+	UPROPERTY()
+	TObjectPtr<UKratosState> CurrentState;
+
 	bool CanComboAttack;
 	bool bIsRunning;
 

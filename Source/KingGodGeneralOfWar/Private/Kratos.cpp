@@ -36,22 +36,12 @@
 #include <KratosStates/KS_Aim.h>
 #include <BaseEnemy.h>
 #include <KratosStates/KS_Hit.h>
-#include "KingGodGeneralOfWar.h"
 #include <KratosStates/KS_Parry.h>
 #include <KratosStates/KS_SAttack.h>
 #include <KratosStates/KS_RuneWAttack.h>
 #include <KratosStates/KS_Die.h>
 
 // Sets default values
-
-const float ATTACK1_DELAY = .7f;
-const float ATTACK2_DELAY = 1.5f;
-const float ATTACK3_DELAY = 1.5f;
-const float ATTACK4_DELAY = 1.5f;
-
-const float GUARD_START_DELAY = 0.3f;
-const float GUARD_END_DELAY = 0.15f;
-const float DODGE_DELAY = 0.5f;
 
 const float WALK_FOV = 90;
 const float RUN_FOV = 105;
@@ -60,8 +50,6 @@ const float AIM_FOV = 60;
 const float PARRY_FOV = 100;
 const float ATTACK_FOV = 105;
 const int GUARD_MAX_COUNT = 2;
-
-const float PARRYING_DAMAGE = 3;
 
 AKratos::AKratos()
 {
@@ -177,10 +165,10 @@ void AKratos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		input->BindAction(IA_Guard, ETriggerEvent::Triggered, this, &AKratos::OnMyActionGuardOn);
 		input->BindAction(IA_Guard, ETriggerEvent::Completed, this, &AKratos::OnMyActionGuardOff);
 		input->BindAction(IA_LockOn, ETriggerEvent::Started, this, &AKratos::OnMyActionLockOn);
-		input->BindAction(IA_SetDamage, ETriggerEvent::Started, this, &AKratos::OnMySetThorDamage);
+		input->BindAction(IA_DebugKey, ETriggerEvent::Started, this, &AKratos::OnMyActionDebugKey);
 
-		input->BindAction(IA_WeakAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionWeakAttack);
-		input->BindAction(IA_StrongAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionStrongAttack);
+		input->BindAction(IA_WeakAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionWAttack);
+		input->BindAction(IA_StrongAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionSAttack);
 		input->BindAction(IA_Aim, ETriggerEvent::Triggered, this, &AKratos::OnMyActionAimOn);
 		input->BindAction(IA_Aim, ETriggerEvent::Completed, this, &AKratos::OnMyActionAimOff);
 		input->BindAction(IA_WithdrawAxe, ETriggerEvent::Started, this, &AKratos::OnMyActionAbility);
@@ -195,62 +183,7 @@ void AKratos::PostInitializeComponents()
 	Anim = Cast<USG_KratosAnim>(GetMesh()->GetAnimInstance());
 	if (Anim)
 	{
-		Anim->OnMontageEnded.AddDynamic(this, &AKratos::OnMontageEndedDelegated);
 		Anim->Me = this;
-		// 공격이 유효할 시점을 체크하는 노티파이 AttackHitCheck
-		// 콜리전 설정을 On -> Off로 전환
-		Anim->OnAttackHitCheck.AddLambda([this]() -> void
-		{
-			// 특정 공격에서는 방패를 활용한 공격
-			if (CurrentAttackType == EAttackType::DASH_ATTACK || CurrentAttackType == EAttackType::STRONG_ATTACK && CurrentStrongCombo == 3)
-			{
-				Shield->ActiveHitCollision(true);
-			}
-			else
-			{
-				Axe->ActiveHitCollision(true);
-			}
-
-		});
-		// 공격이 끝난 시점을 체크하는 노티파이 AttackEndCheck
-		// 콜리전 설정을 Off -> On로 전환
-		Anim->OnAttackEndCheck.AddLambda([this]() -> void
-		{
-			Shield->ActiveHitCollision(false);
-			Axe->ActiveHitCollision(false);
-		});
-
-		//// 강공격 콤보를 위한 델리게이트
-		//Anim->OnNextAttackCheck.AddLambda([this]() -> void
-		//{
-		//	CanNextStrongCombo = false;
-
-		//	if (bIsStrongComboInputOn)
-		//	{
-		//		StrongAttackStartComboState();
-		//		Anim->JumpToAttackMontageSection(CurrentStrongCombo);
-		//		UGameplayStatics::PlaySound2D(GetWorld(), StrongAttackSoundArr[CurrentStrongCombo], 1, 1, 0.55);
-		//	}
-		//});
-		//Anim->OnNextWeakAttackCheck.AddLambda([this]() -> void
-		//{
-		//	CanNextWeakCombo = false;
-
-		//	if (bIsWeakComboInputOn)
-		//	{
-		//		WeakAttackStartComboState();
-		//		Anim->JumpToAttackMontageSection(CurrentWeakCombo);
-		//		if (CurrentAttackType == EAttackType::WEAK_ATTACK)
-		//		{
-		//			UGameplayStatics::PlaySound2D(GetWorld(), WeakAttackSoundArr[CurrentWeakCombo], 1, 1, 1.55f);
-		//		}
-		//		else
-		//		{
-		//			UGameplayStatics::PlaySound2D(GetWorld(), RuneAttackSoundArr[CurrentWeakCombo], 1, 1, 0.34);
-		//		}
-
-		//	}
-		//});
 	}
 }
 // Called when the game starts or when spawned
@@ -474,47 +407,6 @@ FORCEINLINE void AKratos::LockOnTargetTick(float DeltaTime)
 	}
 }
 
-void AKratos::OnMontageEndedDelegated(UAnimMontage* Montage, bool bInterrupted)
-{
-	//if (bInterrupted)
-	//{
-	//	if (State == EPlayerState::Hit)
-	//	{
-
-	//	}
-	//	else if (Montage == Anim->DodgeMontage && State == EPlayerState::Roll)
-	//	{
-	//		return;
-	//	}
-	//	else if (Montage == Anim->DodgeMontage && CurrentAttackType == EAttackType::DASH_ATTACK)
-	//	{
-	//		return;
-	//	}
-	//	else if (Montage == Anim->GuardMontage && bGuardStagger)
-	//	{
-	//		return;
-	//	}
-	//	else if (Montage == Anim->GuardMontage && State == EPlayerState::WAttack)
-	//	{
-	//		return;
-	//	}
-	//	else
-	//	{
-	//		WeakAttackEndComboState();
-	//		StrongAttackEndComboState();
-	//		bIsAttacking = false;
-	//		bParrying = false;
-	//		bEvade = false;
-	//		bGuardStagger = false;
-	//		bSuperArmor = false;
-	//	}
-	//}
-	//else
-	//{
-	//	//SetState(EPlayerState::Idle);
-	//}
-}
-
 void AKratos::OnMyGuardDisappear()
 {
 	TargetShieldScale = 0;
@@ -613,60 +505,9 @@ void AKratos::OnMyGetUPCameraSet()
 	TargetTargetArmLength = DefaultTargetTargetArmLength;
 }
 
-void AKratos::OnMySetThorDamage()
+void AKratos::OnMyActionDebugKey()
 {
-	//UE_LOG(LogTemp, Display, TEXT("OnMySetThorDamage"));
-	//FVector cameraForwardVector = UKismetMathLibrary::GetForwardVector(CameraComp->USceneComponent::K2_GetComponentRotation());
-	//FVector actorLocation = GetActorLocation() + cameraForwardVector * 500;
-	//FVector endLocation = GetActorLocation() + cameraForwardVector * 5000;
-	//float Radius = 1000;
-	//TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	//ObjectTypes.Add(TEnumAsByte<EObjectTypeQuery>(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)));
-	//TArray<AActor*> ActorsToIgnore;
-	//EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::None;
-	//FHitResult OutHit;
-	//bool bIgnoreSelf = false;
-	//FLinearColor TraceColor = FLinearColor::White;
-	//FLinearColor TraceHitColor = FLinearColor::Red;
-	//float DrawTime = 3.0f;
-	//FCollisionObjectQueryParams ObjectQueryParams;
 
-	//bool bSetDamage = UKismetSystemLibrary::SphereTraceSingleForObjects(
-	//	GetWorld(),
-	//	actorLocation,
-	//	endLocation,
-	//	Radius,
-	//	ObjectTypes,
-	//	false,
-	//	ActorsToIgnore,
-	//	DrawDebugType,
-	//	OutHit,
-	//	bIgnoreSelf,
-	//	TraceColor,
-	//	TraceHitColor,
-	//	DrawTime
-	//);
-
-	//if (bSetDamage)
-	//{
-	//	// **********************************************************************
-	//	auto* Target = OutHit.GetActor();
-	//	auto* Thor = Cast<ABDThor>(Target = OutHit.GetActor());
-	//	EAttackDirectionType attackDirection = EAttackDirectionType::UP;
-	//	if (Thor)
-	//	{
-	//		Thor->fsm->Damage(50, attackDirection);
-	//	}
-	//	else
-	//	{
-	//		auto AwakenThor = Cast<AAwakenThor>(Target);
-	//		if (AwakenThor)
-	//		{
-	//			AwakenThor->getFSM()->SetDamage(50, attackDirection);
-	//		}
-	//	}
-	//	// **********************************************************************
-	//}
 }
 
 void AKratos::CameraShakeOnAttack(EAttackDirectionType attackDir, float scale)
@@ -674,15 +515,6 @@ void AKratos::CameraShakeOnAttack(EAttackDirectionType attackDir, float scale)
 	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(AttackShakeFactoryArr[static_cast<int8>(attackDir)], scale);
 }
 
-int32 AKratos::GetCurrentWeakCombo()
-{
-	return CurrentWeakCombo;
-}
-
-int32 AKratos::GetCurrentStrongCombo()
-{
-	return CurrentStrongCombo;
-}
 
 void AKratos::SetGlobalTimeDilation(float Duration, float SlowScale)
 {
@@ -738,50 +570,16 @@ FString AKratos::GetDodgeDirection()
 
 void AKratos::InitializeStates()
 {
-	TScriptInterface<IKratosState> state = NewObject<UKS_Idle>(this);
-	state->SetUp(this);
-	KratosStates.Add({EPlayerState::Idle, state});
-
-	state = NewObject<UKS_Move>(this);
-	state->SetUp(this);
-	KratosStates.Add({ EPlayerState::Move, state });
-	
-	state = NewObject<UKS_WAttack>(this);
-	state->SetUp(this);
-	KratosStates.Add({ EPlayerState::WAttack, state });
-
-	state = NewObject<UKS_Dodge>(this);
-	state->SetUp(this);
-	KratosStates.Add({ EPlayerState::Dodge, state });
-
-	state = NewObject<UKS_Guard>(this);
-	state->SetUp(this);
-	KratosStates.Add({ EPlayerState::Guard, state });
-
-	state = NewObject<UKS_Aim>(this);
-	state->SetUp(this);
-	KratosStates.Add({ EPlayerState::Aim, state });
-
-	state = NewObject<UKS_Hit>(this);
-	state->SetUp(this);
-	KratosStates.Add({ EPlayerState::Hit, state });
-
-	state = NewObject<UKS_Parry>(this);
-	state->SetUp(this);
-	KratosStates.Add({ EPlayerState::Parry, state });
-
-	state = NewObject<UKS_SAttack>(this);
-	state->SetUp(this);
-	KratosStates.Add({ EPlayerState::SAttack, state });
-
-	state = NewObject<UKS_RuneWAttack>(this);
-	state->SetUp(this);
-	KratosStates.Add({ EPlayerState::RuneWAttack, state });
-
-	state = NewObject<UKS_Die>(this);
-	state->SetUp(this);
-	KratosStates.Add({ EPlayerState::Die, state });
-
+	for (int i = 0; i < StateClassSetUp.Num(); i++)
+	{
+		const FStateClassPair& Pair = StateClassSetUp[i];
+		TObjectPtr<UKratosState> StateObject = NewObject<UKratosState>(this, Pair.StateClass, UEnum::GetValueAsName(Pair.State));
+		StateObject->SetUp(this);
+		UClass* ActualClass = StateObject->GetClass();
+		FString ClassName = ActualClass->GetName();
+		UE_LOG(LogTemp, Display, TEXT("%s : %s"), *UEnum::GetValueAsString(Pair.State),  *ClassName);
+		KratosStatesMap.Add(Pair.State, StateObject);
+	}
 	SetKratosState(EPlayerState::Idle);
 }
 
@@ -792,7 +590,7 @@ void AKratos::SetKratosState(const EPlayerState& NewState, const FGenericStatePa
 		CurrentState->ExitState(params);
 	}
 
-	CurrentState = KratosStates[NewState];
+	CurrentState = KratosStatesMap[NewState];
 	State = NewState;
 
 	if (nullptr != CurrentState)
@@ -891,7 +689,7 @@ void AKratos::OnMyActionIdle(const FInputActionValue& value)
 	}
 }
 
-void AKratos::OnMyActionWeakAttack(const FInputActionValue& value)
+void AKratos::OnMyActionWAttack(const FInputActionValue& value)
 {
 	if (CurrentState->CanHandleWAttack())
 	{
@@ -901,112 +699,14 @@ void AKratos::OnMyActionWeakAttack(const FInputActionValue& value)
 	{
 		CurrentState->SetInputOn();
 	}
-	/*
-	* if (bAxeGone) return;
-	TargetActorRotation = CameraComp->GetComponentRotation();
-	if (Me->bIsAttacking)
-	{
-		if (CanNextWeakCombo)
-		{
-			bIsWeakComboInputOn = true;
-		}
-		return;
-	}
-
-	// 일반 약공격 콤보
-	if (State == EPlayerState::Idle || State == EPlayerState::Move || State == EPlayerState::Guard
-		|| State == EPlayerState::Run)
-	{
-		if (!bRuneReady)
-		{
-			SetState(EPlayerState::WAttack);
-
-			WeakAttackStartComboState();
-			Anim->PlayWeakAttackMontage();
-			Anim->JumpToAttackMontageSection(1);
-			UGameplayStatics::PlaySound2D(GetWorld(), WeakAttackSoundArr[CurrentWeakCombo], 1, 1, 0.8f);
-
-			bIsAttacking = true;
-			CurrentAttackType = EAttackType::WEAK_ATTACK;
-		}
-		// 룬 공격
-		else
-		{
-			bSuperArmor = true;
-			SetState(EPlayerState::WAttack);
-
-			WeakAttackStartComboState();
-			Anim->PlayRuneAttackMontage();
-			Anim->JumpToAttackMontageSection(1);
-			UGameplayStatics::PlaySound2D(GetWorld(), RuneAttackSoundArr[CurrentWeakCombo], 1, 1, 0.4f);
-			bIsAttacking = true;
-			CurrentAttackType = EAttackType::RUNE_ATTACK;
-		}
-	}
-	// 도끼 던지기
-	else if (State == EPlayerState::Aim)
-	{
-		if (Anim->PlayAxeThrowMontage())
-		{
-			CurrentAttackType = EAttackType::AXE_THROW_ATTACK;
-			UGameplayStatics::PlaySound2D(GetWorld(), AxeThrowSound);
-		}
-
-	}
-	// 대시 공격
-	else if (State == EPlayerState::Dodge)
-	{
-		SetState(EPlayerState::WAttack);
-		SetActorRotation(CameraComp->GetComponentRotation());
-		LaunchCharacter(GetActorForwardVector() * 2000, false, false);
-		Anim->PlayDashAttackMontage();
-		CurrentAttackType = EAttackType::DASH_ATTACK;
-		TargetShieldScale = .1f;
-	}
-	// 패링 공격
-
-	/*else if (State == EPlayerState::Parry)
-	{
-		SetState(EPlayerState::WAttack);
-		Anim->PlayParryAttackMontage();
-	}*/
 }
 
-void AKratos::OnMyActionStrongAttack(const FInputActionValue& value)
+void AKratos::OnMyActionSAttack(const FInputActionValue& value)
 {
 	if (CurrentState->CanHandleSAttack())
 	{
 		CurrentState->HandleSAttack();
 	}
-
-	//if (bAxeGone) return;
-	//if (bIsAttacking)
-	//{
-	//	if (CanNextStrongCombo)
-	//	{
-	//		bIsStrongComboInputOn = true;
-	//	}
-	//	return;
-	//}
-
-	//if (State == EPlayerState::Idle || State == EPlayerState::Move || State == EPlayerState::Guard
-	//	|| State == EPlayerState::Run)
-	//{
-	//	SetState(EPlayerState::WAttack);
-
-	//	if (GetVelocity().Size() >= CMC->MaxWalkSpeed)
-	//	{
-	//		UE_LOG(LogTemp, Display, TEXT("달리기 강공격"));
-	//		// 나중에 하기.
-	//	}
-	//	StrongAttackStartComboState();
-	//	Anim->PlayStrongAttackMontage();
-	//	Anim->JumpToAttackMontageSection(1);
-	//	UGameplayStatics::PlaySound2D(GetWorld(), StrongAttackSoundArr[CurrentStrongCombo], 1, 1, 0.4f);
-	//	bIsAttacking = true;
-	//	CurrentAttackType = EAttackType::STRONG_ATTACK;
-	//}
-
 }
 
 void AKratos::OnMyActionAimOn(const FInputActionValue& value)
@@ -1031,25 +731,24 @@ void AKratos::OnMyActionAbility(const FInputActionValue& value)
 	{
 		bIsAxeWithdrawing = true;
 		WithdrawAxe();
-		//UGameplayStatics::PlaySound2D(GetWorld(), AxeWithdrawSound, 1, 1, 0.07f);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Display, TEXT("bAxeGone: %d, bIsAxeWithdrawing: %d"), bAxeGone, bIsAxeWithdrawing);
+		UE_LOG(LogTemp, Display, TEXT("Use Ability"));
 	}
 }
 
 void AKratos::OnMyActionRuneBase(const FInputActionValue& value)
 {
-	if (bAxeGone) return;
-	if (State == EPlayerState::Idle || State == EPlayerState::Move || State == EPlayerState::Run)
-	{
-		Anim->PlayRuneBaseMontage();
-		UGameplayStatics::PlaySound2D(GetWorld(), RuneBaseSound, 1, 1, 0.2f);
-	}
+	//if (bAxeGone) return;
+	//if (State == EPlayerState::Idle || State == EPlayerState::Move || State == EPlayerState::Run)
+	//{
+	//	Anim->PlayRuneBaseMontage();
+	//	UGameplayStatics::PlaySound2D(GetWorld(), RuneBaseSound, 1, 1, 0.2f);
+	//}
 }
 
-void AKratos::OnHideAxe()
+void AKratos::HideHoldingAxe()
 {
 	Axe->MeshComp->SetVisibility(false, true);
 }
@@ -1066,7 +765,7 @@ void AKratos::WithdrawAxe()
 	const float dist = FVector::Dist(GetActorLocation(), FlyingAxe->GetActorLocation());
 	if (State != EPlayerState::Dodge)
 	{
-		Anim->PlayAxeWithdrawMontage();
+		Anim->PlayMontage(EPlayerMontage::GrabAxe);
 	}
 	if (dist <= DirectGrabRange)
 	{
@@ -1087,9 +786,9 @@ void AKratos::CatchFlyingAxe()
 	bAxeGone = false;
 	bIsAxeWithdrawing = false;
 
-	if (State != EPlayerState::Hit && State != EPlayerState::Dodge)
+	//if (State != EPlayerState::Hit && State != EPlayerState::Dodge)
 	{
-		Anim->JumpToWithdrawMontageSection(TEXT("Catch"));
+		Anim->Montage_JumpToSection(TEXT("Catch"));
 	}
 
 	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(CatchAxeShakeFactory, 0.2f);
@@ -1104,12 +803,6 @@ bool AKratos::Damage(AActor* Attacker, int DamageValue, EHitType HitType, bool I
 		CurrentState->HandleHit(FEnemyAttackParams(Attacker, DamageValue, HitType, IsMelee));
 	}
 	return true;
-}
-
-void AKratos::LaunchKratos(float LaunchScale)
-{
-	CameraShakeOnAttack(EAttackDirectionType::DOWN, 1);
-	LaunchCharacter(GetActorForwardVector() * -1 * LaunchScale, true, false);
 }
 
 float AKratos::SetHP(const float NewHP)

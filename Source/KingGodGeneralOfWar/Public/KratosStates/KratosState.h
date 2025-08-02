@@ -1,34 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/Interface.h"
+#include "UObject/NoExportTypes.h"
 #include "KingGodGeneralOfWar.h"
 #include "KratosState.generated.h"
 
-/**
- *
- */
 
- // // ÇÃ·¹ÀÌ¾î »óÅÂ¸¦ ³ªÅ¸³»´Â Enum (AKratos Å¬·¡½º³ª °øÅë Çì´õ¿¡ Á¤ÀÇ)
- //UENUM(BlueprintType)
- //enum class EKratosStateType : uint8
- //{
- //	Idle			UMETA(DisplayName = "Idle"),
- //	Move			UMETA(DisplayName = "Move"),
- //	Run				UMETA(DisplayName = "Run"),
- //	Dodge			UMETA(DisplayName = "Dodge"),
- //	Roll			UMETA(DisplayName = "Roll"),
- //	Attack			UMETA(DisplayName = "Attack"),
- //	Aim				UMETA(DisplayName = "Aim"),
- //	Parry			UMETA(DisplayName = "Parry"),
- //	Guard			UMETA(DisplayName = "Guard"),
- //	GuardHit		UMETA(DisplayName = "GuardHit"),
- //	Hit				UMETA(DisplayName = "Hit"),
- //	Stop			UMETA(DisplayName = "Stop"),
- //	Dead			UMETA(DisplayName = "Dead"),
- //};
 
 struct FEnemyAttackParams
 {
@@ -62,15 +39,9 @@ struct FGenericStateParams
 	FGenericStateParams(const FTransform& v) : Transform(v) {}
 	FGenericStateParams(const FEnemyAttackParams& v) : AttackParams(v) {}
 };
-UINTERFACE(MinimalAPI, Blueprintable)
-class UKratosState : public UInterface
-{
-	GENERATED_BODY()
 
-};
-
-
-class KINGGODGENERALOFWAR_API IKratosState
+UCLASS(Blueprintable, BlueprintType)
+class KINGGODGENERALOFWAR_API UKratosState : public UObject
 {
 	GENERATED_BODY()
 
@@ -91,12 +62,12 @@ protected:
 
 public:
 	virtual void SetUp(class AKratos* kratos);
-	virtual void EnterState(const FGenericStateParams& params) = 0;
-	virtual void TickState(const FGenericStateParams& params, float DeltaTime) = 0;
-	virtual void ExitState(const FGenericStateParams& params) = 0;
+	virtual void EnterState(const FGenericStateParams& params) {};
+	virtual void TickState(const FGenericStateParams& params, float DeltaTime) {};
+	virtual void ExitState(const FGenericStateParams& params) {};
 	virtual void SetInputOn() { InputOn = true; }
 
-	// ÇØ´ç »óÅÂ°¡ Æ¯Á¤ Çàµ¿À» Ã³¸®ÇÒ ¼ö ÀÖ´ÂÁö ¿©ºÎ
+	// í•´ë‹¹ ìƒíƒœê°€ íŠ¹ì • í–‰ë™ì„ ì²˜ë¦¬í•  ìˆ˜ ìˆëŠ”ì§€ ì—¬ë¶€
 	virtual bool CanHandleMove() const { return false; }
 	virtual bool CanHandleIdle() const { return false; }
 	virtual bool CanHandleWAttack() const { return false; }
@@ -109,7 +80,7 @@ public:
 
 	virtual bool CanHandleHit() const { return true; }
 
-	// »óÅÂ¸¦ Ã³¸®ÇÏ´Â ÇÔ¼ö. ±âº»ÀûÀ¸·Î ¾Æ¹« Çàµ¿µµ ÇÏÁö ¾ÊÀ½
+	// ìƒíƒœë¥¼ ì²˜ë¦¬í•˜ëŠ” í•¨ìˆ˜. ê¸°ë³¸ì ìœ¼ë¡œ ì•„ë¬´ í–‰ë™ë„ í•˜ì§€ ì•ŠìŒ
 	virtual void HandleIdle(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleMove(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) {}
@@ -119,7 +90,7 @@ public:
 	virtual void HandleWAttack(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleSAttack(const FGenericStateParams& params = FGenericStateParams()) {};
 
-	// ±âº»ÀûÀ¸·Î Áï½Ã ÀüÈ¯ÀÌ °¡´ÉÇÑ »óÅÂµéÀ» ´Ù·ç´Â ¸Ş¼Òµå
+	// ê¸°ë³¸ì ìœ¼ë¡œ ì¦‰ì‹œ ì „í™˜ì´ ê°€ëŠ¥í•œ ìƒíƒœë“¤ì„ ë‹¤ë£¨ëŠ” ë©”ì†Œë“œ
 	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams());
 	virtual void HandleDie(const FGenericStateParams& params = FGenericStateParams());
 };

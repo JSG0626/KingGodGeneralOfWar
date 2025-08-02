@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Guard.h"
@@ -10,7 +10,7 @@
 #include <Components/ArrowComponent.h>
 void UKS_Guard::SetUp(AKratos* kratos)
 {
-	IKratosState::SetUp(kratos);
+	UKratosState::SetUp(kratos);
 	Shield = kratos->Shield;
 
 }
@@ -18,8 +18,7 @@ void UKS_Guard::SetUp(AKratos* kratos)
 void UKS_Guard::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Guard Enter"));
-	Anim->PlayGuardMontage();
-
+	Anim->PlayMontage(EPlayerMontage::Guard);
 	Shield->SetTargetScale(true);
 	Anim->bMeshSpaceRotationBlend = true;
 
@@ -83,25 +82,25 @@ void UKS_Guard::HandleWAttack(const FGenericStateParams& params)
 void UKS_Guard::HandleHit(const FGenericStateParams& params)
 {
 	FEnemyAttackParams AttackParams = params.AttackParams;
-	// °¡µå °¡´ÉÇÑ °ø°Ý¿¡ ´ëÇÑ ·ÎÁ÷
+	// ê°€ë“œ ê°€ëŠ¥í•œ ê³µê²©ì— ëŒ€í•œ ë¡œì§
 	if (AttackParams.bGuardable)
 	{
 		if (TickTime > PARRIABLE_TIME)
 		{
-			Anim->JumpToGuardMontageSection(TEXT("Guard_Block"));
+			Anim->Montage_JumpToSection(TEXT("Guard_Block"));
 
 			Me->LaunchCharacter(Me->GetActorForwardVector() * -1 * 1500, true, false);
 			GetWorld()->SpawnActor<AActor>(Me->GuardBlockLightFactory, Shield->GetActorTransform())->AttachToActor(Shield, FAttachmentTransformRules::KeepWorldTransform);
 			UNiagaraFunctionLibrary::SpawnSystemAttached(Me->GuardBlockVFX, Shield->LightPosition, TEXT("GuardBlockVFX"), Shield->LightPosition->GetComponentLocation(),
 				Shield->LightPosition->GetComponentRotation(), EAttachLocation::KeepWorldPosition, true);
 		}
-		// ÆÐ¸µ °¡´É »óÅÂ
+		// íŒ¨ë§ ê°€ëŠ¥ ìƒíƒœ
 		else
 		{
 			HandleParry(params);
 		}
 	}
-	// °¡µå ºÒ´É °ø°Ý
+	// ê°€ë“œ ë¶ˆëŠ¥ ê³µê²©
 	else
 	{
 		Me->SetKratosState(EPlayerState::Hit);

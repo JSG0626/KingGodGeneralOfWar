@@ -1,9 +1,20 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Hit.h"
 #include "Kratos.h"
 #include "SG_KratosAnim.h"
+
+void UKS_Hit::SetUp(AKratos* Kratos)
+{
+	UKratosState::SetUp(Kratos);
+
+	NuckBackScale.Add({ EHitType::NB_HIGH, 20000.0f });
+	NuckBackScale.Add({ EHitType::NB_MEDIUM, 500.0f });
+	NuckBackScale.Add({ EHitType::NB_LOW, 100.0f });
+	NuckBackScale.Add({ EHitType::STAGGER, 2000.0f });
+	NuckBackScale.Add({ EHitType::STUN, 200.0f });
+}
 
 void UKS_Hit::EnterState(const FGenericStateParams& params)
 {
@@ -15,22 +26,21 @@ void UKS_Hit::EnterState(const FGenericStateParams& params)
 	if (CurHP == 0)
 	{
 		HandleDie();
-		/*Anim->PlayHitMontage();
-		Anim->JumpToHitMontageSection(TEXT("Death"));
-		Me->TargetCameraOffset = FVector(0, 50, -60);
-		Me->TargetCameraAngle = FRotator(10, 0, 0);
-		Me->TargetTargetArmLength = 180;
-		Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 1);*/
 	}
 	else
 	{
-		Anim->PlayHitMontage();
-		Anim->JumpToHitMontageSection(Me->GetHitSectionName(AttackParams.HitType));
+		UE_LOG(LogTemp, Display, TEXT("EHitType: %s"), *UEnum::GetValueAsString(AttackParams.HitType));
+		Anim->PlayMontage(EPlayerMontage::Hit, true, Me->GetHitSectionName(AttackParams.HitType));
+
+		FVector NuckBackDirection = Me->GetActorLocation() - params.AttackParams.Attacker->GetActorLocation();
+		Me->LaunchCharacter(NuckBackDirection.GetSafeNormal() * NuckBackScale[AttackParams.HitType], true, false);
+
 		if (AttackParams.HitType == EHitType::NB_HIGH)
 		{
 			Me->TargetCameraOffset = FVector(0, 50, -60);
 			Me->TargetCameraAngle = FRotator(20, 0, 0);
 			Me->TargetTargetArmLength = 190;
+			
 			Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 1);
 		}
 		else if (AttackParams.HitType == EHitType::STAGGER)

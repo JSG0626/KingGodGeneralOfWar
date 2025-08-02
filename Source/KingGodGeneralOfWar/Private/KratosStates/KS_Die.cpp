@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Die.h"
@@ -9,7 +9,7 @@ void UKS_Die::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Die Enter"));
 
-	Anim->PlayDieMontage();
+	Anim->PlayMontage(EPlayerMontage::Die);
 	Me->TargetCameraOffset = FVector(0, 0, 0);
 	Me->TargetCameraAngle = FRotator(-30, 0, 0);
 	Me->TargetTargetArmLength = 250;

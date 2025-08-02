@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Dodge.h"
@@ -11,25 +11,20 @@ void UKS_Dodge::EnterState(const FGenericStateParams& params)
 	FRotator rotate = Me->GetController()->GetControlRotation();
 	rotate.Pitch = 0;
 	Me->SetActorRotation(rotate);
+	Anim->PlayMontage(EPlayerMontage::Dodge);
+
 	// Roll
 	if (Me->GetVelocity().Size() >= Me->RollVelocityThreshhold)
 	{
 		Me->bEvade = true;
-		FString DodgeDirString = GetDodgeDirection(Me->PrevDirection);
-
-		Anim->PlayRollMontage();
-		Anim->JumpToRollMontageSection(DodgeDirString);
 	}
 	// Dash
 	else
 	{
 		bDashing = true;
-		FString DodgeDirString = GetDodgeDirection(Me->PrevDirection);
-		//Me->LaunchCharacter(params.Vector * 750, true, false);
-
-		Anim->PlayDodgeMontage();
-		Anim->JumpToDodgeMontageSection(DodgeDirString);
 	}
+	FString DodgeDirString = GetDodgeDirection(Me->PrevDirection);
+	Anim->Montage_JumpToSection(*DodgeDirString);
 }
 
 void UKS_Dodge::TickState(const FGenericStateParams& params, float DeltaTime)
@@ -59,12 +54,10 @@ void UKS_Dodge::HandleDodge(const FGenericStateParams& params)
 	FRotator rotate = Me->GetController()->GetControlRotation();
 	rotate.Pitch = 0;
 	Me->SetActorRotation(rotate);
-	Anim->Montage_Stop(0.1f, Anim->DodgeMontage);
 	FString DodgeDirString = GetDodgeDirection(Me->PrevDirection);
 	StateLog(FString::Printf(TEXT("DodgeString: %s"), *DodgeDirString));
 
-	Anim->PlayRollMontage();
-	Anim->JumpToRollMontageSection(DodgeDirString);
+	Anim->PlayMontage(EPlayerMontage::Roll, true, DodgeDirString);
 }
 
 FString UKS_Dodge::GetDodgeDirection(const FVector& Direction) const
