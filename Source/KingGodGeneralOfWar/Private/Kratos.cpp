@@ -248,7 +248,7 @@ void AKratos::BeginPlay()
 void AKratos::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	GEngine->AddOnScreenDebugMessage(1, DeltaTime, FColor::White, FString::Printf(TEXT("%s"), *UEnum::GetValueAsString(State)));
 	if (nullptr != CurrentState)
 	{
@@ -289,7 +289,6 @@ void AKratos::Tick(float DeltaTime)
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, GetPlayerStateString());
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("TargetTargetArmLength: %f"), TargetTargetArmLength));
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("TargetCameraOffset: %s"), *TargetCameraOffset.ToString()));
-
 }
 // -------------------------------------------------- TICK -------------------------------------------------------------
 
@@ -755,7 +754,10 @@ void AKratos::HideHoldingAxe()
 
 void AKratos::ThrowAxe()
 {
-	FlyingAxe = GetWorld()->SpawnActor<AFlyingAxe>(FlyingAxeFactory, CameraComp->GetComponentLocation() + CameraComp->GetForwardVector() * 100.0f, CameraComp->GetComponentRotation());
+	const FVector SpawnLoc = CameraComp->GetComponentLocation() + CameraComp->GetForwardVector() * 100.0f;
+	const FRotator SpawnRot = CameraComp->GetComponentRotation();
+	FlyingAxe = GetWorld()->SpawnActor<AFlyingAxe>(FlyingAxeFactory, SpawnLoc, SpawnRot);
+	FlyingAxe->AddActorLocalRotation(FRotator(0, 0, 70));
 	bAxeGone = true;
 	CameraShakeOnAttack(EAttackDirectionType::UP, 1.0f);
 }

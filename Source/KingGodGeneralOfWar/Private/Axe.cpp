@@ -86,7 +86,7 @@ void AAxe::ActiveHitCollision(bool ActiveState)
 	}
 }
 
-USoundCue* AAxe::GetBaseHitSound() const
+TObjectPtr<USoundCue> AAxe::GetBaseHitSound() const
 {
 	return BaseHitSoundCue;
 }

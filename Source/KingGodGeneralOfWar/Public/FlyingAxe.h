@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -11,11 +11,11 @@
 UENUM(BlueprintType)
 enum class EAxeState : uint8
 {
-	Idle,     // ´ë±â
-	Flying,   // ¾ÕÀ¸·Î ³¯¾Æ°¡´Â Áß
-	Stuck,    // ¾îµò°¡¿¡ ¹ÚÇôÀÖ´Â »óÅÂ
-	Rising,   // È¸¼ö ½Ã À§·Î ¶°¿À¸£´Â Áß
-	Returning // ÇÃ·¹ÀÌ¾î¿¡°Ô µ¹¾Æ¿À´Â Áß
+	Idle,     // ëŒ€ê¸°
+	Flying,   // ì•ìœ¼ë¡œ ë‚ ì•„ê°€ëŠ” ì¤‘
+	Stuck,    // ì–´ë”˜ê°€ì— ë°•í˜€ìˆëŠ” ìƒíƒœ
+	Rising,   // íšŒìˆ˜ ì‹œ ìœ„ë¡œ ë– ì˜¤ë¥´ëŠ” ì¤‘
+	Returning // í”Œë ˆì´ì–´ì—ê²Œ ëŒì•„ì˜¤ëŠ” ì¤‘
 };
 
 UCLASS()
@@ -32,27 +32,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	class UStaticMeshComponent* SubMeshComp;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UArrowComponent* DirectionArrowComp;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UArrowComponent* HitArrowComp;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UArrowComponent* WithdrawTargetPosition1;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UArrowComponent* WithdrawTargetPosition2;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UArrowComponent* WithdrawTargetPosition3;
-
-	UPROPERTY()
-	TArray<class UArrowComponent*> WithdrawTargetPositionArr;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UArrowComponent* WithdrawRotation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UNiagaraSystem* BloodVFXFactory;
@@ -71,41 +50,64 @@ public:
 
 	virtual void ActiveHitCollision(bool Active) override;
 
-	virtual class USoundCue* GetBaseHitSound() const override;
+	virtual TObjectPtr<class USoundCue> GetBaseHitSound() const override;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 private:
-	// ÇöÀç µµ³¢ÀÇ »óÅÂ
+	// í˜„ì¬ ë„ë¼ì˜ ìƒíƒœ
 	EAxeState CurrentState = EAxeState::Flying;
 
 	UPROPERTY()
 	class AKratos* Me;
 
-	// »óÅÂº° ·ÎÁ÷À» Ã³¸®ÇÒ ÇÔ¼ö
+	// ìƒíƒœë³„ ë¡œì§ì„ ì²˜ë¦¬í•  í•¨ìˆ˜
 	void TickState_Flying(float DeltaTime);
 	void TickState_Rising(float DeltaTime);
 	void TickState_Returning(float DeltaTime);
 
-	// »óÅÂ ÀüÈ¯ ¹× Ã³¸® ÇïÆÛ ÇÔ¼ö
+	bool CollisionCheck();
+
+	// ìƒíƒœ ì „í™˜ ë° ì²˜ë¦¬ í—¬í¼ í•¨ìˆ˜
 	void HandleCatch();
 
-	// ¸®ÆÑÅä¸µµÈ »ó¼ö °ª
-	static const float FLYING_MOVE_SPEED;
-	static const float FLYING_ROTATION_SPEED;
-	static const float RISING_LERP_SPEED;
-	static const float RETURNING_INTERP_SPEED;
-	static const float CATCH_DISTANCE_THRESHOLD;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float FLYING_MOVE_SPEED;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float FLYING_ROTATION_SPEED;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float RISING_LERP_SPEED;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float RETURNING_INTERP_SPEED;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float CATCH_DISTANCE_THRESHOLD;
 
-	// »óÅÂ °ü·Ã º¯¼ö
-	float RotationSpeed = 1;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float RotationSpeed = -1;
+
+	// ìƒíƒœ ê´€ë ¨ ë³€ìˆ˜
 	float CurrentFlySpeed;
 	FVector PrevLocation;
 	FVector TargetLocation;
 	FVector CurrentVelocity;
+	float FlyingTime = 0.0f;
 
 	float ReturningInterpAlpha = 0.0f;
 	float ReturningAlphaDelta = 0.02f;
 
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float ReturningSpeed = 1000;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float ReturningSpeedDelta = 1;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float RisingSpeed = 1800;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float RisingSpeedDelta = 25;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	float GravityTime = 1.0f;
 };

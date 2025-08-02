@@ -363,10 +363,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DirectGrabRange = 400.0f ;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-
-	float RollVelocityThreshhold;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EPlayerState State = EPlayerState::Idle;
 

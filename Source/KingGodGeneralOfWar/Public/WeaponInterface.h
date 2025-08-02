@@ -25,7 +25,7 @@ protected:
 	float CurrentStunAttackScale = 10.0f;
 
 	
-	virtual class USoundCue* GetBaseHitSound() const = 0;
+	virtual TObjectPtr<class USoundCue> GetBaseHitSound() const = 0;
 
 public:
 	virtual void ActiveHitCollision(bool ActiveState) = 0;

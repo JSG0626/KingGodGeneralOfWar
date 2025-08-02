@@ -11,16 +11,17 @@ void UKS_Dodge::EnterState(const FGenericStateParams& params)
 	FRotator rotate = Me->GetController()->GetControlRotation();
 	rotate.Pitch = 0;
 	Me->SetActorRotation(rotate);
-	Anim->PlayMontage(EPlayerMontage::Dodge);
 
 	// Roll
-	if (Me->GetVelocity().Size() >= Me->RollVelocityThreshhold)
+	if (Me->GetVelocity().Size() >= RollVelocityThreshhold)
 	{
+		Anim->PlayMontage(EPlayerMontage::Roll);
 		Me->bEvade = true;
 	}
 	// Dash
 	else
 	{
+		Anim->PlayMontage(EPlayerMontage::Dodge);
 		bDashing = true;
 	}
 	FString DodgeDirString = GetDodgeDirection(Me->PrevDirection);

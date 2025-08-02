@@ -24,6 +24,8 @@ public:
 
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
 private:
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	float RollVelocityThreshhold ;
 
 	bool bDashing = false;
 	FString GetDodgeDirection(const FVector& Direction) const;
