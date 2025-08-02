@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "KratosStates/KS_WAttack.h"
+#include "KratosStates/KS_LAttack.h"
 #include "Kratos.h"
 #include "Axe.h"
 #include "SG_Shield.h"
@@ -11,7 +11,7 @@
 #include <WeaponInterface.h>
 #include <Kismet/KismetMathLibrary.h>
 
-void UKS_WAttack::EnterState(const FGenericStateParams& params)
+void UKS_LAttack::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("WAttack Enter"));
 	if (Me->bAxeGone)
@@ -27,7 +27,7 @@ void UKS_WAttack::EnterState(const FGenericStateParams& params)
 	//Me->CurrentAttackType = EAttackType::WEAK_ATTACK;
 }
 
-void UKS_WAttack::TickState(const FGenericStateParams& params, float DeltaTime)
+void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
 	StateLog(TEXT("WAttack Tick"), true);
 	FRotator rotate = Me->CameraComp->GetComponentRotation();
@@ -45,7 +45,7 @@ void UKS_WAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 	}
 }
 
-void UKS_WAttack::ExitState(const FGenericStateParams& params)
+void UKS_LAttack::ExitState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("WAttack Exit"));
 	Me->CanComboAttack = false;
@@ -57,17 +57,17 @@ void UKS_WAttack::ExitState(const FGenericStateParams& params)
 }
 
 
-void UKS_WAttack::HandleDodge(const FGenericStateParams& params)
+void UKS_LAttack::HandleDodge(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::Dodge);
 }
 
-void UKS_WAttack::HandleWAttack(const FGenericStateParams& params)
+void UKS_LAttack::HandleWAttack(const FGenericStateParams& params)
 {
 	InputOn = true;
 }
 
-void UKS_WAttack::HandleGuard(const FGenericStateParams& params)
+void UKS_LAttack::HandleGuard(const FGenericStateParams& params)
 {
 	bGuardInputOn = true;
 	if (InputOn)

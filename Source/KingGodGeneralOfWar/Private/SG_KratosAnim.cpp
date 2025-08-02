@@ -105,15 +105,6 @@ void USG_KratosAnim::AnimNotify_AbleNextAttack()
 {
 	Me->CanComboAttack = true;
 }
-void USG_KratosAnim::AnimNotify_ThrowAxe()
-{
-	if (Me)
-	{
-		Me->HideHoldingAxe();
-		Me->ThrowAxe();
-	}
-}
-
 void USG_KratosAnim::AnimNotify_FieldSpawn()
 {
 	//GetWorld()->SpawnActor<ARuneAttackField>(RuneAttackFieldFactory, Me->GetActorTransform());

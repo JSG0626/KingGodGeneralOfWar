@@ -94,6 +94,15 @@ void UKS_Aim::HandleWAttack(const FGenericStateParams& params)
 	if (!Me->bAxeGone && CoolDown <= 0)
 	{
 		CoolDown = THROW_AXE_COOLDOWN;
-		Anim->PlayMontage(EPlayerMontage::ThrowAxe);
+		Anim->PlayMontage(EPlayerMontage::LightThrowAxe);
+	}
+}
+
+void UKS_Aim::HandleSAttack(const FGenericStateParams& params)
+{
+	if (!Me->bAxeGone && CoolDown <= 0)
+	{
+		CoolDown = THROW_AXE_COOLDOWN;
+		Anim->PlayMontage(EPlayerMontage::HeavyThrowAxe);
 	}
 }

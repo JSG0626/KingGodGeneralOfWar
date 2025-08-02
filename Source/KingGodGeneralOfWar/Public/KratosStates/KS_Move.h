@@ -22,7 +22,7 @@ public:
 	virtual bool CanHandleIdle() const override { return true; }
 	virtual bool CanHandleMove() const override { return true; }
 	virtual bool CanHandleDodge() const override { return true; }
-	virtual bool CanHandleWAttack() const override { return true; }
+	virtual bool CanHandleLAttack() const override { return true; }
 	virtual bool CanHandleSAttack() const override { return true; }
 	virtual bool CanHandleGuard() const override { return true; }
 	virtual bool CanHandleAim() const override { return true; }

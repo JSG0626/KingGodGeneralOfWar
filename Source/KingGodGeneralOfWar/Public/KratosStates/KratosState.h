@@ -70,7 +70,7 @@ public:
 	// 해당 상태가 특정 행동을 처리할 수 있는지 여부
 	virtual bool CanHandleMove() const { return false; }
 	virtual bool CanHandleIdle() const { return false; }
-	virtual bool CanHandleWAttack() const { return false; }
+	virtual bool CanHandleLAttack() const { return false; }
 	virtual bool CanHandleSAttack() const { return false; }
 	virtual bool CanHandleAim() const { return false; }
 	virtual bool CanHandleDodge() const { return false; }

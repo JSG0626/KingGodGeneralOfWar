@@ -15,12 +15,6 @@
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 #include "BaseEnemy.h"
 
-//const float AFlyingAxe::FLYING_MOVE_SPEED = 4000.0f;
-//const float AFlyingAxe::FLYING_ROTATION_SPEED = 40.0f;
-//const float AFlyingAxe::RISING_LERP_SPEED = 6.0f;
-//const float AFlyingAxe::RETURNING_INTERP_SPEED = 10.0f;
-//const float AFlyingAxe::CATCH_DISTANCE_THRESHOLD = 10.0f;
-
 // Sets default values
 AFlyingAxe::AFlyingAxe()
 {
@@ -37,19 +31,29 @@ AFlyingAxe::AFlyingAxe()
 void AFlyingAxe::BeginPlay()
 {
 	Super::BeginPlay();
-	Me = Cast<AKratos>(GetWorld()->GetFirstPlayerController()->GetPawn());
-
-	CurrentVelocity = GetActorForwardVector() * FLYING_MOVE_SPEED;
-	PrevLocation = GetActorLocation();
-
 }
 
+void AFlyingAxe::Init(AKratos* _Me, bool _bIsHeavy)
+{
+	Kratos = _Me;
+	bIsHeavy = _bIsHeavy;
+	if (!bIsHeavy)
+	{
+		AddActorLocalRotation(FRotator(0, 0, 70));
+	}
+	IWeaponInterface::BaseAttackPower = Kratos->GetAttackPower(EPlayerWeaponType::Axe);
+	IWeaponInterface::CurrentAttackScale = bIsHeavy ? HeavyScale : DefaultScale;
+	IWeaponInterface::CurrentStunAttackScale = StunDamage;
+
+	CurrentVelocity = GetActorForwardVector() * (bIsHeavy ? HeavyThrowingMoveSpeed : DefaultThrowingMoveSpeed);
+	PrevLocation = GetActorLocation();
+}
 // Called every frame
 void AFlyingAxe::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!Me) return;
+	if (!Kratos) return;
 	UE_LOG(LogTemp, Display, TEXT("CurrentAxeState: %s"), *UEnum::GetValueAsString(CurrentState));
 	// 현재 상태에 따라 적절한 함수를 호출
 	switch (CurrentState)
@@ -66,25 +70,6 @@ void AFlyingAxe::Tick(float DeltaTime)
 	default:
 		break;
 	}
-
-	
-}
-
-void AFlyingAxe::FlyingAxeOnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	//ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
-	//if (Enemy)
-	//{
-	//	DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, EAttackDirectionType::UP));
-	//	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
-	//}
-	//if (CurrentState == EAxeState::Flying)
-	//{
-	//	ActiveHitCollision(false);
-	//	AttachToComponent(OtherComp, FAttachmentTransformRules::KeepWorldTransform);
-	//	SubMeshComp->SetRelativeRotation(HitArrowComp->GetRelativeRotation());
-	//	CurrentState = EAxeState::Stuck;
-	//}
 }
 
 void AFlyingAxe::TickState_Flying(float DeltaTime)
@@ -100,7 +85,7 @@ void AFlyingAxe::TickState_Flying(float DeltaTime)
 	SetActorLocation(GetActorLocation() + CurrentVelocity * DeltaTime);
 
 	FVector Axis = GetActorRightVector();
-	const FQuat RotationDelta(Axis, FLYING_ROTATION_SPEED * DeltaTime);
+	const FQuat RotationDelta(Axis, ThrowingRotationSpeed * DeltaTime);
 	AddActorWorldRotation(RotationDelta);
 
 	// 충돌 처리
@@ -143,7 +128,7 @@ void AFlyingAxe::TickState_Rising(float DeltaTime)
 void AFlyingAxe::TickState_Returning(float DeltaTime)
 {
 	// 매 프레임 플레이어의 위치를 다시 타겟으로 설정하여 따라가게 함
-	TargetLocation = Me->WithdrawPositionComp->GetComponentLocation();
+	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
 
 	// VInterpTo를 사용해 부드럽게 타겟을 추적
 	//const FVector NextLocation = FMath::Lerp(PrevLocation, TargetLocation, ReturningInterpAlpha);
@@ -175,7 +160,7 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 
 
 	// 플레이어에게 충분히 가까워지면 회수 처리
-	if (FVector::DistSquared(GetActorLocation(), TargetLocation) < FMath::Square(CATCH_DISTANCE_THRESHOLD))
+	if (FVector::DistSquared(GetActorLocation(), TargetLocation) < FMath::Square(CatchDistanceThreshold))
 	{
 		HandleCatch();
 	}
@@ -197,7 +182,7 @@ bool AFlyingAxe::CollisionCheck()
 		ABaseEnemy* Enemy = Cast<ABaseEnemy>(HitResult.GetActor());
 		if (Enemy)
 		{
-			DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, EAttackDirectionType::UP));
+			DealDamage(Enemy, FGenericAttackParams(Kratos, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, EAttackDirectionType::UP));
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
 		}
 		if (CurrentState == EAxeState::Flying)
@@ -207,8 +192,11 @@ bool AFlyingAxe::CollisionCheck()
 			{
 				FVector Y = GetActorRightVector();
 				FVector Z = Y.FVector::Cross(-HitResult.ImpactNormal);
+				Z += (HitResult.ImpactNormal) / FMath::RandRange(1, 3);
+				Z.Normalize();
 				FRotator Rot = FRotationMatrix::MakeFromYZ(Y, Z).Rotator();
 				
+				SetActorLocation(HitResult.Location);
 				SetActorRotation(Rot);
 				AddActorLocalRotation(FRotator(0, 180, 180));
 			}
@@ -221,9 +209,9 @@ bool AFlyingAxe::CollisionCheck()
 
 void AFlyingAxe::HandleCatch()
 {
-	if (Me)
+	if (Kratos)
 	{
-		Me->CatchFlyingAxe();
+		Kratos->CatchFlyingAxe();
 	}
 	Destroy();
 }

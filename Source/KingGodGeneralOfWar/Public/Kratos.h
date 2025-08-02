@@ -48,6 +48,15 @@ public:
 	AKratos();
 
 private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))
+	float UnarmedAttackPower = 10.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))
+	float AxeAttackPower = 10.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))
+	float BladeAttackPower = 10.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))
+	float SpearAttackPower = 10.0f;
+
 	bool bLerpPlayerRotation = false;
 	int LeprPlayerRotationScale = 1;
 protected:
@@ -118,7 +127,7 @@ public:
 
 	// Axe Throwing
 	void HideHoldingAxe();
-	void ThrowAxe();
+	void ThrowAxe(const bool bIsHeavy);
 	void WithdrawAxe();
 	void CatchFlyingAxe();
 
@@ -378,7 +387,7 @@ public:
 	EAttackType CurrentAttackType;
 
 public:
-
+	
 	FVector DefaultCameraOffset;
 	FRotator TargetCameraRotation;
 	FRotator TargetActorRotation;
@@ -415,4 +424,6 @@ public:
 
 	void ActiveLerpPlayerRotation(FRotator TargetRotation, int Scale);
 	float SetHP(const float NewHP);
+
+	float GetAttackPower(EPlayerWeaponType WeaponType) const;
 };

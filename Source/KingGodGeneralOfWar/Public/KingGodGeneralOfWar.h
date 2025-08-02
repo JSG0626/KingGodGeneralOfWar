@@ -56,7 +56,8 @@ enum class EPlayerMontage : uint8
 	Parry UMETA(DisplayName = "Parry"),
 	Guard UMETA(DisplayName = "Guard"),
 	Ability UMETA(DisplayName = "Ability"),
-	ThrowAxe UMETA(DisplayName = "ThrowAxe"),
+	LightThrowAxe UMETA(DisplayName = "LightThrowAxe"),
+	HeavyThrowAxe UMETA(DisplayName = "HeavyThrowAxe"),
 	CallAxe UMETA(DisplayName = "CallAxe"),
 	GrabAxe UMETA(DisplayName = "GrabAxe"),
 	Artifact UMETA(DisplayName = "Artifact"),
@@ -64,3 +65,13 @@ enum class EPlayerMontage : uint8
 	Die UMETA(DisplayName = "Die"),
 };
 
+
+
+UENUM(BlueprintType)
+enum class EPlayerWeaponType : uint8
+{
+	Unarmed UMETA(DisplayName = "Unarmed"),
+	Axe UMETA(DisplayName = "Axe"),
+	Blade UMETA(DisplayName = "Blade"),
+	Spear UMETA(DisplayName = "Spear"),
+	};

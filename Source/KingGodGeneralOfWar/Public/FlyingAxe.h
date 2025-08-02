@@ -39,51 +39,54 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class USoundCue* BaseHitSoundCue;
 
-	UFUNCTION()
-	void FlyingAxeOnComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	void BackToPlayer();
 
-	UPROPERTY(EditDefaultsOnly)
-	float FLYING_AXE_DAMAGE = 1;
-	UPROPERTY(EditDefaultsOnly)
-	float FLYING_AXE_STUN_DAMAGE = 3;
-
 	virtual void ActiveHitCollision(bool Active) override;
-
 	virtual TObjectPtr<class USoundCue> GetBaseHitSound() const override;
+	void Init(class AKratos* _Me, bool _bIsHeavy);
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
 private:
-	// 현재 도끼의 상태
-	EAxeState CurrentState = EAxeState::Flying;
-
-	UPROPERTY()
-	class AKratos* Me;
-
 	// 상태별 로직을 처리할 함수
 	void TickState_Flying(float DeltaTime);
 	void TickState_Rising(float DeltaTime);
 	void TickState_Returning(float DeltaTime);
 
+	// 매 프레임 라인트레이싱을 통해 충돌을 체크
 	bool CollisionCheck();
 
 	// 상태 전환 및 처리 헬퍼 함수
 	void HandleCatch();
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
-	float FLYING_MOVE_SPEED;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
-	float FLYING_ROTATION_SPEED;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
-	float RISING_LERP_SPEED;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
-	float RETURNING_INTERP_SPEED;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
-	float CATCH_DISTANCE_THRESHOLD;
+	// 도끼를 강하게 던졌는지를 확인
+	bool bIsHeavy;
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
+	// 현재 도끼의 상태
+	EAxeState CurrentState = EAxeState::Flying;
+
+	// 크레토스를 변수로 갖고있음
+	UPROPERTY()
+	class AKratos* Kratos;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Attack")
+	float HeavyScale = 1.5f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Attack")
+	float DefaultScale = 1.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Attack")
+	float StunDamage = 3;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float HeavyThrowingMoveSpeed = 3500.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float DefaultThrowingMoveSpeed = 3000.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float ThrowingRotationSpeed = 50.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float CatchDistanceThreshold = 100.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
 	float RotationSpeed = -1;
 
 	// 상태 관련 변수

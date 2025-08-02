@@ -23,7 +23,7 @@ public:
 	virtual bool CanHandleIdle() const override { return true; }
 	virtual bool CanHandleMove() const override { return true; }
 	virtual bool CanHandleDodge() const override { return true; }
-	virtual bool CanHandleWAttack() const override { return true; }
+	virtual bool CanHandleLAttack() const override { return true; }
 	virtual bool CanHandleHit() const override { return true; };
 
 	virtual void HandleIdle(const FGenericStateParams& params = FGenericStateParams()) override;

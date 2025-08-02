@@ -57,9 +57,6 @@ public:
 private:
 	UFUNCTION()
 	void AnimNotify_AbleNextAttack() ;
-	
-	UFUNCTION()
-	void AnimNotify_ThrowAxe();
 
 	UFUNCTION()
 	void AnimNotify_FieldSpawn();

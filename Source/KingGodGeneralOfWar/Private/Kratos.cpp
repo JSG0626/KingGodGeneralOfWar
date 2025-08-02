@@ -29,7 +29,7 @@
 #include "Sound/SoundBase.h"
 #include "PlayerAimUI.h"
 #include "KratosStates/KS_Idle.h"
-#include "KratosStates/KS_WAttack.h"
+#include "KratosStates/KS_LAttack.h"
 #include <KratosStates/KS_Move.h>
 #include <KratosStates/KS_Dodge.h>
 #include <KratosStates/KS_Guard.h>
@@ -690,7 +690,7 @@ void AKratos::OnMyActionIdle(const FInputActionValue& value)
 
 void AKratos::OnMyActionWAttack(const FInputActionValue& value)
 {
-	if (CurrentState->CanHandleWAttack())
+	if (CurrentState->CanHandleLAttack())
 	{
 		CurrentState->HandleWAttack();
 	}
@@ -752,12 +752,12 @@ void AKratos::HideHoldingAxe()
 	Axe->MeshComp->SetVisibility(false, true);
 }
 
-void AKratos::ThrowAxe()
+void AKratos::ThrowAxe(const bool bIsHeay)
 {
 	const FVector SpawnLoc = CameraComp->GetComponentLocation() + CameraComp->GetForwardVector() * 100.0f;
 	const FRotator SpawnRot = CameraComp->GetComponentRotation();
 	FlyingAxe = GetWorld()->SpawnActor<AFlyingAxe>(FlyingAxeFactory, SpawnLoc, SpawnRot);
-	FlyingAxe->AddActorLocalRotation(FRotator(0, 0, 70));
+	FlyingAxe->Init(this, bIsHeay);
 	bAxeGone = true;
 	CameraShakeOnAttack(EAttackDirectionType::UP, 1.0f);
 }
@@ -769,11 +769,14 @@ void AKratos::WithdrawAxe()
 	{
 		Anim->PlayMontage(EPlayerMontage::GrabAxe);
 	}
+
+	// 회수 요청을 할 때 바로 근처에 도끼가 있다면 잡음
 	if (dist <= DirectGrabRange)
 	{
 		CatchFlyingAxe();
 		FlyingAxe->Destroy();
 	}
+	// 도끼를 불러들임
 	else
 	{
 		FlyingAxe->BackToPlayer();
@@ -816,4 +819,21 @@ float AKratos::SetHP(const float NewHP)
 		GameMode->PlayHitWidgetAnim();
 	}
 	return CurHP;
+}
+
+float AKratos::GetAttackPower(EPlayerWeaponType WeaponType) const
+{
+	switch (WeaponType)
+	{
+	case EPlayerWeaponType::Unarmed:
+		return UnarmedAttackPower;
+	case EPlayerWeaponType::Axe:
+		return AxeAttackPower;
+	case EPlayerWeaponType::Blade:
+		return BladeAttackPower;
+	case EPlayerWeaponType::Spear:
+		return SpearAttackPower;
+	default:
+		return -1;
+	}
 }

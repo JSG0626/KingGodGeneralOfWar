@@ -20,7 +20,7 @@ public:
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
 	virtual void ExitState(const FGenericStateParams& params) override;
 
-	virtual bool CanHandleWAttack() const override { return true; }
+	virtual bool CanHandleLAttack() const override { return true; }
 	virtual bool CanHandleDodge() const override { return true; }
 	virtual bool CanHandleHit() const override { return false; }
 

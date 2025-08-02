@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "KratosState.h"
-#include "KS_WAttack.generated.h"
+#include "KS_LAttack.generated.h"
 
 /**
  *
  */
 UCLASS()
-class KINGGODGENERALOFWAR_API UKS_WAttack : public UKratosState
+class KINGGODGENERALOFWAR_API UKS_LAttack : public UKratosState
 {
 	GENERATED_BODY()
 
@@ -22,7 +22,7 @@ public:
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
 	virtual void ExitState(const FGenericStateParams& params) override;
 
-	virtual bool CanHandleWAttack() const override { return true; }
+	virtual bool CanHandleLAttack() const override { return true; }
 	virtual bool CanHandleDodge() const override { return true; }
 	virtual bool CanHandleGuard() const override { return true; }
 
