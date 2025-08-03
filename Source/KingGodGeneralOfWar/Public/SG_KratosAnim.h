@@ -29,7 +29,7 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Animation")
-	TMap<EPlayerMontage, UAnimMontage*> MontageMap ;
+	TMap<EPlayerMontage, TObjectPtr<UAnimMontage>> MontageMap ;
 
 	void PlayMontage(const EPlayerMontage State, bool bJumpSection = false, const FString SectionName = TEXT("Default"));
 	

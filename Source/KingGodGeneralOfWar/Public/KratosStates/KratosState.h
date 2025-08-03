@@ -1,11 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "KingGodGeneralOfWar.h"
+#include "../CommonHeaders/PlayerCommon.h"
 #include "KratosState.generated.h"
-
-
 
 struct FEnemyAttackParams
 {
@@ -21,9 +19,10 @@ struct FEnemyAttackParams
 
 struct FGenericStateParams
 {
-	int Integer;
-	float Float;
-	FString String;
+	bool Bool{ false };
+	int Integer{ 0 };
+	float Float{ 0.0f };
+	FString String{ "" };
 	FVector Vector;
 	FVector2D Vector2D;
 	FTransform Transform;
@@ -31,6 +30,7 @@ struct FGenericStateParams
 	EPlayerState PrevState;
 	FGenericStateParams() = default;
 
+	FGenericStateParams(bool v) : Bool(v) {}
 	FGenericStateParams(int v) : Integer(v) {}
 	FGenericStateParams(float v) : Float(v) {}
 	FGenericStateParams(const FString& v) : String(v) {}
@@ -71,7 +71,7 @@ public:
 	virtual bool CanHandleMove() const { return false; }
 	virtual bool CanHandleIdle() const { return false; }
 	virtual bool CanHandleLAttack() const { return false; }
-	virtual bool CanHandleSAttack() const { return false; }
+	virtual bool CanHandleHAttack() const { return false; }
 	virtual bool CanHandleAim() const { return false; }
 	virtual bool CanHandleDodge() const { return false; }
 	virtual bool CanHandleRoll() const { return false; }
@@ -88,7 +88,7 @@ public:
 	virtual void HandleParry(const FGenericStateParams& params = FGenericStateParams()) {};
 	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) {}
-	virtual void HandleSAttack(const FGenericStateParams& params = FGenericStateParams()) {};
+	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) {};
 
 	// 기본적으로 즉시 전환이 가능한 상태들을 다루는 메소드
 	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams());

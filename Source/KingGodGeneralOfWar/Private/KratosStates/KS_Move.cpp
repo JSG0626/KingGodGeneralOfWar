@@ -1,9 +1,11 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Move.h"
 #include "Kratos.h"
 #include <Kismet/KismetMathLibrary.h>
+#include "SG_KratosAnim.h"
+
 void UKS_Move::EnterState(const FGenericStateParams& params)
 {
 	// 이동 상태 진입
@@ -53,10 +55,24 @@ void UKS_Move::HandleIdle(const FGenericStateParams& params)
 
 void UKS_Move::HandleLAttack(const FGenericStateParams& params)
 {
-	Me->SetKratosState(EPlayerState::LAttack);
+	if (Me->bAxeGone == false)
+	{
+		if (Me->GetVelocity().Size() >= 850)
+		{
+			Me->SetKratosState(EPlayerState::LDashAttack);
+		}
+		else
+		{
+			Me->SetKratosState(EPlayerState::LAttack);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("맨손 공격"));
+	}
 }
 
-void UKS_Move::HandleSAttack(const FGenericStateParams& params)
+void UKS_Move::HandleHAttack(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::HAttack);
 }

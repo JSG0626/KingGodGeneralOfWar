@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GenericAttackParams.generated.h" // <<-- USTRUCT가 정의된 헤더의 맨 마지막에 위치해야 함!
+#include "GenericAttackParams.generated.h" 
 
 
 UENUM()

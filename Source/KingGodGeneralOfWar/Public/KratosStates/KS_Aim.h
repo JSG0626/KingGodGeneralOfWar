@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -25,13 +25,13 @@ public:
 	virtual bool CanHandleMove() const override { return true; }
 	virtual bool CanHandleDodge() const override { return true; }
 	virtual bool CanHandleLAttack() const override { return true; }
-	virtual bool CanHandleSAttack() const override { return true; }
+	virtual bool CanHandleHAttack() const override { return true; }
 
 	virtual void HandleIdle(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleMove(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
-	virtual void HandleSAttack(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 
 private:
 	const float THROW_AXE_COOLDOWN = 1.0f;

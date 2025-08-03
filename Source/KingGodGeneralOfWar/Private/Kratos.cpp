@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Kratos.h"
@@ -291,6 +291,8 @@ void AKratos::Tick(float DeltaTime)
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, GetPlayerStateString());
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("TargetTargetArmLength: %f"), TargetTargetArmLength));
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("TargetCameraOffset: %s"), *TargetCameraOffset.ToString()));
+
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("bAxeGone: %d"), bAxeGone));
 }
 // -------------------------------------------------- TICK -------------------------------------------------------------
 
@@ -572,17 +574,15 @@ FString AKratos::GetDodgeDirection()
 void AKratos::InitializeStates()
 {
 	check(PlayerStateDataAsset);
-	for (int i = 0; i < PlayerStateDataAsset->StateClassMapData.Num(); i++)
+	for (TPair<EPlayerState, TSubclassOf<UKratosState>> Pair : PlayerStateDataAsset->StateClassMapData)
 	{
-		const FStateClassPair& Pair = PlayerStateDataAsset->StateClassMapData[i];
-		check(Pair.StateClass);
+		const EPlayerState StateKey = Pair.Key;
+		const TSubclassOf<UKratosState> StateClass = Pair.Value;
+		check(StateClass);
 
-		TObjectPtr<UKratosState> StateObject = NewObject<UKratosState>(this, Pair.StateClass, UEnum::GetValueAsName(Pair.State));
+		TObjectPtr<UKratosState> StateObject = NewObject<UKratosState>(this, Pair.Value, UEnum::GetValueAsName(StateKey));
 		StateObject->SetUp(this);
-		UClass* ActualClass = StateObject->GetClass();
-		FString ClassName = ActualClass->GetName();
-		UE_LOG(LogTemp, Display, TEXT("%s : %s"), *UEnum::GetValueAsString(Pair.State),  *ClassName);
-		KratosStatesMap.Add(Pair.State, StateObject);
+		KratosStatesMap.Add(StateKey, StateObject);
 	}
 	SetKratosState(EPlayerState::Idle);
 }
@@ -596,7 +596,6 @@ void AKratos::SetKratosState(const EPlayerState& NewState, const FGenericStatePa
 
 	CurrentState = KratosStatesMap[NewState];
 	State = NewState;
-
 	if (nullptr != CurrentState)
 	{
 		CurrentState->EnterState(params);
@@ -707,14 +706,16 @@ void AKratos::OnMyActionLAttack(const FInputActionValue& value)
 
 void AKratos::OnMyActionSAttack(const FInputActionValue& value)
 {
-	if (CurrentState->CanHandleSAttack())
+	if (CurrentState->CanHandleHAttack())
 	{
-		CurrentState->HandleSAttack();
+		CurrentState->HandleHAttack();
 	}
 }
 
 void AKratos::OnMyActionAimOn(const FInputActionValue& value)
 {
+	AimWidget->SetVisibility(ESlateVisibility::Visible);
+
 	if (CurrentState->CanHandleAim())
 	{
 		CurrentState->HandleAim();
@@ -723,6 +724,8 @@ void AKratos::OnMyActionAimOn(const FInputActionValue& value)
 
 void AKratos::OnMyActionAimOff(const FInputActionValue& value)
 {
+	AimWidget->SetVisibility(ESlateVisibility::Hidden);
+
 	if (State == EPlayerState::Aim)
 	{
 		CurrentState->HandleIdle();

@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -21,12 +21,22 @@ public:
 
 	virtual bool CanHandleDodge() const override { return bDashing; }
 	virtual bool CanHandleHit() const override;
+	virtual bool CanHandleAim() const override { return true; }
+	virtual bool CanHandleLAttack() const override { return true; }
+	virtual bool CanHandleHAttack() const override { return true; }
 
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) override;
 private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
 	float RollVelocityThreshhold ;
 
 	bool bDashing = false;
 	FString GetDodgeDirection(const FVector& Direction) const;
+
+	bool bAimInputOn;
+	bool bLAttackInputOn;
+	bool bHAttackInputOn;
 };

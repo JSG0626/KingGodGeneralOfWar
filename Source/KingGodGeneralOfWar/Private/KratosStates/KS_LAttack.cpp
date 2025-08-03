@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_LAttack.h"
@@ -22,9 +22,12 @@ void UKS_LAttack::EnterState(const FGenericStateParams& params)
 	}
 
 	CurrentAttackNum = 1;
+	bGuardInputOn = false;
+	bAimInputOn = false;
+	Me->CanComboAttack = false;
+
 	Anim->PlayMontage(EPlayerMontage::LAttack);
 	CurrentAttackNum++;
-	//Me->CurrentAttackType = EAttackType::WEAK_ATTACK;
 }
 
 void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
@@ -36,12 +39,19 @@ void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 
 	if (Me->CanComboAttack && InputOn)
 	{
-		UE_LOG(LogTemp, Display, TEXT("HandleLAttack, CurrentAttckNum: %d"), CurrentAttackNum);
-		
-		Me->CanComboAttack = false;
-		InputOn = false;
-		Anim->JumpToAttackMontageSection(CurrentAttackNum++);
-		//UGameplayStatics::PlaySound2D(GetWorld(), Me->WeakAttackSoundArr[Me->CurrentWeakCombo], 1, 1, 0.8f);
+		if (bAimInputOn)
+		{
+			FGenericStateParams Params;
+			Params.Bool = true;
+			Params.Integer = 1;
+			Me->SetKratosState(EPlayerState::Aim, Params);
+		}
+		else
+		{
+			Me->CanComboAttack = false;
+			InputOn = false;
+			Anim->JumpToAttackMontageSection(CurrentAttackNum++);
+		}
 	}
 }
 
@@ -74,4 +84,9 @@ void UKS_LAttack::HandleGuard(const FGenericStateParams& params)
 	{
 		Me->SetKratosState(EPlayerState::LRunicAttack);
 	}
+}
+
+void UKS_LAttack::HandleAim(const FGenericStateParams& params)
+{
+	bAimInputOn = true;
 }

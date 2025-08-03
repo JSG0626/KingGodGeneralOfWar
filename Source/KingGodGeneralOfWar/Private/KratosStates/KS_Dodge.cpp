@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Dodge.h"
@@ -8,6 +8,11 @@
 void UKS_Dodge::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Dodge Enter"));
+	bLAttackInputOn = false;
+	bHAttackInputOn = false;
+	bAimInputOn = false;
+	Me->CanComboAttack = false;
+
 	FRotator rotate = Me->GetController()->GetControlRotation();
 	rotate.Pitch = 0;
 	Me->SetActorRotation(rotate);
@@ -30,8 +35,30 @@ void UKS_Dodge::EnterState(const FGenericStateParams& params)
 
 void UKS_Dodge::TickState(const FGenericStateParams& params, float DeltaTime)
 {
-
 	StateLog(TEXT("Dodge Tick"), true);
+
+	if (Me->CanComboAttack)
+	{
+		UE_LOG(LogTemp, Display, TEXT("CacComboAttack: %d, bAimInputOn: %d, bLAttackInputOn: %d, bHAttackInputOn: %d"),	Me->CanComboAttack, bAimInputOn, bLAttackInputOn, bHAttackInputOn);
+		if (bAimInputOn && (bLAttackInputOn || bHAttackInputOn))
+		{
+			FGenericStateParams Params;
+			Params.Bool = true;
+			if (bHAttackInputOn)
+			{
+				Params.Integer = 1;
+			}
+			Me->SetKratosState(EPlayerState::Aim, Params);
+		}
+		else if (bLAttackInputOn)
+		{
+
+		}
+		else if (bHAttackInputOn)
+		{
+			
+		}
+	}
 }
 
 void UKS_Dodge::ExitState(const FGenericStateParams& params)
@@ -59,6 +86,22 @@ void UKS_Dodge::HandleDodge(const FGenericStateParams& params)
 	StateLog(FString::Printf(TEXT("DodgeString: %s"), *DodgeDirString));
 
 	Anim->PlayMontage(EPlayerMontage::Roll, true, DodgeDirString);
+}
+
+void UKS_Dodge::HandleLAttack(const FGenericStateParams& params)
+{
+	bLAttackInputOn = true;
+}
+
+void UKS_Dodge::HandleHAttack(const FGenericStateParams& params)
+{
+	bHAttackInputOn = true;
+}
+
+void UKS_Dodge::HandleAim(const FGenericStateParams& params)
+{
+	UE_LOG(LogTemp, Display, TEXT("HandleAim"));
+	bAimInputOn = true;
 }
 
 FString UKS_Dodge::GetDodgeDirection(const FVector& Direction) const

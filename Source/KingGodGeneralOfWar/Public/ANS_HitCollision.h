@@ -1,10 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "KingGodGeneralOfWar.h"
+#include "CommonHeaders/PlayerCommon.h"
 #include "ANS_HitCollision.generated.h"
 
 /**

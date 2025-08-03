@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "KratosStates/KratosState.h"
-#include "KS_Ability.generated.h"
+#include "KS_RDashAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class KINGGODGENERALOFWAR_API UKS_Ability : public UKratosState
+class KINGGODGENERALOFWAR_API UKS_RDashAttack : public UKratosState
 {
 	GENERATED_BODY()
 	

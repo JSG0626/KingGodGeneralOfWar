@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Idle.h"
@@ -51,7 +51,7 @@ void UKS_Idle::HandleLAttack(const FGenericStateParams& params)
 	Me->SetKratosState(EPlayerState::LAttack);
 }
 
-void UKS_Idle::HandleSAttack(const FGenericStateParams& params)
+void UKS_Idle::HandleHAttack(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::HAttack);
 }

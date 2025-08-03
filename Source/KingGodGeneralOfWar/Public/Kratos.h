@@ -8,6 +8,7 @@
 #include "Blueprint/UserWidget.h"
 #include <KratosStates/KratosState.h>
 #include "KingGodGeneralOfWar.h"
+#include "CommonHeaders/PlayerCommon.h"
 #include "Kratos.generated.h"
 
 

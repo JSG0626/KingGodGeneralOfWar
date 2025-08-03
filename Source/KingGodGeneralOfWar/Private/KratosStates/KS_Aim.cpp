@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Aim.h"
@@ -19,10 +19,22 @@ void UKS_Aim::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Aim Enter"));
 
-	AimWidget->SetVisibility(ESlateVisibility::Visible);
 	Me->TargetFOV = AIM_FOV;
 	Anim->ActiveLookAt(true);
 	CoolDown = 0.0f;
+
+	if (params.Bool)
+	{
+		if (params.Integer == 0)
+		{
+			HandleLAttack();
+		}
+		else
+		{
+			HandleHAttack();
+		}
+		Me->SetKratosState(EPlayerState::Idle);
+	}
 }
 
 void UKS_Aim::TickState(const FGenericStateParams& params, float DeltaTime)
@@ -98,7 +110,7 @@ void UKS_Aim::HandleLAttack(const FGenericStateParams& params)
 	}
 }
 
-void UKS_Aim::HandleSAttack(const FGenericStateParams& params)
+void UKS_Aim::HandleHAttack(const FGenericStateParams& params)
 {
 	if (!Me->bAxeGone && CoolDown <= 0)
 	{

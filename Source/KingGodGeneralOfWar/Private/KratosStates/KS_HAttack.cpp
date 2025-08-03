@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_HAttack.h"
@@ -18,10 +18,12 @@ void UKS_HAttack::EnterState(const FGenericStateParams& params)
 		return;
 	}
 	bGuardInputOn = false;
+	bAimInputOn = false;
 	CurrentAttackNum = 1;
 	Anim->PlayMontage(EPlayerMontage::HAttack);
 	CurrentAttackNum++;
 	Me->CurrentAttackType = EAttackType::STRONG_ATTACK;
+	Me->CanComboAttack = false;
 }
 
 void UKS_HAttack::TickState(const FGenericStateParams& params, float DeltaTime)
@@ -31,12 +33,21 @@ void UKS_HAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 	rotate.Pitch = 0.0f;
 	Me->SetActorRotation(UKismetMathLibrary::RLerp(Me->GetActorRotation(), rotate, DeltaTime * 4, true));
 
-	UE_LOG(LogTemp, Display, TEXT("CCA: %d, InputOn: %d"), Me->CanComboAttack, InputOn);
 	if (Me->CanComboAttack && InputOn)
 	{
-		Me->CanComboAttack = false;
-		InputOn = false;
-		Anim->JumpToAttackMontageSection(CurrentAttackNum++);
+		if (bAimInputOn)
+		{
+			FGenericStateParams Params;
+			Params.Bool = true;
+			Params.Integer = 1;
+			Me->SetKratosState(EPlayerState::Aim, Params);
+		}
+		else
+		{
+			Me->CanComboAttack = false;
+			InputOn = false;
+			Anim->JumpToAttackMontageSection(CurrentAttackNum++);
+		}
 	}
 }
 
@@ -66,7 +77,12 @@ void UKS_HAttack::HandleGuard(const FGenericStateParams& params)
 	}
 }
 
-void UKS_HAttack::HandleSAttack(const FGenericStateParams& params)
+void UKS_HAttack::HandleAim(const FGenericStateParams& params)
+{
+	bAimInputOn = true;
+}
+
+void UKS_HAttack::HandleHAttack(const FGenericStateParams& params)
 {
 	InputOn = true;
 }

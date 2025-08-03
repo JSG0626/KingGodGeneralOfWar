@@ -3,37 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "KratosState.h"
-#include "KS_LAttack.generated.h"
+#include "KratosStates/KratosState.h"
+#include "KS_LDashAttack.generated.h"
 
 /**
  *
  */
 UCLASS()
-class KINGGODGENERALOFWAR_API UKS_LAttack : public UKratosState
+class KINGGODGENERALOFWAR_API UKS_LDashAttack : public UKratosState
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int TestInteger ;
-
 	virtual void EnterState(const FGenericStateParams& params) override;
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
 	virtual void ExitState(const FGenericStateParams& params) override;
 
-	virtual bool CanHandleLAttack() const override { return true; }
 	virtual bool CanHandleDodge() const override { return true; }
-	virtual bool CanHandleGuard() const override { return true; }
-	virtual bool CanHandleAim() const override { return true; }
+	virtual bool CanHandleLAttack() const override { return true; }
 
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
-	virtual void HandleGuard(const FGenericStateParams& params = FGenericStateParams()) override;
-	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) override;
 
 private:
-	int CurrentAttackNum = 1;
-	bool bGuardInputOn;
-	bool bAimInputOn;
+	FVector InitVelocity;
+	float CurrentSpeedScale = 1.0f;
 };
