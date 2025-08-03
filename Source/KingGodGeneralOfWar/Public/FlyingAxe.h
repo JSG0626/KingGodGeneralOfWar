@@ -79,6 +79,8 @@ private:
 	float StunDamage = 3;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float GravityTime = 0.7f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
 	float HeavyThrowingMoveSpeed = 3500.0f;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
 	float DefaultThrowingMoveSpeed = 3000.0f;
@@ -89,6 +91,21 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
 	float RotationSpeed = -1;
 
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float ReturnRotationSpeed = -1 ;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float MinReturnSpeed = 2000;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float MaxReturnDuration = 2.5f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float RadiusScale = 0.25;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float StartInterpRotationDist = 1000 ;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	float InterpRotationDuration = 0.5f ;
+
+
 	// 상태 관련 변수
 	float CurrentFlySpeed;
 	FVector PrevLocation;
@@ -96,9 +113,16 @@ private:
 	FVector CurrentVelocity;
 	float FlyingTime = 0.0f;
 	FVector AxeMeshOffset;
-
+	float PathCurveRadius = 50;
+	float ReturnDuration;
+	FVector ReturnStartLocation;
+	float ReturnSpeed = 10;
+	bool bInterpingTargetRotation = false;
+	float ReturnElapsedTime = 0.0f;
+	float SlerpElapsedTime = 0.0f;
 	float ReturningInterpAlpha = 0.0f;
 	float ReturningAlphaDelta = 0.02f;
+	float StartInterpRotationDistSquared = 500;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
 	float ReturningSpeed = 1000;
@@ -112,6 +136,5 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
 	float RisingSpeedDelta = 25;
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
-	float GravityTime = 1.0f;
+
 };

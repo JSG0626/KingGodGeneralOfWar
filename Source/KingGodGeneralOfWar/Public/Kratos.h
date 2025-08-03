@@ -360,9 +360,6 @@ public:
 	float CurHP;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float DirectGrabRange = 400.0f ;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EPlayerState State = EPlayerState::Idle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera");

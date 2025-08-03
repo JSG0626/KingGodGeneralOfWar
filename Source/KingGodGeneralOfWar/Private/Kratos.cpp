@@ -775,17 +775,7 @@ void AKratos::WithdrawAxe()
 		Anim->PlayMontage(EPlayerMontage::GrabAxe);
 	}
 
-	// 회수 요청을 할 때 바로 근처에 도끼가 있다면 잡음
-	if (dist <= DirectGrabRange)
-	{
-		CatchFlyingAxe();
-		FlyingAxe->Destroy();
-	}
-	// 도끼를 불러들임
-	else
-	{
-		FlyingAxe->BackToPlayer();
-	}
+	FlyingAxe->BackToPlayer();
 }
 
 void AKratos::CatchFlyingAxe()

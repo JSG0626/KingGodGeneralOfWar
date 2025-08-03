@@ -49,6 +49,7 @@ void AFlyingAxe::Init(AKratos* _Me, bool _bIsHeavy)
 	SubMeshComp->SetRelativeLocation(FVector(0));
 	CurrentVelocity = GetActorForwardVector() * (bIsHeavy ? HeavyThrowingMoveSpeed : DefaultThrowingMoveSpeed);
 	PrevLocation = GetActorLocation();
+	StartInterpRotationDistSquared = StartInterpRotationDist * StartInterpRotationDist;
 }
 // Called every frame
 void AFlyingAxe::Tick(float DeltaTime)
@@ -128,36 +129,39 @@ void AFlyingAxe::TickState_Rising(float DeltaTime)
 // 플레이어에게 돌아올 때의 로직
 void AFlyingAxe::TickState_Returning(float DeltaTime)
 {
-	// 매 프레임 플레이어의 위치를 다시 타겟으로 설정하여 따라가게 함
-	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
+	ReturnElapsedTime += DeltaTime;
 
-	// VInterpTo를 사용해 부드럽게 타겟을 추적
-	//const FVector NextLocation = FMath::Lerp(PrevLocation, TargetLocation, ReturningInterpAlpha);
 	const FVector CurLocation = GetActorLocation();
-	FVector Direction = (TargetLocation - CurLocation).GetSafeNormal();
-	float RandScale = 0.2f;
-	Direction += FVector(FMath::RandRange(-RandScale, RandScale), FMath::RandRange(-RandScale, RandScale), FMath::RandRange(-RandScale, RandScale));
-	Direction.Normalize();
-	const FVector NextLocation = CurLocation + ReturningSpeed * Direction * DeltaTime;
-	ReturningSpeed += ReturningSpeedDelta;
-	//UE_LOG(LogTemp, Display, TEXT("ReturningInterpAlpha: %f"), ReturningInterpAlpha);
-	ReturningInterpAlpha += ReturningAlphaDelta;
-	ReturningAlphaDelta += 0.0001;
-	if (ReturningInterpAlpha > 1.0f)
+	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
+	const float LocationAlpha = FMath::Min(1.0f, ReturnElapsedTime / ReturnDuration);
+	// 이동 로직
 	{
-		//ReturningInterpAlpha = 1 - ReturningAlphaDelta - 0.001;
-		ReturningInterpAlpha = 0.0f;
-		PrevLocation = GetActorLocation();
+		FVector NewLocation = FMath::Lerp(ReturnStartLocation, TargetLocation, LocationAlpha);
+		FQuat TargetRotation = Kratos->GetActorQuat();
+		const FVector PathCurveOffset = TargetRotation.GetRightVector() * FMath::Sin(UE_PI * LocationAlpha) * PathCurveRadius;
+		SetActorLocation(NewLocation + PathCurveOffset);
 	}
-	SetActorLocation(NextLocation);
 
 	// 회전 로직
-	FVector Axis = GetActorRightVector();
-	RandScale = 0.2f;
-	Axis += FVector(FMath::RandRange(-RandScale, RandScale));
-	const FQuat RotationDelta(Axis, RotationSpeed * DeltaTime);
-	RotationSpeed += DeltaTime * 10;
-	AddActorWorldRotation(RotationDelta);
+	const float DistanceSquaredToTarget = FVector::DistSquared(CurLocation, TargetLocation);
+
+	const float RotationAlpha = FMath::Min(1.0f, SlerpElapsedTime / InterpRotationDuration);
+	if (DistanceSquaredToTarget <= StartInterpRotationDistSquared)
+	//if (LocationAlpha >= .65f)
+	{
+		const FQuat NewRotation = FQuat::Slerp(GetActorQuat(), Kratos->WithdrawPositionComp->GetComponentQuat(), RotationAlpha);
+		SetActorRotation(NewRotation);
+		SlerpElapsedTime += DeltaTime;
+	}
+	else
+	{
+		FVector Axis = GetActorRightVector();
+		float RandScale = 0.6f;
+		Axis += FVector(FMath::RandRange(-RandScale, RandScale));
+		Axis.Normalize();
+		const FQuat RotationDelta(Axis, ReturnRotationSpeed * DeltaTime);
+		AddActorWorldRotation(RotationDelta);
+	}
 
 
 	// 플레이어에게 충분히 가까워지면 회수 처리
@@ -175,7 +179,7 @@ bool AFlyingAxe::CollisionCheck()
 	FHitResult HitResult;
 	const FVector CurLocation = GetActorLocation();
 	FCollisionQueryParams Params;
-	
+
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, PrevLocation, CurLocation, ECC_Visibility);
 	PrevLocation = CurLocation;
 	if (bHit)
@@ -189,14 +193,14 @@ bool AFlyingAxe::CollisionCheck()
 		if (CurrentState == EAxeState::Flying)
 		{
 			AttachToComponent(HitResult.GetComponent(), FAttachmentTransformRules::KeepWorldTransform);
-			
+
 			{
 				FVector Y = GetActorRightVector();
 				FVector Z = Y.FVector::Cross(-HitResult.ImpactNormal);
 				Z += (HitResult.ImpactNormal) / FMath::RandRange(1, 3);
 				Z.Normalize();
 				FRotator Rot = FRotationMatrix::MakeFromYZ(Y, Z).Rotator();
-				
+
 				SubMeshComp->SetRelativeLocation(AxeMeshOffset);
 				SetActorLocation(HitResult.Location);
 				SetActorRotation(Rot);
@@ -226,16 +230,13 @@ void AFlyingAxe::BackToPlayer()
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	SetActorEnableCollision(true);
 
-	if (CurrentState == EAxeState::Stuck)
-	{
-		CurrentState = EAxeState::Rising;
-	}
-	else
-	{
-		PrevLocation = GetActorLocation();
-		ReturningAlphaDelta /= 4;
-		CurrentState = EAxeState::Returning;
-	}
+	PrevLocation = GetActorLocation();
+	ReturnStartLocation = PrevLocation;
+	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
+	const float DistanceToTarget = FVector::Dist(PrevLocation, TargetLocation);
+	ReturnDuration = FMath::Min(DistanceToTarget / MinReturnSpeed, MaxReturnDuration);
+	PathCurveRadius = DistanceToTarget * RadiusScale;
+	CurrentState = EAxeState::Returning;
 }
 
 void AFlyingAxe::ActiveHitCollision(bool Active)
