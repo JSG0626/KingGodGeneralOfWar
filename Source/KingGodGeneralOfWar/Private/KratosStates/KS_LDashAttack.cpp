@@ -8,6 +8,8 @@
 void UKS_LDashAttack::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("LDashAttack Enter"));
+	Me->CanComboAttack = false;
+
 	Anim->PlayMontage(EPlayerMontage::LDashAttack);
 	InitVelocity = Me->GetVelocity();
 

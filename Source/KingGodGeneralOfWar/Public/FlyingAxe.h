@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -14,7 +14,7 @@ enum class EAxeState : uint8
 	Idle,     // 대기
 	Flying,   // 앞으로 날아가는 중
 	Stuck,    // 어딘가에 박혀있는 상태
-	Rising,   // 회수 시 위로 떠오르는 중
+	Bounce,   // 충돌 후 튕겨나가는 상태
 	Returning // 플레이어에게 돌아오는 중
 };
 
@@ -52,11 +52,13 @@ protected:
 private:
 	// 상태별 로직을 처리할 함수
 	void TickState_Flying(float DeltaTime);
-	void TickState_Rising(float DeltaTime);
+	void TickState_Bounce(float DeltaTime);
 	void TickState_Returning(float DeltaTime);
 
+	void SetState(const EAxeState NewState, const FHitResult& HitResult = FHitResult{});
+
 	// 매 프레임 라인트레이싱을 통해 충돌을 체크
-	bool CollisionCheck();
+	bool CollisionCheck(FHitResult& HitResult);
 
 	// 상태 전환 및 처리 헬퍼 함수
 	void HandleCatch();
@@ -81,29 +83,42 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
 	float GravityTime = 0.7f;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
-	float HeavyThrowingMoveSpeed = 3500.0f;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
-	float DefaultThrowingMoveSpeed = 3000.0f;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
-	float ThrowingRotationSpeed = 50.0f;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
 	float CatchDistanceThreshold = 100.0f;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Flying)")
+	float HeavyThrowingMoveSpeed = 3500.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Flying)")
+	float DefaultThrowingMoveSpeed = 3000.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Flying)")
+	float ThrowingRotationSpeed = 50.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Flying)")
 	float RotationSpeed = -1;
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
-	float ReturnRotationSpeed = -1 ;
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Bounce)")
+	float BounceSpeed = 2000.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Bounce)")
+	float BounceGravityScale = 2.0f ;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Bounce)")
+	float BounceUpScale = 2.0f ;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Bounce)")
+	float BouncingRotationInitSpeed = 10.0f ;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Bounce)")
+	float BouncingRotationIncrementAlpha = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
+	float ReturnRotationSpeed = -1 ;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float MinReturnSpeed = 2000;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float MaxReturnDuration = 2.5f;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float RadiusScale = 0.25;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float StartInterpRotationDist = 1000 ;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement")
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float InterpRotationDuration = 0.5f ;
+
 
 
 	// 상태 관련 변수
@@ -123,18 +138,13 @@ private:
 	float ReturningInterpAlpha = 0.0f;
 	float ReturningAlphaDelta = 0.02f;
 	float StartInterpRotationDistSquared = 500;
+	
+	UPROPERTY()
+	TObjectPtr<class AActor> StuckEnemy;	
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
-	float ReturningSpeed = 1000;
+	UPROPERTY()
+	TArray<TObjectPtr<ABaseEnemy>> DamagedActors;
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
-	float ReturningSpeedDelta = 1;
-
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
-	float RisingSpeed = 1800;
-
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Custom")
-	float RisingSpeedDelta = 25;
-
-
+	void OnEnterStuck(const FHitResult& HitResult);
+	void OnEnterBounce(const FHitResult& HitResult);
 };
