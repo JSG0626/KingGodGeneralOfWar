@@ -16,7 +16,7 @@
 #include "BaseEnemy.h"
 #include "Components/LightComponent.h"
 #include <Components/PointLightComponent.h>
-
+#include "Engine/SkeletalMeshSocket.h"
 // Sets default values
 AFlyingAxe::AFlyingAxe()
 {
@@ -29,6 +29,9 @@ AFlyingAxe::AFlyingAxe()
 	LightComp->SetupAttachment(CapsuleComp);
 	SubMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SubMeshComp"));
 	SubMeshComp->SetupAttachment(CapsuleComp);
+
+	BladeLocationComp = CreateDefaultSubobject<UArrowComponent>(TEXT("BladeLocationComp"));
+	BladeLocationComp->SetupAttachment(CapsuleComp);
 }
 
 // Called when the game starts or when spawned
@@ -54,6 +57,7 @@ void AFlyingAxe::Init(AKratos* _Me, bool _bIsHeavy)
 	SubMeshComp->SetRelativeLocation(FVector(0));
 	CurrentVelocity = GetActorForwardVector() * (bIsHeavy ? HeavyThrowingMoveSpeed : DefaultThrowingMoveSpeed);
 	PrevLocation = GetActorLocation();
+	PrevBladeLocation = BladeLocationComp->GetComponentLocation();
 	StartInterpRotationDistSquared = StartInterpRotationDist * StartInterpRotationDist;
 }
 // Called every frame
@@ -79,8 +83,11 @@ void AFlyingAxe::Tick(float DeltaTime)
 		TickState_Returning(DeltaTime);
 		break;
 	default:
+		PrevLocation = GetActorLocation();
 		break;
 	}
+	//
+
 }
 void AFlyingAxe::TickState_Flying(float DeltaTime)
 {
@@ -111,12 +118,15 @@ void AFlyingAxe::TickState_Flying(float DeltaTime)
 		{
 			SetState(EAxeState::Bounce, HitResult);
 		}
+		
+
 	}
 }
 
 // 충돌시 시 튕겨나갈 때의 로직
 void AFlyingAxe::TickState_Bounce(float DeltaTime)
 {
+	BounceElapsedTime += DeltaTime;
 	const float GravityZ = GetWorld()->GetGravityZ() * BounceGravityScale;
 	const FVector GravityAcceleration = FVector(0.0f, 0.0f, GravityZ);
 	CurrentVelocity += GravityAcceleration * DeltaTime;
@@ -131,36 +141,51 @@ void AFlyingAxe::TickState_Bounce(float DeltaTime)
 	BouncingRotationInitSpeed += BouncingRotationIncrementAlpha * DeltaTime;
 	// 충돌 처리
 	FHitResult HitResult;
-	bool bHit = CollisionCheck(HitResult);
-	if (bHit)
+
+	if (BounceElapsedTime >= 0.2f)
 	{
-		if (StuckEnemy != HitResult.GetActor())
+		bool bHit = CollisionCheck(HitResult);
+		if (bHit)
 		{
-			SetState(EAxeState::Stuck, HitResult);
+			if (StuckActor != HitResult.GetActor())
+			{
+				SetState(EAxeState::Stuck, HitResult);
+			}
 		}
 	}
+	else
+	{
+		PrevLocation = GetActorLocation();
+	}
+
+
 }
 
 void AFlyingAxe::TickState_Vibration(float DeltaTime)
 {
 	VibrationElapsedTime += DeltaTime;
-
+	++VibrationTickCount;
 	if (VibrationElapsedTime >= VibrationTime)
 	{
 		SetState(EAxeState::Returning);
 	}
 
-	FVector VibrationLocationDelta;
-	VibrationLocationDelta.X = FMath::RandRange(-VibrationRandomRange, VibrationRandomRange);
-	VibrationLocationDelta.Y = FMath::RandRange(-VibrationRandomRange, VibrationRandomRange);
-	VibrationLocationDelta.Z = FMath::RandRange(-VibrationRandomRange, VibrationRandomRange);
-	VibrationLocationDelta += -GetActorForwardVector() * 25;
+	FVector VibrationLocationDelta = -GetActorForwardVector() * 12;
 	SetActorLocation(PrevLocation + VibrationLocationDelta);
 
-	//const FVector& Axis = VibrationMoveDirection;
+	if ((VibrationTickCount & 1) == 0)
+	{
+		const FVector& Axis = GetActorForwardVector();
+		const FQuat RotationDelta(Axis, VibrationRoll);
+		VibrationRoll = -(VibrationRoll + (VibrationRoll >= 0 ? VibrationRollIncrement : -VibrationRollIncrement));
+		AddActorWorldRotation(RotationDelta);
+	}
 
-	//const FQuat RotationDelta(Axis, FMath::RandRange(-7.5f, 2.5f) * DeltaTime);
-	//AddActorWorldRotation(RotationDelta);
+	{
+		const FVector& Axis = GetActorRightVector();
+		const FQuat RotationDelta = FQuat(Axis, VibrationYawDelta);
+		AddActorWorldRotation(RotationDelta);
+	}
 }
 
 // 플레이어에게 돌아올 때의 로직
@@ -175,8 +200,12 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	{
 		FVector NewLocation = FMath::Lerp(ReturnStartLocation, TargetLocation, LocationAlpha);
 		FQuat TargetRotation = Kratos->GetActorQuat();
-		const FVector PathCurveOffset = TargetRotation.GetRightVector() * FMath::Sin(UE_PI * LocationAlpha) * PathCurveRadius;
-		SetActorLocation(NewLocation + PathCurveOffset);
+		FVector VerticalPathCurveOffset = TargetRotation.GetUpVector() * FMath::Cos(UE_PI * (LocationAlpha + 0.5f)) * PathCurveRadius;
+		VerticalPathCurveOffset.X = 0;
+		VerticalPathCurveOffset.Y = 0;
+		FVector HorizontalPathCurveOffset = TargetRotation.GetRightVector() * FMath::Sin(UE_PI * LocationAlpha) * PathCurveRadius;
+		HorizontalPathCurveOffset.Z = 0;
+		SetActorLocation(NewLocation + (VerticalPathCurveOffset + HorizontalPathCurveOffset) * 0.5f);
 	}
 
 	// 회전 로직
@@ -264,23 +293,53 @@ void AFlyingAxe::SetState(const EAxeState NewState, const FHitResult& HitResult)
 
 void AFlyingAxe::OnEnterStuck(const FHitResult& HitResult)
 {
-	StuckEnemy = HitResult.GetActor();
-	AttachToComponent(HitResult.GetComponent(), FAttachmentTransformRules::KeepWorldTransform);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), StuckSound, GetActorLocation());
+	StuckActor = HitResult.GetActor();
 	FVector Y = GetActorRightVector();
 	FVector Z = Y.FVector::Cross(-HitResult.ImpactNormal);
 	Z += (HitResult.ImpactNormal) / FMath::RandRange(1, 3);
 	Z.Normalize();
-	FRotator Rot = FRotationMatrix::MakeFromYZ(Y, Z).Rotator();
-
-	SubMeshComp->SetRelativeLocation(AxeMeshOffset);
 	SetActorLocation(HitResult.Location);
+	SubMeshComp->SetRelativeLocation(AxeMeshOffset);
+
+	FRotator Rot = FRotationMatrix::MakeFromYZ(Y, Z).Rotator();
 	SetActorRotation(Rot);
 	AddActorLocalRotation(FRotator(0, 180, 180));
+
+
+	if (TObjectPtr<USkeletalMeshComponent> StuckSkeletalMeshComp = 
+		Cast< USkeletalMeshComponent>(HitResult.GetActor()->GetComponentByClass(USkeletalMeshComponent::StaticClass())))
+	{
+		UE_LOG(LogTemp, Display, TEXT("it is Character"));
+		USkinnedAsset* SkinnedAsset = StuckSkeletalMeshComp->GetSkinnedAsset();
+		if (SkinnedAsset == nullptr) return;
+
+		TArray <USkeletalMeshSocket*> Sockets = SkinnedAsset->GetActiveSocketList();
+		double MinDistSquared = DOUBLE_BIG_NUMBER;
+		const FVector CurLocation = GetActorLocation();
+		USkeletalMeshSocket* TargetSocket = nullptr;
+		for (USkeletalMeshSocket* Socket : Sockets)
+		{
+			const float DistSqured = FVector::DistSquared(Socket->GetSocketLocation(StuckSkeletalMeshComp), CurLocation);
+			if (DistSqured <= MinDistSquared)
+			{
+				MinDistSquared = DistSqured;
+				TargetSocket = Socket;
+			}
+		}
+
+		if (TargetSocket)
+		{
+			UE_LOG(LogTemp, Display, TEXT("TargetSocket: %s"), *TargetSocket->GetName());
+			AttachToComponent(HitResult.GetComponent(), FAttachmentTransformRules::KeepWorldTransform, *TargetSocket->GetName());
+		}
+	}
 }
 void AFlyingAxe::OnEnterBounce(const FHitResult& HitResult)
 {
 	UE_LOG(LogTemp, Display, TEXT("OnEnterBounce"));
-	StuckEnemy = HitResult.GetActor();
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BounceSound, GetActorLocation());
+
 	const FVector N = HitResult.ImpactNormal;
 	const FVector D = CurrentVelocity.GetSafeNormal();
 	const FVector ProjD = N.Dot(-D) * N;
@@ -304,6 +363,8 @@ void AFlyingAxe::OnEnterVibration()
 }
 void AFlyingAxe::OnEnterReturning()
 {
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ReturnSpinningSound,	GetActorLocation());
+	
 	LightComp->SetVisibility(false);
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	ActiveHitCollision(true);
@@ -314,6 +375,11 @@ void AFlyingAxe::OnEnterReturning()
 	const float DistanceToTarget = FVector::Dist(PrevLocation, TargetLocation);
 	ReturnDuration = FMath::Min(DistanceToTarget / MinReturnSpeed, MaxReturnDuration);
 	PathCurveRadius = DistanceToTarget * RadiusScale;
+
+	if (TObjectPtr<ABaseEnemy> Enemy = Cast<ABaseEnemy>(StuckActor))
+	{
+		DealDamage(Enemy, FGenericAttackParams(Kratos, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, EAttackDirectionType::UP));
+	}
 }
 bool AFlyingAxe::CollisionCheck(FHitResult& HitResult)
 {
@@ -321,19 +387,38 @@ bool AFlyingAxe::CollisionCheck(FHitResult& HitResult)
 	FCollisionQueryParams Params;
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, PrevLocation, CurLocation, ECC_Visibility);
-	PrevLocation = CurLocation;
 	if (bHit)
 	{
 		ABaseEnemy* Enemy = Cast<ABaseEnemy>(HitResult.GetActor());
 
-		if (Enemy && StuckEnemy != Enemy && DamagedActors.Find(Enemy) == INDEX_NONE)
+		if (Enemy && StuckActor != Enemy && DamagedActors.Find(Enemy) == INDEX_NONE)
 		{
 			DamagedActors.Add(Enemy);
 			DealDamage(Enemy, FGenericAttackParams(Kratos, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, EAttackDirectionType::UP));
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
 		}
-
 	}
+
+	FHitResult DecalHitResult;
+	FVector CurBladeLocation = BladeLocationComp->GetComponentLocation();
+	FVector HalfPoint = PrevBladeLocation + (CurBladeLocation - PrevBladeLocation) * 0.5f;
+	bool bBladeHit = GetWorld()->LineTraceSingleByChannel(DecalHitResult, PrevBladeLocation, HalfPoint, ECC_Visibility);
+	if (bBladeHit)
+	{
+		UE_LOG(LogTemp, Display, TEXT("bBladeHit"));
+		FRotator DecalRotation = GetActorRotation();
+		UGameplayStatics::SpawnDecalAttached(ImpactDecalMaterial, DecalSize, DecalHitResult.GetComponent(),
+			TEXT("Slash"), DecalHitResult.ImpactPoint + DecalHitResult.ImpactNormal * 5, DecalRotation, EAttachLocation::KeepWorldPosition, DecalLifeSpan);
+	}
+	else if (GetWorld()->LineTraceSingleByChannel(DecalHitResult, HalfPoint, CurLocation, ECC_Visibility))
+	{
+		UE_LOG(LogTemp, Display, TEXT("bBladeHit"));
+		FRotator DecalRotation = GetActorRotation();
+		UGameplayStatics::SpawnDecalAttached(ImpactDecalMaterial, DecalSize, DecalHitResult.GetComponent(),
+			TEXT("Slash"), DecalHitResult.ImpactPoint + DecalHitResult.ImpactNormal * 5, DecalRotation, EAttachLocation::KeepWorldPosition, DecalLifeSpan);
+	}
+	PrevLocation = CurLocation;
+	PrevBladeLocation = CurBladeLocation;
 	return bHit;
 }
 
@@ -341,6 +426,8 @@ void AFlyingAxe::HandleCatch()
 {
 	if (Kratos)
 	{
+
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), CatchAxeSound, GetActorLocation());
 		Kratos->CatchFlyingAxe();
 	}
 	Destroy();
@@ -365,6 +452,6 @@ void AFlyingAxe::ActiveHitCollision(bool Active)
 
 TObjectPtr<USoundCue> AFlyingAxe::GetBaseHitSound() const
 {
-	return BaseHitSoundCue;
+	return BaseHitSound;
 }
 

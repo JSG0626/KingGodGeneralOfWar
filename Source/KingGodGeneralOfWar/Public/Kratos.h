@@ -119,7 +119,7 @@ public:
 	// Axe Throwing
 	void HideHoldingAxe();
 	void ThrowAxe(const bool bIsHeavy);
-	void WithdrawAxe();
+	void CallAxe();
 	void CatchFlyingAxe();
 
 	// Damage Function

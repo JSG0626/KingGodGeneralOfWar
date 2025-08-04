@@ -37,13 +37,23 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UPointLightComponent* LightComp;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UArrowComponent* BladeLocationComp;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UNiagaraSystem* BloodVFXFactory;
 
-	UPROPERTY(EditDefaultsOnly)
-	class USoundCue* BaseHitSoundCue;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TObjectPtr<class USoundBase> ReturnSpinningSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<class USoundCue> BaseHitSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<class USoundBase> CatchAxeSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<class USoundBase> StuckSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	TObjectPtr<class USoundBase> BounceSound;
 	void BackToPlayer();
 
 	virtual void ActiveHitCollision(bool Active) override;
@@ -78,6 +88,12 @@ private:
 	// 크레토스를 변수로 갖고있음
 	UPROPERTY()
 	class AKratos* Kratos;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Decal")
+	class UMaterialInterface* ImpactDecalMaterial ;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Decal")
+	FVector DecalSize = FVector(50.0f, 50.0f, 50.0f); // X,Y,Z (깊이, 폭, 높이)
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Decal")
+	float DecalLifeSpan = 5.0f; // 5초 후 사라짐
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Attack")
 	float HeavyScale = 1.5f;
@@ -116,7 +132,11 @@ private:
 	float VibrationTime = 0.5f;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Vibration)")
 	float VibrationRandomRange = 5.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Vibration)")
+	float VibrationRollIncrement = 10.0f;
 
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Vibration)")
+	float VibrationYawDelta = 0.01;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float ReturnRotationSpeed = -1 ;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
@@ -151,9 +171,12 @@ private:
 	float StartInterpRotationDistSquared = 500;
 	float VibrationElapsedTime = 0.0f;
 	FVector VibrationMoveDirection;
-
+	FVector PrevBladeLocation;
+	float BounceElapsedTime = 0.0f;
+	float VibrationRoll = 0;
+	int VibrationTickCount = 0;
 	UPROPERTY()
-	TObjectPtr<class AActor> StuckEnemy;	
+	TObjectPtr<class AActor> StuckActor;	
 
 	UPROPERTY()
 	TArray<TObjectPtr<ABaseEnemy>> DamagedActors;

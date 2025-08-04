@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -56,7 +56,7 @@ public:
 	TArray<class UNiagaraSystem*> BloodVFXFactoryArr;
 
 	UPROPERTY(EditDefaultsOnly)
-	class USoundCue* BaseHitSoundCue;
+	class USoundCue* BaseHitSound;
 
 
 	UPROPERTY(EditDefaultsOnly)

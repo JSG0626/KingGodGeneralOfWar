@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Axe.h"
@@ -88,6 +88,6 @@ void AAxe::ActiveHitCollision(bool ActiveState)
 
 TObjectPtr<USoundCue> AAxe::GetBaseHitSound() const
 {
-	return BaseHitSoundCue;
+	return BaseHitSound;
 }
 

@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SG_Shield.h"
@@ -112,7 +112,7 @@ void ASG_Shield::SetTargetScale(const bool Bigger)
 
 TObjectPtr<USoundCue> ASG_Shield::GetBaseHitSound() const
 {
-	return BaseHitSoundCue;
+	return BaseHitSound;
 }
 
 void ASG_Shield::LerpScale(float DeltaTime)

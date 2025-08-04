@@ -750,7 +750,7 @@ void AKratos::OnMyActionAbility(const FInputActionValue& value)
 	if (bAxeGone && !bIsAxeWithdrawing)
 	{
 		bIsAxeWithdrawing = true;
-		WithdrawAxe();
+		CallAxe();
 	}
 	else
 	{
@@ -783,7 +783,7 @@ void AKratos::ThrowAxe(const bool bIsHeay)
 	CameraShakeOnAttack(EAttackDirectionType::UP, 1.0f);
 }
 
-void AKratos::WithdrawAxe()
+void AKratos::CallAxe()
 {
 	const float dist = FVector::Dist(GetActorLocation(), FlyingAxe->GetActorLocation());
 	if (State != EPlayerState::Dodge)
@@ -796,8 +796,6 @@ void AKratos::WithdrawAxe()
 
 void AKratos::CatchFlyingAxe()
 {
-	UGameplayStatics::PlaySound2D(GetWorld(), GrabAxeSound);
-
 	Axe->MeshComp->SetVisibility(true, true);
 	bAxeGone = false;
 	bIsAxeWithdrawing = false;
