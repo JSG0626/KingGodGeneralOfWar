@@ -363,17 +363,30 @@ void AKratos::SetLockOnTarget()
 		const FVector ActorLocation = GetActorLocation();
 		FVector CameraForward = CameraComp->GetForwardVector();
 		FVector ToTarget;
-		float MaxDot = 0.0f;
+		float MaxScore = 0.0f;
+		float MaxDistSquared = 0.0f;
 		int LockTargetIdx = 0;
 		for (int i = 0; i < OutHits.Num(); i++)
 		{
-			ToTarget = OutHits[i].GetActor()->GetActorLocation() - ActorLocation;
+			FVector CandidateLocation = OutHits[i].GetActor()->GetActorLocation();
+			float DistSquared = FVector::DistSquared(GetActorLocation(), CandidateLocation);
+			if (DistSquared >= MaxDistSquared)
+			{
+				MaxDistSquared = DistSquared;
+			}
+		}
+		for (int i = 0; i < OutHits.Num(); i++)
+		{
+			FVector CandidateLocation = OutHits[i].GetActor()->GetActorLocation();
+			ToTarget = CandidateLocation - ActorLocation;
 			ToTarget.Normalize();
 			float Dot = FVector::DotProduct(CameraForward, ToTarget);
+			float DistSquared = FVector::DistSquared(GetActorLocation(), CandidateLocation);
+			float Score = Dot + -(DistSquared / MaxDistSquared) * (State == EPlayerState::Aim ? 0.0f : DistPoint);
 			UE_LOG(LogTemp, Display, TEXT("Actor: %s, Dot: %f"), *OutHits[i].GetActor()->GetName(), Dot);
-			if (Dot >= MaxDot)
+			if (Score >= MaxScore)
 			{
-				MaxDot = Dot;
+				MaxScore = Score;
 				LockTargetIdx = i;
 			}
 		}

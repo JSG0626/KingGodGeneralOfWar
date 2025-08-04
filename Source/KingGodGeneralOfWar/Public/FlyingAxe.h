@@ -15,7 +15,8 @@ enum class EAxeState : uint8
 	Flying,   // 앞으로 날아가는 중
 	Stuck,    // 어딘가에 박혀있는 상태
 	Bounce,   // 충돌 후 튕겨나가는 상태
-	Returning // 플레이어에게 돌아오는 중
+	Vibration, // 회수 전 진동 상태
+	Returning, // 플레이어에게 돌아오는 중
 };
 
 UCLASS()
@@ -32,6 +33,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	class UStaticMeshComponent* SubMeshComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UPointLightComponent* LightComp;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UNiagaraSystem* BloodVFXFactory;
@@ -53,6 +58,7 @@ private:
 	// 상태별 로직을 처리할 함수
 	void TickState_Flying(float DeltaTime);
 	void TickState_Bounce(float DeltaTime);
+	void TickState_Vibration(float DeltaTime);
 	void TickState_Returning(float DeltaTime);
 
 	void SetState(const EAxeState NewState, const FHitResult& HitResult = FHitResult{});
@@ -106,6 +112,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Bounce)")
 	float BouncingRotationIncrementAlpha = 10.0f;
 
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Vibration)")
+	float VibrationTime = 0.5f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Vibration)")
+	float VibrationRandomRange = 5.0f;
+
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float ReturnRotationSpeed = -1 ;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
@@ -138,7 +149,9 @@ private:
 	float ReturningInterpAlpha = 0.0f;
 	float ReturningAlphaDelta = 0.02f;
 	float StartInterpRotationDistSquared = 500;
-	
+	float VibrationElapsedTime = 0.0f;
+	FVector VibrationMoveDirection;
+
 	UPROPERTY()
 	TObjectPtr<class AActor> StuckEnemy;	
 
@@ -147,4 +160,6 @@ private:
 
 	void OnEnterStuck(const FHitResult& HitResult);
 	void OnEnterBounce(const FHitResult& HitResult);
+	void OnEnterVibration();
+	void OnEnterReturning();
 };

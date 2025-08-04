@@ -14,6 +14,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 #include "BaseEnemy.h"
+#include "Components/LightComponent.h"
+#include <Components/PointLightComponent.h>
 
 // Sets default values
 AFlyingAxe::AFlyingAxe()
@@ -23,6 +25,8 @@ AFlyingAxe::AFlyingAxe()
 
 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComp"));
 	SetRootComponent(CapsuleComp);
+	LightComp = CreateDefaultSubobject<UPointLightComponent>(TEXT("LightComp"));
+	LightComp->SetupAttachment(CapsuleComp);
 	SubMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SubMeshComp"));
 	SubMeshComp->SetupAttachment(CapsuleComp);
 }
@@ -52,81 +56,6 @@ void AFlyingAxe::Init(AKratos* _Me, bool _bIsHeavy)
 	PrevLocation = GetActorLocation();
 	StartInterpRotationDistSquared = StartInterpRotationDist * StartInterpRotationDist;
 }
-
-void AFlyingAxe::SetState(const EAxeState NewState, const FHitResult& HitResult)
-{
-	DamagedActors.Empty();
-	// Exit State
-	switch (CurrentState)
-	{
-	case EAxeState::Idle:
-		break;
-	case EAxeState::Flying:
-		break;
-	case EAxeState::Bounce:
-		break;
-	case EAxeState::Stuck:
-		break;
-	case EAxeState::Returning:
-		break;
-	default:
-		break;
-	}
-
-	CurrentState = NewState;
-
-	// Enter State
-	switch (CurrentState)
-	{
-	case EAxeState::Idle:
-		break;
-	case EAxeState::Flying:
-		break;
-	case EAxeState::Bounce:
-		OnEnterBounce(HitResult);
-		break;
-	case EAxeState::Stuck:
-		OnEnterStuck(HitResult);
-		break;
-	case EAxeState::Returning:
-		break;
-	default:
-		break;
-	}
-}
-
-void AFlyingAxe::OnEnterStuck(const FHitResult& HitResult)
-{
-	StuckEnemy = HitResult.GetActor();
-	AttachToComponent(HitResult.GetComponent(), FAttachmentTransformRules::KeepWorldTransform);
-	FVector Y = GetActorRightVector();
-	FVector Z = Y.FVector::Cross(-HitResult.ImpactNormal);
-	Z += (HitResult.ImpactNormal) / FMath::RandRange(1, 3);
-	Z.Normalize();
-	FRotator Rot = FRotationMatrix::MakeFromYZ(Y, Z).Rotator();
-
-	SubMeshComp->SetRelativeLocation(AxeMeshOffset);
-	SetActorLocation(HitResult.Location);
-	SetActorRotation(Rot);
-	AddActorLocalRotation(FRotator(0, 180, 180));
-}
-void AFlyingAxe::OnEnterBounce(const FHitResult& HitResult)
-{
-	UE_LOG(LogTemp, Display, TEXT("OnEnterBounce"));
-	StuckEnemy = HitResult.GetActor();
-	const FVector N = HitResult.ImpactNormal;
-	const FVector D = CurrentVelocity.GetSafeNormal();
-	const FVector ProjD = N.Dot(-D) * N;
-	FVector NewDirection = ProjD + (D + ProjD);
-	//NewDirection.Z *= NewDirection.Z > 0 ? BounceUpScale : -BounceUpScale;
-	NewDirection.Z = FMath::Max(0, NewDirection.Z) + 2.0f;
-	NewDirection.Normalize();
-	CurrentVelocity = NewDirection * BounceSpeed;
-	DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10, FColor::Blue, false, 10.0f);
-	DrawDebugLine(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + NewDirection * 1000, FColor::Red, false, 5.0f);
-	DrawDebugLine(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + N * 1000, FColor::Green, false, 5.0f);
-}
-
 // Called every frame
 void AFlyingAxe::Tick(float DeltaTime)
 {
@@ -134,7 +63,6 @@ void AFlyingAxe::Tick(float DeltaTime)
 
 	if (!Kratos) return;
 
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, FString::Printf(TEXT("AxeState: %s"), *UEnum::GetValueAsString(CurrentState)));
 	// 현재 상태에 따라 적절한 함수를 호출
 	switch (CurrentState)
 	{
@@ -144,6 +72,9 @@ void AFlyingAxe::Tick(float DeltaTime)
 	case EAxeState::Bounce:
 		TickState_Bounce(DeltaTime);
 		break;
+	case EAxeState::Vibration:
+		TickState_Vibration(DeltaTime);
+		break;
 	case EAxeState::Returning:
 		TickState_Returning(DeltaTime);
 		break;
@@ -151,7 +82,6 @@ void AFlyingAxe::Tick(float DeltaTime)
 		break;
 	}
 }
-
 void AFlyingAxe::TickState_Flying(float DeltaTime)
 {
 	FlyingTime += DeltaTime;
@@ -192,10 +122,9 @@ void AFlyingAxe::TickState_Bounce(float DeltaTime)
 	CurrentVelocity += GravityAcceleration * DeltaTime;
 
 	SetActorLocation(GetActorLocation() + CurrentVelocity * DeltaTime);
+	//SetActorRotation()
 
 	FVector Axis = GetActorRightVector();
-	Axis += GetActorForwardVector();
-	Axis.Normalize();
 	const FQuat RotationDelta(Axis, BouncingRotationInitSpeed * DeltaTime);
 	AddActorWorldRotation(RotationDelta);
 
@@ -210,6 +139,28 @@ void AFlyingAxe::TickState_Bounce(float DeltaTime)
 			SetState(EAxeState::Stuck, HitResult);
 		}
 	}
+}
+
+void AFlyingAxe::TickState_Vibration(float DeltaTime)
+{
+	VibrationElapsedTime += DeltaTime;
+
+	if (VibrationElapsedTime >= VibrationTime)
+	{
+		SetState(EAxeState::Returning);
+	}
+
+	FVector VibrationLocationDelta;
+	VibrationLocationDelta.X = FMath::RandRange(-VibrationRandomRange, VibrationRandomRange);
+	VibrationLocationDelta.Y = FMath::RandRange(-VibrationRandomRange, VibrationRandomRange);
+	VibrationLocationDelta.Z = FMath::RandRange(-VibrationRandomRange, VibrationRandomRange);
+	VibrationLocationDelta += -GetActorForwardVector() * 25;
+	SetActorLocation(PrevLocation + VibrationLocationDelta);
+
+	//const FVector& Axis = VibrationMoveDirection;
+
+	//const FQuat RotationDelta(Axis, FMath::RandRange(-7.5f, 2.5f) * DeltaTime);
+	//AddActorWorldRotation(RotationDelta);
 }
 
 // 플레이어에게 돌아올 때의 로직
@@ -232,8 +183,8 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	const float DistanceSquaredToTarget = FVector::DistSquared(CurLocation, TargetLocation);
 
 	const float RotationAlpha = FMath::Min(1.0f, SlerpElapsedTime / InterpRotationDuration);
-	if (DistanceSquaredToTarget <= StartInterpRotationDistSquared)
-		//if (LocationAlpha >= .65f)
+	//if (DistanceSquaredToTarget <= StartInterpRotationDistSquared)
+	if (LocationAlpha >= .7f && DistanceSquaredToTarget <= StartInterpRotationDistSquared)
 	{
 		const FQuat NewRotation = FQuat::Slerp(GetActorQuat(), Kratos->WithdrawPositionComp->GetComponentQuat(), RotationAlpha);
 		SetActorRotation(NewRotation);
@@ -241,11 +192,14 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	}
 	else
 	{
-		FVector Axis = GetActorRightVector();
-		float RandScale = 0.6f;
-		Axis += FVector(FMath::RandRange(-RandScale, RandScale));
-		Axis.Normalize();
-		const FQuat RotationDelta(Axis, ReturnRotationSpeed * DeltaTime);
+		FVector RightAxis = GetActorRightVector();
+		FVector ForwardAxis = GetActorForwardVector();
+		//float RandScale = 0.6f;
+		//Axis += FVector(FMath::RandRange(-RandScale, RandScale));
+		FQuat RotationDelta(RightAxis, ReturnRotationSpeed * DeltaTime);
+		AddActorWorldRotation(RotationDelta);
+
+		RotationDelta = FQuat(ForwardAxis, ReturnRotationSpeed * DeltaTime);
 		AddActorWorldRotation(RotationDelta);
 	}
 
@@ -260,9 +214,107 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	FHitResult HitResult;
 	bool bHit = CollisionCheck(HitResult);
 }
+void AFlyingAxe::SetState(const EAxeState NewState, const FHitResult& HitResult)
+{
+	DamagedActors.Empty();
+	// Exit State
+	switch (CurrentState)
+	{
+	case EAxeState::Idle:
+		break;
+	case EAxeState::Flying:
+		break;
+	case EAxeState::Bounce:
+		break;
+	case EAxeState::Stuck:
+		break;
+	case EAxeState::Vibration:
+		break;
+	case EAxeState::Returning:
+		break;
+	default:
+		break;
+	}
 
+	CurrentState = NewState;
 
+	// Enter State
+	switch (CurrentState)
+	{
+	case EAxeState::Idle:
+		break;
+	case EAxeState::Flying:
+		break;
+	case EAxeState::Bounce:
+		OnEnterBounce(HitResult);
+		break;
+	case EAxeState::Stuck:
+		OnEnterStuck(HitResult);
+		break;
+	case EAxeState::Vibration:
+		OnEnterVibration();
+		break;
+	case EAxeState::Returning:
+		OnEnterReturning();
+		break;
+	default:
+		break;
+	}
+}
 
+void AFlyingAxe::OnEnterStuck(const FHitResult& HitResult)
+{
+	StuckEnemy = HitResult.GetActor();
+	AttachToComponent(HitResult.GetComponent(), FAttachmentTransformRules::KeepWorldTransform);
+	FVector Y = GetActorRightVector();
+	FVector Z = Y.FVector::Cross(-HitResult.ImpactNormal);
+	Z += (HitResult.ImpactNormal) / FMath::RandRange(1, 3);
+	Z.Normalize();
+	FRotator Rot = FRotationMatrix::MakeFromYZ(Y, Z).Rotator();
+
+	SubMeshComp->SetRelativeLocation(AxeMeshOffset);
+	SetActorLocation(HitResult.Location);
+	SetActorRotation(Rot);
+	AddActorLocalRotation(FRotator(0, 180, 180));
+}
+void AFlyingAxe::OnEnterBounce(const FHitResult& HitResult)
+{
+	UE_LOG(LogTemp, Display, TEXT("OnEnterBounce"));
+	StuckEnemy = HitResult.GetActor();
+	const FVector N = HitResult.ImpactNormal;
+	const FVector D = CurrentVelocity.GetSafeNormal();
+	const FVector ProjD = N.Dot(-D) * N;
+	FVector NewDirection = ProjD + (D + ProjD);
+	//NewDirection.Z *= NewDirection.Z > 0 ? BounceUpScale : -BounceUpScale;
+	NewDirection.Z = FMath::Max(0, NewDirection.Z) + 2.0f;
+	NewDirection.Normalize();
+	CurrentVelocity = NewDirection * BounceSpeed;
+
+	FRotator CurRotation = GetActorRotation();
+	CurRotation.Roll = 0;
+	SetActorRotation(CurRotation);
+	/*DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10, FColor::Blue, false, 10.0f);
+	DrawDebugLine(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + NewDirection * 1000, FColor::Red, false, 5.0f);
+	DrawDebugLine(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + N * 1000, FColor::Green, false, 5.0f);*/
+}
+void AFlyingAxe::OnEnterVibration()
+{
+	LightComp->SetVisibility(true);
+	VibrationMoveDirection = GetActorRightVector();
+}
+void AFlyingAxe::OnEnterReturning()
+{
+	LightComp->SetVisibility(false);
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	ActiveHitCollision(true);
+
+	PrevLocation = GetActorLocation();
+	ReturnStartLocation = PrevLocation;
+	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
+	const float DistanceToTarget = FVector::Dist(PrevLocation, TargetLocation);
+	ReturnDuration = FMath::Min(DistanceToTarget / MinReturnSpeed, MaxReturnDuration);
+	PathCurveRadius = DistanceToTarget * RadiusScale;
+}
 bool AFlyingAxe::CollisionCheck(FHitResult& HitResult)
 {
 	const FVector CurLocation = GetActorLocation();
@@ -296,24 +348,19 @@ void AFlyingAxe::HandleCatch()
 
 void AFlyingAxe::BackToPlayer()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("BackToPlayer")));
-	int randIdx = FMath::RandRange(0, 2);
-	//TargetLocation = WithdrawTargetPositionArr[randIdx]->GetComponentLocation();
-	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	SetActorEnableCollision(true);
-
-	PrevLocation = GetActorLocation();
-	ReturnStartLocation = PrevLocation;
-	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
-	const float DistanceToTarget = FVector::Dist(PrevLocation, TargetLocation);
-	ReturnDuration = FMath::Min(DistanceToTarget / MinReturnSpeed, MaxReturnDuration);
-	PathCurveRadius = DistanceToTarget * RadiusScale;
-	SetState(EAxeState::Returning);
+	if (CurrentState == EAxeState::Stuck)
+	{
+		SetState(EAxeState::Vibration);
+	}
+	else
+	{
+		SetState(EAxeState::Returning);
+	}
 }
 
 void AFlyingAxe::ActiveHitCollision(bool Active)
 {
-	//SetActorEnableCollision(Active);
+	SetActorEnableCollision(Active);
 }
 
 TObjectPtr<USoundCue> AFlyingAxe::GetBaseHitSound() const
