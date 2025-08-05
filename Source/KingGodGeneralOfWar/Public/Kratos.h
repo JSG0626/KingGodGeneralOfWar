@@ -429,7 +429,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
 	float FindTargetEndLocation = 400;
 	UPROPERTY()
-	TObjectPtr<class ABaseEnemy> CurTargetEnemy;
+	TObjectPtr<class AActor> CurTargetEnemy;
 
-	TObjectPtr<class ABaseEnemy> FindTargetEnemy() const;
+	TObjectPtr<class AActor> FindTargetEnemy() const;
 };

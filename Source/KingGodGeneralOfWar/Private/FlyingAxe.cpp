@@ -313,7 +313,7 @@ void AFlyingAxe::OnEnterStuck(const FHitResult& HitResult)
 	SetActorRotation(Rot);
 	AddActorLocalRotation(FRotator(0, 180, 180));
 
-	if (HitResult.GetActor() != nullptr) return;
+	if (HitResult.GetActor() == nullptr) return;
 	if (TObjectPtr<USkeletalMeshComponent> StuckSkeletalMeshComp = 
 		Cast< USkeletalMeshComponent>(HitResult.GetActor()->GetComponentByClass(USkeletalMeshComponent::StaticClass())))
 	{

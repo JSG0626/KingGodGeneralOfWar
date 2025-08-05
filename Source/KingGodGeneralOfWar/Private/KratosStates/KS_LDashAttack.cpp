@@ -17,15 +17,36 @@ void UKS_LDashAttack::EnterState(const FGenericStateParams& params)
 	InputOn = false;
 	bLAttackInputOn = false;
 	bHAttackInputOn = false;
+
+	Me->CurTargetEnemy = Me->FindTargetEnemy();
 }
 
 void UKS_LDashAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
 	StateLog(TEXT("LDashAttack Tick"), true);
-	FRotator rotate = Me->GetControlRotation();
-	rotate.Pitch = 0.0f;
-	Me->SetActorRotation(rotate);
 
+	if (nullptr != Me->CurTargetEnemy)
+	{
+		const FVector ToTarget = (Me->CurTargetEnemy->GetActorLocation() - Me->GetActorLocation()).GetSafeNormal();
+		if (Me->bFaceEnemy)
+		{
+			FRotator rotate = ToTarget.Rotation();
+			rotate.Pitch = 0.0f;
+			Me->SetActorRotation(rotate);
+		}
+
+		if (Me->bTraceEnemy)
+		{
+			UE_LOG(LogTemp, Display, TEXT("TraceEnemy"));
+			Me->AddMovementInput(ToTarget, 1.0f);
+		}
+	}
+	else
+	{
+		FRotator rotate = Me->GetControlRotation();
+		rotate.Pitch = 0.0f;
+		Me->SetActorRotation(rotate);
+	}
 	if (Me->CanComboAttack)
 	{
 		if (bLAttackInputOn)

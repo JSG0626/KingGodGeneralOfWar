@@ -10,7 +10,6 @@
 #include <Kismet/GameplayStatics.h>
 #include <WeaponInterface.h>
 #include <Kismet/KismetMathLibrary.h>
-#include "BaseEnemy.h"
 
 void UKS_LAttack::EnterState(const FGenericStateParams& params)
 {

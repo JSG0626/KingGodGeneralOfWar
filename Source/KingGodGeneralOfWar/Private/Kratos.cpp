@@ -852,10 +852,12 @@ void AKratos::ActiveAxeTrail(bool ActiveState)
 	Axe->ActiveTrail(ActiveState);
 }
 
-TObjectPtr<class ABaseEnemy> AKratos::FindTargetEnemy() const
+TObjectPtr<class AActor> AKratos::FindTargetEnemy() const
 {
+	if (bLockOn && LockTarget) return LockTarget;
+
 	FVector CameraForwardVector = GetControlRotation().Vector();
-	FVector CurLocation = GetActorLocation();
+	FVector CurLocation = GetActorLocation() + CameraForwardVector  * FindTargetRadius;
 	FVector EndLocation = CurLocation + CameraForwardVector * FindTargetEndLocation;
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(TEnumAsByte<EObjectTypeQuery>(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)));
@@ -915,7 +917,7 @@ TObjectPtr<class ABaseEnemy> AKratos::FindTargetEnemy() const
 			}
 		}
 
-		ABaseEnemy* NewTarget = Cast<ABaseEnemy>(OutHits[LockTargetIdx].GetActor());
+		AActor* NewTarget = OutHits[LockTargetIdx].GetActor();
 		if (NewTarget != nullptr)
 		{
 			return NewTarget;

@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_LRunicAttack.h"
@@ -14,10 +14,19 @@ void UKS_LRunicAttack::EnterState(const FGenericStateParams& params)
 	rotate.Pitch = 0;
 	Me->SetActorRotation(rotate);
 	Anim->PlayMontage(EPlayerMontage::LRunicAttack);
+	InputOn = false;
+	Me->CanComboAttack = false;
 }
 
 void UKS_LRunicAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
+	UE_LOG(LogTemp, Display, TEXT("CCA: %d, InputOn: %d"), Me->CanComboAttack, InputOn);
+	if (Me->CanComboAttack && InputOn)
+	{
+		Anim->Montage_JumpToSection(TEXT("Second"));
+		InputOn = false;
+		Me->CanComboAttack = false;
+	}
 }
 
 void UKS_LRunicAttack::ExitState(const FGenericStateParams& params)
@@ -38,4 +47,9 @@ void UKS_LRunicAttack::HandleHit(const FGenericStateParams& params)
 	{
 		HandleDie(params);
 	}
+}
+
+void UKS_LRunicAttack::HandleLAttack(const FGenericStateParams& params)
+{
+	InputOn = true;
 }

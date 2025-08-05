@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -20,9 +20,11 @@ public:
 	virtual void ExitState(const FGenericStateParams& params) override;
 
 	virtual bool CanHandleDodge() const override { return true; }
+	virtual bool CanHandleLAttack() const override { return true; }
 	
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 
 private:
 	int CurrentAttackNum = 1;
