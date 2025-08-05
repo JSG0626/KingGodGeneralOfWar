@@ -32,6 +32,9 @@ AFlyingAxe::AFlyingAxe()
 
 	BladeLocationComp = CreateDefaultSubobject<UArrowComponent>(TEXT("BladeLocationComp"));
 	BladeLocationComp->SetupAttachment(CapsuleComp);
+
+	LerpInitRotationComp = CreateDefaultSubobject<UArrowComponent>(TEXT("LerpInitRotationComp"));
+	LerpInitRotationComp->SetupAttachment(CapsuleComp);
 }
 
 // Called when the game starts or when spawned
@@ -91,9 +94,9 @@ void AFlyingAxe::Tick(float DeltaTime)
 }
 void AFlyingAxe::TickState_Flying(float DeltaTime)
 {
-	FlyingTime += DeltaTime;
+	StateElapsedTime.Flying += DeltaTime;
 
-	if (FlyingTime >= GravityTime)
+	if (StateElapsedTime.Flying >= GravityTime)
 	{
 		const float GravityZ = GetWorld()->GetGravityZ();
 		const FVector GravityAcceleration = FVector(0.0f, 0.0f, GravityZ);
@@ -126,7 +129,7 @@ void AFlyingAxe::TickState_Flying(float DeltaTime)
 // 충돌시 시 튕겨나갈 때의 로직
 void AFlyingAxe::TickState_Bounce(float DeltaTime)
 {
-	BounceElapsedTime += DeltaTime;
+	StateElapsedTime.Bounce += DeltaTime;
 	const float GravityZ = GetWorld()->GetGravityZ() * BounceGravityScale;
 	const FVector GravityAcceleration = FVector(0.0f, 0.0f, GravityZ);
 	CurrentVelocity += GravityAcceleration * DeltaTime;
@@ -142,7 +145,7 @@ void AFlyingAxe::TickState_Bounce(float DeltaTime)
 	// 충돌 처리
 	FHitResult HitResult;
 
-	if (BounceElapsedTime >= 0.2f)
+	if (StateElapsedTime.Bounce >= 0.2f)
 	{
 		bool bHit = CollisionCheck(HitResult);
 		if (bHit)
@@ -163,9 +166,8 @@ void AFlyingAxe::TickState_Bounce(float DeltaTime)
 
 void AFlyingAxe::TickState_Vibration(float DeltaTime)
 {
-	VibrationElapsedTime += DeltaTime;
-	++VibrationTickCount;
-	if (VibrationElapsedTime >= VibrationTime)
+	StateElapsedTime.Vibration += DeltaTime;
+	if (StateElapsedTime.Vibration >= VibrationTime)
 	{
 		SetState(EAxeState::Returning);
 	}
@@ -175,35 +177,35 @@ void AFlyingAxe::TickState_Vibration(float DeltaTime)
 
 	if ((VibrationTickCount & 1) == 0)
 	{
-		const FVector& Axis = GetActorForwardVector();
-		const FQuat RotationDelta(Axis, VibrationRoll);
+		FVector Axis = GetActorForwardVector();
+		FQuat RotationDelta(Axis, VibrationRoll);
 		VibrationRoll = -(VibrationRoll + (VibrationRoll >= 0 ? VibrationRollIncrement : -VibrationRollIncrement));
+		AddActorWorldRotation(RotationDelta);
+
+		Axis = GetActorRightVector();
+		RotationDelta = FQuat(Axis, VibrationYawDelta);
 		AddActorWorldRotation(RotationDelta);
 	}
 
-	{
-		const FVector& Axis = GetActorRightVector();
-		const FQuat RotationDelta = FQuat(Axis, VibrationYawDelta);
-		AddActorWorldRotation(RotationDelta);
-	}
+	++VibrationTickCount;
 }
 
 // 플레이어에게 돌아올 때의 로직
 void AFlyingAxe::TickState_Returning(float DeltaTime)
 {
-	ReturnElapsedTime += DeltaTime;
+	StateElapsedTime.Return += DeltaTime;
 
 	const FVector CurLocation = GetActorLocation();
 	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
-	const float LocationAlpha = FMath::Min(1.0f, ReturnElapsedTime / ReturnDuration);
+	const float LocationAlpha = FMath::Min(1.0f, StateElapsedTime.Return / ReturnDuration);
 	// 이동 로직
 	{
 		FVector NewLocation = FMath::Lerp(ReturnStartLocation, TargetLocation, LocationAlpha);
 		FQuat TargetRotation = Kratos->GetActorQuat();
-		FVector VerticalPathCurveOffset = TargetRotation.GetUpVector() * FMath::Cos(UE_PI * (LocationAlpha + 0.5f)) * PathCurveRadius;
+		FVector VerticalPathCurveOffset = TargetRotation.GetUpVector() * FMath::Cos(UE_PI * (LocationAlpha + 0.5f)) * PathCurveRadius * 0.5f;
 		VerticalPathCurveOffset.X = 0;
 		VerticalPathCurveOffset.Y = 0;
-		FVector HorizontalPathCurveOffset = TargetRotation.GetRightVector() * FMath::Sin(UE_PI * LocationAlpha) * PathCurveRadius;
+		FVector HorizontalPathCurveOffset = TargetRotation.GetRightVector() * FMath::Sin(UE_PI * LocationAlpha) * PathCurveRadius * 2.0f;
 		HorizontalPathCurveOffset.Z = 0;
 		SetActorLocation(NewLocation + (VerticalPathCurveOffset + HorizontalPathCurveOffset) * 0.5f);
 	}
@@ -211,25 +213,30 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	// 회전 로직
 	const float DistanceSquaredToTarget = FVector::DistSquared(CurLocation, TargetLocation);
 
-	const float RotationAlpha = FMath::Min(1.0f, SlerpElapsedTime / InterpRotationDuration);
-	//if (DistanceSquaredToTarget <= StartInterpRotationDistSquared)
-	if (LocationAlpha >= .7f && DistanceSquaredToTarget <= StartInterpRotationDistSquared)
+	if (DistanceSquaredToTarget <= StartInterpRotationDistSquared)
 	{
+		const float RotationAlpha = FMath::Min(1.0f, StateElapsedTime.SlerpHandRotation / InterpRotationDuration);
+		UE_LOG(LogTemp, Display, TEXT("Lerp KratosHandSocket"));
 		const FQuat NewRotation = FQuat::Slerp(GetActorQuat(), Kratos->WithdrawPositionComp->GetComponentQuat(), RotationAlpha);
 		SetActorRotation(NewRotation);
-		SlerpElapsedTime += DeltaTime;
+		StateElapsedTime.SlerpHandRotation += DeltaTime;
 	}
 	else
 	{
-		FVector RightAxis = GetActorRightVector();
-		FVector ForwardAxis = GetActorForwardVector();
-		//float RandScale = 0.6f;
-		//Axis += FVector(FMath::RandRange(-RandScale, RandScale));
-		FQuat RotationDelta(RightAxis, ReturnRotationSpeed * DeltaTime);
-		AddActorWorldRotation(RotationDelta);
-
-		RotationDelta = FQuat(ForwardAxis, ReturnRotationSpeed * DeltaTime);
-		AddActorWorldRotation(RotationDelta);
+		if (StateElapsedTime.Return <= LerpInitReturnRotationTime)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Lerp InitRotation"));
+			const float Alpha = StateElapsedTime.Return / LerpInitReturnRotationTime;
+			const FQuat NewRotation = FQuat::Slerp(GetActorQuat(), TargetLeprInitQuat, Alpha);
+			SetActorRotation(NewRotation);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Display, TEXT("Rotate RightVector"));
+			const FVector& RightAxis = GetActorRightVector();
+			const FQuat RotationDelta(RightAxis, ReturnRotationSpeed * DeltaTime);
+			AddActorWorldRotation(RotationDelta);
+		}
 	}
 
 
@@ -364,10 +371,24 @@ void AFlyingAxe::OnEnterVibration()
 void AFlyingAxe::OnEnterReturning()
 {
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ReturnSpinningSound,	GetActorLocation());
-	
 	LightComp->SetVisibility(false);
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	ActiveHitCollision(true);
+
+	// TargetQuat 초기값 계산
+	{
+		const FVector AxeLocation = GetActorLocation();
+		const FVector TargetHandLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
+
+		const FVector DirectionToPlayer = (TargetHandLocation - AxeLocation).GetSafeNormal();
+
+		const FRotator BaseRotation = UKismetMathLibrary::MakeRotFromX(-DirectionToPlayer);
+
+		const FQuat TiltOffset = LerpInitRotationComp->GetRelativeRotation().Quaternion();
+
+		TargetLeprInitQuat = BaseRotation.Quaternion() * TiltOffset;
+	}
+
 
 	PrevLocation = GetActorLocation();
 	ReturnStartLocation = PrevLocation;

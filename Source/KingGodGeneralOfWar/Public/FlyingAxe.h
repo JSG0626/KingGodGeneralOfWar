@@ -40,6 +40,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UArrowComponent* BladeLocationComp;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UArrowComponent* LerpInitRotationComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UNiagaraSystem* BloodVFXFactory;
@@ -150,31 +152,37 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float InterpRotationDuration = 0.5f ;
 
-
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
+	float LerpInitReturnRotationTime = 0.2f ;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
+	float LerpInitReturnRotationSpeed = 40.0f ;
 
 	// 상태 관련 변수
-	float CurrentFlySpeed;
 	FVector PrevLocation;
 	FVector TargetLocation;
 	FVector CurrentVelocity;
-	float FlyingTime = 0.0f;
+
 	FVector AxeMeshOffset;
-	float PathCurveRadius = 50;
+	float PathCurveRadius;
 	float ReturnDuration;
 	FVector ReturnStartLocation;
-	float ReturnSpeed = 10;
-	bool bInterpingTargetRotation = false;
-	float ReturnElapsedTime = 0.0f;
-	float SlerpElapsedTime = 0.0f;
-	float ReturningInterpAlpha = 0.0f;
-	float ReturningAlphaDelta = 0.02f;
-	float StartInterpRotationDistSquared = 500;
-	float VibrationElapsedTime = 0.0f;
+	float StartInterpRotationDistSquared;
 	FVector VibrationMoveDirection;
 	FVector PrevBladeLocation;
-	float BounceElapsedTime = 0.0f;
 	float VibrationRoll = 0;
 	int VibrationTickCount = 0;
+	FQuat TargetLeprInitQuat;
+
+	struct ST_StateElapsedTime
+	{
+		float Flying = 0.0f;
+		float Return = 0.0f;
+		float Slerp = 0.0f;
+		float Vibration = 0.0f;
+		float Bounce = 0.0f;
+		float SlerpHandRotation = 0.0f;
+	} ;
+	ST_StateElapsedTime StateElapsedTime;
 	UPROPERTY()
 	TObjectPtr<class AActor> StuckActor;	
 
