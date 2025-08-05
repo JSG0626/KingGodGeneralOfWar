@@ -846,3 +846,84 @@ float AKratos::GetAttackPower(EPlayerWeaponType WeaponType) const
 		return -1;
 	}
 }
+
+void AKratos::ActiveAxeTrail(bool ActiveState)
+{
+	Axe->ActiveTrail(ActiveState);
+}
+
+TObjectPtr<class ABaseEnemy> AKratos::FindTargetEnemy() const
+{
+	FVector CameraForwardVector = GetControlRotation().Vector();
+	FVector CurLocation = GetActorLocation();
+	FVector EndLocation = CurLocation + CameraForwardVector * FindTargetEndLocation;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(TEnumAsByte<EObjectTypeQuery>(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)));
+	TArray<AActor*> ActorsToIgnore;
+	//EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::ForDuration;
+	EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::None;
+	TArray<FHitResult> OutHits;
+	bool bIgnoreSelf = false;
+	FLinearColor TraceColor = FLinearColor::White;
+	FLinearColor TraceHitColor = FLinearColor::Red;
+	float DrawTime = 3.0f;
+	FCollisionObjectQueryParams ObjectQueryParams;
+	bool bHit = UKismetSystemLibrary::SphereTraceMultiForObjects(
+		GetWorld(),
+		CurLocation,
+		EndLocation,
+		FindTargetRadius,
+		ObjectTypes,
+		false,
+		ActorsToIgnore,
+		DrawDebugType,
+		OutHits,
+		bIgnoreSelf,
+		TraceColor,
+		TraceHitColor,
+		DrawTime
+	);
+
+	if (bHit)
+	{
+		FVector ToTarget;
+		float MaxScore = 0.0f;
+		float MaxDistSquared = 0.0f;
+		int LockTargetIdx = 0;
+		for (int i = 0; i < OutHits.Num(); i++)
+		{
+			FVector CandidateLocation = OutHits[i].GetActor()->GetActorLocation();
+			float DistSquared = FVector::DistSquared(CurLocation, CandidateLocation);
+			if (DistSquared >= MaxDistSquared)
+			{
+				MaxDistSquared = DistSquared;
+			}
+		}
+		for (int i = 0; i < OutHits.Num(); i++)
+		{
+			FVector CandidateLocation = OutHits[i].GetActor()->GetActorLocation();
+			ToTarget = CandidateLocation - CurLocation;
+			ToTarget.Normalize();
+			float Dot = FVector::DotProduct(CameraForwardVector, ToTarget);
+			float DistSquared = FVector::DistSquared(CurLocation, CandidateLocation);
+			float Score = Dot + -(DistSquared / MaxDistSquared) * FindTargetDistPoint;
+			UE_LOG(LogTemp, Display, TEXT("Actor: %s, Dot: %f"), *OutHits[i].GetActor()->GetName(), Dot);
+			if (Score >= MaxScore)
+			{
+				MaxScore = Score;
+				LockTargetIdx = i;
+			}
+		}
+
+		ABaseEnemy* NewTarget = Cast<ABaseEnemy>(OutHits[LockTargetIdx].GetActor());
+		if (NewTarget != nullptr)
+		{
+			return NewTarget;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("적 없음"));
+	}
+	return nullptr;
+}

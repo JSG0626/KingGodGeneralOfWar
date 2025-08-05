@@ -375,7 +375,8 @@ public:
 	EAttackType CurrentAttackType;
 
 public:
-	
+	bool bTraceEnemy = false;
+	bool bFaceEnemy = true;
 	FVector DefaultCameraOffset;
 	FRotator TargetCameraRotation;
 	FRotator TargetActorRotation;
@@ -418,4 +419,17 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
 	float DistPoint = 2.0f ;
+
+	void ActiveAxeTrail(bool ActiveState);
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	float FindTargetDistPoint = 0.5f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	float FindTargetRadius = 200;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	float FindTargetEndLocation = 400;
+	UPROPERTY()
+	TObjectPtr<class ABaseEnemy> CurTargetEnemy;
+
+	TObjectPtr<class ABaseEnemy> FindTargetEnemy() const;
 };

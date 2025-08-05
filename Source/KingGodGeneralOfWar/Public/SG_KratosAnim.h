@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -96,6 +96,9 @@ private:
 	
 	UFUNCTION()
 	void AnimNotify_EndDodge() ;
+
+	UFUNCTION()
+	void AnimNotify_FaceCameraForward() ;
 
 	FName GetAttackMontageSection(int32 Section);
 	FName GetRollMontageSection(int32 Section);

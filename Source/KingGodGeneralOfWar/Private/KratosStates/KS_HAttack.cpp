@@ -12,9 +12,16 @@
 void UKS_HAttack::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("HAttack Enter"));
+	if (Me->GetVelocity().Size() >= DashAttackSpeedThreshold)
+	{
+		// 대쉬 공격
+		Me->SetKratosState(EPlayerState::HDashAttack);
+		return;
+	}
 	if (Me->bAxeGone)
 	{
 		// 맨손 공격
+		Me->SetKratosState(EPlayerState::Idle);
 		return;
 	}
 	bGuardInputOn = false;

@@ -14,6 +14,7 @@
 #include "FlyingAxe.h"
 #include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 #include "BaseEnemy.h"
+#include "NiagaraComponent.h"
 const float AXE_DAMAGE = 3;
 const int BLOOD_VFX_MAX = 7;
 // Sets default values
@@ -29,6 +30,9 @@ AAxe::AAxe()
 	EdgeComp->SetupAttachment(MeshComp);
 	EdgeComp->SetRelativeLocation(FVector(-30, 0, 40));
 	EdgeComp->SetRelativeScale3D(FVector(.4, .4, .4));
+
+	TrailComp = CreateDefaultSubobject<UNiagaraComponent>(TEXT("TrailComp"));
+	TrailComp->SetupAttachment(MeshComp);
 
 	MovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementComp"));
 	MovementComp->SetUpdatedComponent(RootComponent);
@@ -89,5 +93,10 @@ void AAxe::ActiveHitCollision(bool ActiveState)
 TObjectPtr<USoundCue> AAxe::GetBaseHitSound() const
 {
 	return BaseHitSound;
+}
+
+void AAxe::ActiveTrail(bool ActiveState)
+{
+	TrailComp->SetVisibility(ActiveState);
 }
 

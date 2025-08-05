@@ -41,7 +41,7 @@ private:
 	float TargetMoveScale = WalkMoveScale;
 	float CurrentMoveScale;
 	float CoolDown = THROW_AXE_COOLDOWN;
-
+	bool bNoneMovable = false;
 	class UPlayerAimUI* AimWidget;
 
 };

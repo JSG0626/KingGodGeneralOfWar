@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -23,8 +23,9 @@ enum class EPlayerState : uint8
 	Hit UMETA(DisplayName = "Hit"),
 	Die UMETA(DisplayName = "Die"),
 	LDashAttack UMETA(DisplayName = "LDashAttack"),
-	RDashAttack UMETA(DisplayName = "RDashAttack"),
+	HDashAttack UMETA(DisplayName = "HDashAttack"),
 	CombatIdle UMETA(DisplayName = "CombatIdle"),
+	NoneMovable UMETA(DisplayName = "NoneMovable"),
 };
 
 UENUM(BlueprintType)
@@ -47,7 +48,7 @@ enum class EPlayerMontage : uint8
 	Hit UMETA(DisplayName = "Hit"),
 	Die UMETA(DisplayName = "Die"),
 	LDashAttack UMETA(DisplayName = "LDashAttack"),
-	RDashAttack UMETA(DisplayName = "RDashAttack"),
+	HDashAttack UMETA(DisplayName = "HDashAttack"),
 	CombatIdle UMETA(DisplayName = "CombatIdle"),
 };
 

@@ -55,21 +55,7 @@ void UKS_Move::HandleIdle(const FGenericStateParams& params)
 
 void UKS_Move::HandleLAttack(const FGenericStateParams& params)
 {
-	if (Me->bAxeGone == false)
-	{
-		if (Me->GetVelocity().Size() >= 850)
-		{
-			Me->SetKratosState(EPlayerState::LDashAttack);
-		}
-		else
-		{
-			Me->SetKratosState(EPlayerState::LAttack);
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Display, TEXT("맨손 공격"));
-	}
+	Me->SetKratosState(EPlayerState::LAttack);
 }
 
 void UKS_Move::HandleHAttack(const FGenericStateParams& params)

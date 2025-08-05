@@ -44,7 +44,7 @@ void UKS_Aim::TickState(const FGenericStateParams& params, float DeltaTime)
 
 	FRotator CameraRotator = Me->CameraComp->GetComponentRotation();
 	CameraRotator.Pitch = 0;
-	Me->SetActorRotation(UKismetMathLibrary::RLerp(Me->GetActorRotation(), CameraRotator, DeltaTime * 16, true));
+	Me->SetActorRotation(CameraRotator);
 
 	{
 		FRotator ControlRotation = Me->GetControlRotation();

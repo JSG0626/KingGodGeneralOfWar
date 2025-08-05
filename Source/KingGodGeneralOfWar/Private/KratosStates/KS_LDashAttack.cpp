@@ -14,6 +14,9 @@ void UKS_LDashAttack::EnterState(const FGenericStateParams& params)
 	InitVelocity = Me->GetVelocity();
 
 	CurrentSpeedScale = 1;
+	InputOn = false;
+	bLAttackInputOn = false;
+	bHAttackInputOn = false;
 }
 
 void UKS_LDashAttack::TickState(const FGenericStateParams& params, float DeltaTime)
@@ -23,11 +26,18 @@ void UKS_LDashAttack::TickState(const FGenericStateParams& params, float DeltaTi
 	rotate.Pitch = 0.0f;
 	Me->SetActorRotation(rotate);
 
-	if (Me->CanComboAttack && InputOn)
+	if (Me->CanComboAttack)
 	{
-		Me->CanComboAttack = false;
-		InputOn = false;
-		Me->SetKratosState(EPlayerState::LAttack);
+		if (bLAttackInputOn)
+		{
+			Me->CanComboAttack = false;
+			Me->SetKratosState(EPlayerState::LAttack);
+		}
+		else if (bHAttackInputOn)
+		{
+			Me->CanComboAttack = false;
+			Me->SetKratosState(EPlayerState::HAttack);
+		}
 	}
 
 	Me->AddMovementInput(Me->GetActorForwardVector(), CurrentSpeedScale);
@@ -47,5 +57,10 @@ void UKS_LDashAttack::HandleDodge(const FGenericStateParams& params)
 
 void UKS_LDashAttack::HandleLAttack(const FGenericStateParams& params)
 {
-	InputOn = true;
+	bLAttackInputOn = true;
+}
+
+void UKS_LDashAttack::HandleHAttack(const FGenericStateParams& params)
+{
+	bHAttackInputOn = true;
 }

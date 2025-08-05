@@ -29,7 +29,11 @@ class KINGGODGENERALOFWAR_API UKS_HAttack : public UKratosState
 	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	float DashAttackSpeedThreshold = 800;
+
 	int CurrentAttackNum = 1;
 	bool bGuardInputOn;
 	bool bAimInputOn;
+
 };

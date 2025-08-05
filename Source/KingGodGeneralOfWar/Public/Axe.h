@@ -27,6 +27,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UNiagaraComponent* TrailComp;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
 	class UNiagaraSystem* BloodVFX1Factory;
@@ -74,6 +77,8 @@ public:
 	virtual void ActiveHitCollision(bool ActiveState) override;
 
 	virtual TObjectPtr<class USoundCue> GetBaseHitSound() const override;
+
+	void ActiveTrail(bool ActiveState);
 
 };
 

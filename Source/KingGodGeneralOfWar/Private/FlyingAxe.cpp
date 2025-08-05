@@ -202,7 +202,7 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	{
 		FVector NewLocation = FMath::Lerp(ReturnStartLocation, TargetLocation, LocationAlpha);
 		FQuat TargetRotation = Kratos->GetActorQuat();
-		FVector VerticalPathCurveOffset = TargetRotation.GetUpVector() * FMath::Cos(UE_PI * (LocationAlpha + 0.5f)) * PathCurveRadius * 0.5f;
+		FVector VerticalPathCurveOffset = TargetRotation.GetUpVector() * FMath::Cos(UE_PI * (LocationAlpha + 0.5f)) * PathCurveRadius * 0.25f;
 		VerticalPathCurveOffset.X = 0;
 		VerticalPathCurveOffset.Y = 0;
 		FVector HorizontalPathCurveOffset = TargetRotation.GetRightVector() * FMath::Sin(UE_PI * LocationAlpha) * PathCurveRadius * 2.0f;
@@ -313,7 +313,7 @@ void AFlyingAxe::OnEnterStuck(const FHitResult& HitResult)
 	SetActorRotation(Rot);
 	AddActorLocalRotation(FRotator(0, 180, 180));
 
-
+	if (HitResult.GetActor() != nullptr) return;
 	if (TObjectPtr<USkeletalMeshComponent> StuckSkeletalMeshComp = 
 		Cast< USkeletalMeshComponent>(HitResult.GetActor()->GetComponentByClass(USkeletalMeshComponent::StaticClass())))
 	{
@@ -389,7 +389,7 @@ void AFlyingAxe::OnEnterReturning()
 		TargetLeprInitQuat = BaseRotation.Quaternion() * TiltOffset;
 	}
 
-
+	SubMeshComp->SetRelativeLocation(FVector::ZeroVector);
 	PrevLocation = GetActorLocation();
 	ReturnStartLocation = PrevLocation;
 	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();

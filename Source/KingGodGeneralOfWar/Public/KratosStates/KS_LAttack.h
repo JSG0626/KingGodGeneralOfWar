@@ -32,8 +32,11 @@ public:
 	virtual void HandleGuard(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) override;
 
-private:
+protected:
 	int CurrentAttackNum = 1;
 	bool bGuardInputOn;
 	bool bAimInputOn;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	float DashAttackSpeedThreshold = 800;
 };

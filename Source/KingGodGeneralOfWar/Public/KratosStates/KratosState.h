@@ -61,6 +61,7 @@ protected:
 	virtual void LookAtProcess(float DeltaTime, FRotator offset = FRotator(0));
 
 public:
+	bool bFaceCameraForward = false;
 	virtual void SetUp(class AKratos* kratos);
 	virtual void EnterState(const FGenericStateParams& params) {};
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) {};

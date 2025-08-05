@@ -10,17 +10,25 @@
 #include <Kismet/GameplayStatics.h>
 #include <WeaponInterface.h>
 #include <Kismet/KismetMathLibrary.h>
+#include "BaseEnemy.h"
 
 void UKS_LAttack::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("LAttack Enter"));
+
+	if (Me->GetVelocity().Size() >= DashAttackSpeedThreshold)
+	{
+		// 대쉬 공격
+		Me->SetKratosState(EPlayerState::LDashAttack);
+		return;
+	}
 	if (Me->bAxeGone)
 	{
 		// 맨손 공격
 		Me->SetKratosState(EPlayerState::Idle);
 		return;
 	}
-
+	
 	CurrentAttackNum = 1;
 	bGuardInputOn = false;
 	bAimInputOn = false;
@@ -28,14 +36,41 @@ void UKS_LAttack::EnterState(const FGenericStateParams& params)
 
 	Anim->PlayMontage(EPlayerMontage::LAttack);
 	CurrentAttackNum++;
+
+	Me->CurTargetEnemy = Me->FindTargetEnemy();
+	if (nullptr != Me->CurTargetEnemy)
+	{
+		UE_LOG(LogTemp, Display, TEXT("타겟 설정 완료!"));
+	}
+	Me->bFaceEnemy = true;
 }
 
 void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
 	StateLog(TEXT("LAttack Tick"), true);
-	FRotator rotate = Me->CameraComp->GetComponentRotation();
-	rotate.Pitch = 0.0f;
-	Me->SetActorRotation(UKismetMathLibrary::RLerp(Me->GetActorRotation(), rotate, DeltaTime * 4, true));
+
+	if (nullptr != Me->CurTargetEnemy)
+	{
+		const FVector ToTarget = (Me->CurTargetEnemy->GetActorLocation() - Me->GetActorLocation()).GetSafeNormal();
+		if (Me->bFaceEnemy)
+		{
+			FRotator rotate = ToTarget.Rotation();
+			rotate.Pitch = 0.0f;
+			Me->SetActorRotation(rotate);
+		}
+
+		if (Me->bTraceEnemy)
+		{
+			UE_LOG(LogTemp, Display, TEXT("TraceEnemy"));
+			Me->AddMovementInput(ToTarget, 1.0f);
+		}
+	}
+	else
+	{
+		FRotator rotate = Me->GetControlRotation();
+		rotate.Pitch = 0.0f;
+		Me->SetActorRotation(rotate);
+	}
 
 	if (Me->CanComboAttack && InputOn)
 	{
@@ -48,6 +83,11 @@ void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 		}
 		else
 		{
+			if (nullptr == Me->CurTargetEnemy)
+			{
+				Me->CurTargetEnemy = Me->FindTargetEnemy();
+			}
+
 			Me->CanComboAttack = false;
 			InputOn = false;
 			Anim->JumpToAttackMontageSection(CurrentAttackNum++);
