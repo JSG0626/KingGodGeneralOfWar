@@ -58,7 +58,8 @@ void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 			Me->SetActorRotation(rotate);
 		}
 
-		if (Me->bTraceEnemy)
+		float DistSquared = FVector::DistSquared(Me->CurTargetEnemy->GetActorLocation(), Me->GetActorLocation());
+		if (Me->bTraceEnemy && DistSquared >= Me->AttackRangeSquared)
 		{
 			UE_LOG(LogTemp, Display, TEXT("TraceEnemy"));
 			Me->AddMovementInput(ToTarget, 1.0f);
@@ -82,10 +83,7 @@ void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 		}
 		else
 		{
-			if (nullptr == Me->CurTargetEnemy)
-			{
-				Me->CurTargetEnemy = Me->FindTargetEnemy();
-			}
+			Me->CurTargetEnemy = Me->FindTargetEnemy();
 
 			Me->CanComboAttack = false;
 			InputOn = false;

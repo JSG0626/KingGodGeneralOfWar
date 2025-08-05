@@ -428,8 +428,12 @@ public:
 	float FindTargetRadius = 200;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
 	float FindTargetEndLocation = 400;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	float AttackRange = 100.0f;
+	float AttackRangeSquared;
 	UPROPERTY()
 	TObjectPtr<class AActor> CurTargetEnemy;
 
 	TObjectPtr<class AActor> FindTargetEnemy() const;
+
 };

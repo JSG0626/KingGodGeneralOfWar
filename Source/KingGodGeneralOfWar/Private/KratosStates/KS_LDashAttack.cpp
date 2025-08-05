@@ -35,7 +35,8 @@ void UKS_LDashAttack::TickState(const FGenericStateParams& params, float DeltaTi
 			Me->SetActorRotation(rotate);
 		}
 
-		if (Me->bTraceEnemy)
+		float DistSquared = FVector::DistSquared(Me->CurTargetEnemy->GetActorLocation(), Me->GetActorLocation());
+		if (Me->bTraceEnemy && DistSquared >= Me->AttackRangeSquared)
 		{
 			UE_LOG(LogTemp, Display, TEXT("TraceEnemy"));
 			Me->AddMovementInput(ToTarget, 1.0f);

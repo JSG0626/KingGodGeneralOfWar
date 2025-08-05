@@ -196,6 +196,7 @@ void AKratos::BeginPlay()
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("BeginPlay"));
 	UE_LOG(LogTemp, Display, TEXT("BeginPlay"));
 
+	AttackRangeSquared = AttackRange * AttackRange;
 	CurHP = MaxHP;
 	// 1. 컨트롤러를 가져와서 PlayerController인지 캐스팅해본다.
 	auto* pc = Cast<APlayerController>(Controller);
