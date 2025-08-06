@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -25,6 +25,8 @@ public:
 	virtual bool CanHandleDodge() const override { return true; }
 	virtual bool CanHandleLAttack() const override { return true; }
 	virtual bool CanHandleHit() const override { return true; };
+	virtual bool CanHandleAbility() const override { return true; };
+	virtual bool CanHandleGrabAxe() const override { return true; };
 
 	virtual void HandleIdle(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleMove(const FGenericStateParams& params = FGenericStateParams()) override;
@@ -32,6 +34,8 @@ public:
 	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleParry(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleAbility(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleGrabAxe(const FGenericStateParams& params = FGenericStateParams()) override;
 
 private:
 	class ASG_Shield* Shield;

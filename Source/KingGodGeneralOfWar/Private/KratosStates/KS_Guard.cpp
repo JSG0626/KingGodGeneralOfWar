@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Guard.h"
@@ -110,4 +110,21 @@ void UKS_Guard::HandleHit(const FGenericStateParams& params)
 void UKS_Guard::HandleParry(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::Parry, params);
+}
+
+void UKS_Guard::HandleAbility(const FGenericStateParams& params)
+{
+	/*Me->SetKratosState(EPlayerState::Ability);*/
+	if (Me->bAxeGone)
+	{
+		Anim->PlayMontage(EPlayerMontage::CallAxe);
+		Me->CallAxe();
+		Anim->bRecallAxe = true;
+	}
+}
+
+void UKS_Guard::HandleGrabAxe(const FGenericStateParams& params)
+{
+	Anim->bRecallAxe = false;
+	Anim->PlayMontage(EPlayerMontage::GrabAxe);
 }

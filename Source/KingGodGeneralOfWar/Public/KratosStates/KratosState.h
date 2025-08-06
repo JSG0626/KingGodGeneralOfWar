@@ -78,6 +78,8 @@ public:
 	virtual bool CanHandleRoll() const { return false; }
 	virtual bool CanHandleGuard() const { return false; }
 	virtual bool CanHandleParry() const { return false; }
+	virtual bool CanHandleAbility() const { return false; }
+	virtual bool CanHandleGrabAxe() const { return false; }
 
 	virtual bool CanHandleHit() const { return true; }
 
@@ -90,6 +92,8 @@ public:
 	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) {};
+	virtual void HandleAbility(const FGenericStateParams& params = FGenericStateParams()) {};
+	virtual void HandleGrabAxe(const FGenericStateParams& params = FGenericStateParams()) {};
 
 	// 기본적으로 즉시 전환이 가능한 상태들을 다루는 메소드
 	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams());

@@ -27,7 +27,7 @@ void UKS_Move::TickState(const FGenericStateParams& params, float DeltaTime)
 	Me->Direction = FVector(0, 0, 0);
 
 	CurrentMoveScale = FMath::Lerp(CurrentMoveScale, TargetMoveScale, DeltaTime * 6);
-
+	
 	Me->AddMovementInput(ForwardDirection, CurrentMoveScale);
 }
 
@@ -71,5 +71,9 @@ void UKS_Move::HandleGuard(const FGenericStateParams& params)
 void UKS_Move::HandleAim(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::Aim);
+}
 
+void UKS_Move::HandleAbility(const FGenericStateParams& params)
+{
+	Me->SetKratosState(EPlayerState::Ability);
 }

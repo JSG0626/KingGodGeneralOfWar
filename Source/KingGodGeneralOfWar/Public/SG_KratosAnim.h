@@ -54,6 +54,8 @@ public:
 
 	UPROPERTY()
 	class AKratos* Me;
+	UPROPERTY(BlueprintReadWrite)
+	bool bRecallAxe;
 private:
 	UFUNCTION()
 	void AnimNotify_AbleNextAttack() ;

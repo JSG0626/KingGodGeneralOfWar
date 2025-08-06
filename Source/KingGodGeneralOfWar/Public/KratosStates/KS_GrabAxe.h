@@ -13,5 +13,10 @@ UCLASS()
 class KINGGODGENERALOFWAR_API UKS_GrabAxe : public UKratosState
 {
 	GENERATED_BODY()
-	
+public:
+	virtual void EnterState(const FGenericStateParams& params) override;
+	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
+	virtual void ExitState(const FGenericStateParams& params) override;
+
+private:
 };

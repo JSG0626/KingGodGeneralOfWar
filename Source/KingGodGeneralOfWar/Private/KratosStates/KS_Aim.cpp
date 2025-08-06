@@ -118,3 +118,8 @@ void UKS_Aim::HandleHAttack(const FGenericStateParams& params)
 		Anim->PlayMontage(EPlayerMontage::HeavyThrowAxe);
 	}
 }
+
+void UKS_Aim::HandleAbility(const FGenericStateParams& params)
+{
+	Me->SetKratosState(EPlayerState::Ability);
+}

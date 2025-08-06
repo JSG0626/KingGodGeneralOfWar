@@ -216,7 +216,6 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	if (DistanceSquaredToTarget <= StartInterpRotationDistSquared)
 	{
 		const float RotationAlpha = FMath::Min(1.0f, StateElapsedTime.SlerpHandRotation / InterpRotationDuration);
-		UE_LOG(LogTemp, Display, TEXT("Lerp KratosHandSocket"));
 		const FQuat NewRotation = FQuat::Slerp(GetActorQuat(), Kratos->WithdrawPositionComp->GetComponentQuat(), RotationAlpha);
 		SetActorRotation(NewRotation);
 		StateElapsedTime.SlerpHandRotation += DeltaTime;
@@ -225,14 +224,12 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	{
 		if (StateElapsedTime.Return <= LerpInitReturnRotationTime)
 		{
-			UE_LOG(LogTemp, Display, TEXT("Lerp InitRotation"));
 			const float Alpha = StateElapsedTime.Return / LerpInitReturnRotationTime;
 			const FQuat NewRotation = FQuat::Slerp(GetActorQuat(), TargetLeprInitQuat, Alpha);
 			SetActorRotation(NewRotation);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Display, TEXT("Rotate RightVector"));
 			const FVector& RightAxis = GetActorRightVector();
 			const FQuat RotationDelta(RightAxis, ReturnRotationSpeed * DeltaTime);
 			AddActorWorldRotation(RotationDelta);

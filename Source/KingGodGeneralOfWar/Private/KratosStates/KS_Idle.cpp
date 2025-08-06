@@ -66,6 +66,11 @@ void UKS_Idle::HandleAim(const FGenericStateParams& params)
 	Me->SetKratosState(EPlayerState::Aim);
 }
 
+void UKS_Idle::HandleAbility(const FGenericStateParams& params)
+{
+	Me->SetKratosState(EPlayerState::Ability);
+}
+
 void UKS_Idle::HandleMove(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::Move);

@@ -748,10 +748,19 @@ void AKratos::OnMyActionAimOff(const FInputActionValue& value)
 
 void AKratos::OnMyActionAbility(const FInputActionValue& value)
 {
+	if (CurrentState->CanHandleAbility())
+	{
+		CurrentState->HandleAbility();
+	}
+
+
+	//{
+	//	bIsAxeWithdrawing = true;
+	//	CallAxe();
+	//}
 	if (bAxeGone && !bIsAxeWithdrawing)
 	{
-		bIsAxeWithdrawing = true;
-		CallAxe();
+
 	}
 	else
 	{
@@ -786,26 +795,19 @@ void AKratos::ThrowAxe(const bool bIsHeay)
 
 void AKratos::CallAxe()
 {
-	const float dist = FVector::Dist(GetActorLocation(), FlyingAxe->GetActorLocation());
-	if (State != EPlayerState::Dodge)
-	{
-		Anim->PlayMontage(EPlayerMontage::GrabAxe);
-	}
-
+	bIsAxeWithdrawing = true;
 	FlyingAxe->BackToPlayer();
 }
 
 void AKratos::CatchFlyingAxe()
 {
+	if (CurrentState->CanHandleGrabAxe())
+	{
+		CurrentState->HandleGrabAxe();
+	}
 	Axe->MeshComp->SetVisibility(true, true);
 	bAxeGone = false;
 	bIsAxeWithdrawing = false;
-
-	//if (State != EPlayerState::Hit && State != EPlayerState::Dodge)
-	{
-		Anim->Montage_JumpToSection(TEXT("Catch"));
-	}
-
 	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(CatchAxeShakeFactory, 0.2f);
 }
 
