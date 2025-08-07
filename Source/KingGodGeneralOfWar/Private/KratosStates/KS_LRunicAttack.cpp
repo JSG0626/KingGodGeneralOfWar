@@ -8,19 +8,25 @@
 void UKS_LRunicAttack::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("LRunicAttack Enter"));
-	Me->CurrentAttackType = EAttackType::RUNE_ATTACK;
 
 	FRotator rotate = Me->GetController()->GetControlRotation();
 	rotate.Pitch = 0;
 	Me->SetActorRotation(rotate);
-	Anim->PlayMontage(EPlayerMontage::LRunicAttack);
 	InputOn = false;
 	Me->CanComboAttack = false;
+
+	if (Me->bAxeGone)
+	{
+		UE_LOG(LogTemp, Display, TEXT("회수 공격"));
+	}
+	else
+	{
+		Anim->PlayMontage(EPlayerMontage::LRunicAttack);
+	}
 }
 
 void UKS_LRunicAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
-	UE_LOG(LogTemp, Display, TEXT("CCA: %d, InputOn: %d"), Me->CanComboAttack, InputOn);
 	if (Me->CanComboAttack && InputOn)
 	{
 		Anim->Montage_JumpToSection(TEXT("Second"));

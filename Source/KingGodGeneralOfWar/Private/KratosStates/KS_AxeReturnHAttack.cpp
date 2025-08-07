@@ -1,0 +1,43 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "KratosStates/KS_AxeReturnHAttack.h"
+#include "Kratos.h"
+
+void UKS_AxeReturnHAttack::EnterState(const FGenericStateParams& params)
+{
+	Me->CallAxe(GrabAxeTime, true);
+	Me->PlayMontage(EPlayerMontage::AxeReturnHAttack);
+}
+
+void UKS_AxeReturnHAttack::TickState(const FGenericStateParams& params, float DeltaTime)
+{
+	if (Me->CanComboAttack)
+	{
+		if (NextAttackType == EAttackType::LAttack)
+		{
+			Me->SetKratosState(EPlayerState::LAttack);
+		}
+		else if (NextAttackType == EAttackType::HAttack)
+		{
+			Me->SetKratosState(EPlayerState::HAttack);
+		}
+		Me->CanComboAttack = false;
+	}
+}
+
+void UKS_AxeReturnHAttack::ExitState(const FGenericStateParams& params)
+{
+	NextAttackType = EAttackType::None;
+	Me->CanComboAttack = false;
+}
+
+void UKS_AxeReturnHAttack::HandleLAttack(const FGenericStateParams& params)
+{
+	NextAttackType = EAttackType::LAttack;
+}
+
+void UKS_AxeReturnHAttack::HandleHAttack(const FGenericStateParams& params)
+{
+	NextAttackType = EAttackType::HAttack;
+}

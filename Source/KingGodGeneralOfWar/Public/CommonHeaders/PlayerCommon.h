@@ -29,6 +29,10 @@ enum class EPlayerState : uint8
 	LChargeAttack UMETA(DisplayName = "LChargeAttack"),
 	HChargeAttack UMETA(DisplayName = "HChargeAttack"),
 	HChargeAttackHit UMETA(DisplayName = "HChargeAttackHit"),
+	AxeReturnLAttack UMETA(DisplayName = "AxeReturnLAttack"),
+	AxeReturnHAttack UMETA(DisplayName = "AxeReturnHAttack"),
+	DodgeFrontAttack UMETA(DisplayName = "DodgeFrontAttack"),
+	DodgeBackAttack UMETA(DisplayName = "DodgeBackAttack"),
 };
 
 UENUM(BlueprintType)
@@ -55,6 +59,11 @@ enum class EPlayerMontage : uint8
 	CombatIdle UMETA(DisplayName = "CombatIdle"),
 	HChargeAttack UMETA(DisplayName = "HChargeAttack"),
 	HChargeAttackHit UMETA(DisplayName = "HChargeAttackHit"),
+	LChargeAttack UMETA(DisplayName = "LChargeAttack"),
+	AxeReturnLAttack UMETA(DisplayName = "AxeReturnLAttack"),
+	AxeReturnHAttack UMETA(DisplayName = "AxeReturnHAttack"),
+	DodgeFrontAttack UMETA(DisplayName = "DodgeFrontAttack"),
+	DodgeBackAttack UMETA(DisplayName = "DodgeBackAttack"),
 };
 
 UENUM(BlueprintType)
@@ -84,3 +93,13 @@ enum class EWeaponType : uint8
 	SHIELD UMETA(DisplayName = "SHIELD"),
 	HAND UMETA(DisplayName = "HAND"),
 };
+
+UENUM(BlueprintType)
+enum class EAttackType : uint8
+{
+	None UMETA(DisplayName = "None"),
+	LAttack UMETA(DisplayName = "LAttack"),
+	HAttack UMETA(DisplayName = "HAttack"),
+};
+
+

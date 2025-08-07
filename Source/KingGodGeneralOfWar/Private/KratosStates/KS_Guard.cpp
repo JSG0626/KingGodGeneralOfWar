@@ -71,11 +71,23 @@ void UKS_Guard::HandleLAttack(const FGenericStateParams& params)
 {
 	if (Me->bAxeGone)
 	{
-		StateLog(TEXT("Axe Return Attack"));
+		Me->SetKratosState(EPlayerState::AxeReturnLAttack);
 	}
 	else
 	{
 		Me->SetKratosState(EPlayerState::LRunicAttack);
+	}
+}
+
+void UKS_Guard::HandleHAttack(const FGenericStateParams& params)
+{
+	if (Me->bAxeGone)
+	{
+		Me->SetKratosState(EPlayerState::AxeReturnHAttack);
+	}
+	else
+	{
+		Me->SetKratosState(EPlayerState::HRunicAttack);
 	}
 }
 

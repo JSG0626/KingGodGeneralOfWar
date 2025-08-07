@@ -56,7 +56,9 @@ public:
 	TObjectPtr<class USoundBase> StuckSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 	TObjectPtr<class USoundBase> BounceSound;
-	void BackToPlayer();
+
+	void BackToPlayer(bool bImmediateReturn);
+	void BackToPlayer(const float MaxReturnDuration, bool bImmediateReturn);
 
 	virtual void ActiveHitCollision(bool Active) override;
 	virtual TObjectPtr<class USoundCue> GetBaseHitSound() const override;
@@ -136,9 +138,9 @@ private:
 	float VibrationRandomRange = 5.0f;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Vibration)")
 	float VibrationRollIncrement = 10.0f;
-
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Vibration)")
 	float VibrationYawDelta = 0.01;
+
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float ReturnRotationSpeed = -1 ;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
@@ -151,7 +153,6 @@ private:
 	float StartInterpRotationDist = 1000 ;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float InterpRotationDuration = 0.5f ;
-
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float LerpInitReturnRotationTime = 0.2f ;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")

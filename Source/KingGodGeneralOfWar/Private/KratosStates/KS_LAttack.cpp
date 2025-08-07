@@ -79,7 +79,6 @@ void UKS_LAttack::ExitState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("LAttack Exit"));
 	Me->CanComboAttack = false;
-	Me->CurrentAttackType = EAttackType::NONE;
 	InputOn = false;
 	Anim->Montage_Stop(.1f);
 	Me->Axe->ActiveHitCollision(false);

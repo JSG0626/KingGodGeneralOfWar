@@ -8,18 +8,25 @@
 void UKS_HDashAttack::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("HDashAttack Enter"));
+
 	Me->CanComboAttack = false;
-
-	Anim->PlayMontage(EPlayerMontage::HDashAttack);
-	InitVelocity = Me->GetVelocity();
-
 	CurrentSpeedScale = 1;
 	bFaceCameraForward = true;
-
 	InputOn = false;
 	bLAttackInputOn = false;
 	bHAttackInputOn = false;
 	Me->CurTargetEnemy = Me->FindTargetEnemy();
+
+	InitVelocity = Me->GetVelocity();
+	if (true == Me->bAxeGone)
+	{
+		StateLog(TEXT("맨손 대쉬 공격"));
+		Me->SetKratosState(EPlayerState::Idle);
+	}
+	else
+	{
+		Anim->PlayMontage(EPlayerMontage::HDashAttack);
+	}
 }
 
 void UKS_HDashAttack::TickState(const FGenericStateParams& params, float DeltaTime)

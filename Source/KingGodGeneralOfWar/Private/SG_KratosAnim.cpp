@@ -141,12 +141,6 @@ void USG_KratosAnim::AnimNotify_SpawnEarthCrack()
 	Me->OnMySpawnEarthCrack();
 }
 
-
-void USG_KratosAnim::AnimNotify_InitAttackType()
-{
-	Me->OnMyInitAttackType();
-}
-
 void USG_KratosAnim::AnimNotify_AttackProgress()
 {
 	Me->OnMyAttackProgress();

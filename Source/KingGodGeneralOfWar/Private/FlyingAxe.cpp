@@ -452,9 +452,9 @@ void AFlyingAxe::HandleCatch()
 	Destroy();
 }
 
-void AFlyingAxe::BackToPlayer()
+void AFlyingAxe::BackToPlayer(bool bImmediateReturn)
 {
-	if (CurrentState == EAxeState::Stuck)
+	if (CurrentState == EAxeState::Stuck && bImmediateReturn == false)
 	{
 		SetState(EAxeState::Vibration);
 	}
@@ -462,6 +462,12 @@ void AFlyingAxe::BackToPlayer()
 	{
 		SetState(EAxeState::Returning);
 	}
+}
+
+void AFlyingAxe::BackToPlayer(const float _MaxReturnDuration, bool bImmediateReturn)
+{
+	MaxReturnDuration = _MaxReturnDuration;
+	BackToPlayer(bImmediateReturn);
 }
 
 void AFlyingAxe::ActiveHitCollision(bool Active)

@@ -29,7 +29,6 @@ void UKS_HAttack::EnterState(const FGenericStateParams& params)
 	CurrentAttackNum = 1;
 	Anim->PlayMontage(EPlayerMontage::HAttack);
 	CurrentAttackNum++;
-	Me->CurrentAttackType = EAttackType::STRONG_ATTACK;
 	Me->CanComboAttack = false;
 }
 
@@ -65,7 +64,6 @@ void UKS_HAttack::ExitState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("HAttack Exit"));
 	Me->CanComboAttack = false;
-	Me->CurrentAttackType = EAttackType::NONE;
 	InputOn = false;
 	Anim->Montage_Stop(.1f);
 	TScriptInterface<IWeaponInterface>(Me->Axe)->ActiveHitCollision(false);

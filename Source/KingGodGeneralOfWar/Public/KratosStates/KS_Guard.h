@@ -24,6 +24,7 @@ public:
 	virtual bool CanHandleMove() const override { return true; }
 	virtual bool CanHandleDodge() const override { return true; }
 	virtual bool CanHandleLAttack() const override { return true; }
+	virtual bool CanHandleHAttack() const override { return true; }
 	virtual bool CanHandleHit() const override { return true; };
 	virtual bool CanHandleAbility() const override { return true; };
 	virtual bool CanHandleGrabAxe() const override { return true; };
@@ -32,6 +33,7 @@ public:
 	virtual void HandleMove(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleParry(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleAbility(const FGenericStateParams& params = FGenericStateParams()) override;

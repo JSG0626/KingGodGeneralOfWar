@@ -17,18 +17,6 @@ const FRotator DefaultCameraAngle = FRotator(0);
 const float DefaultTargetTargetArmLength = 147;
 const float DefaultTargetFOV = 90;
 
-
-
-UENUM()
-enum class EAttackType : uint8
-{
-	WEAK_ATTACK = 0 UMETA(DisplayName = "WEAK_ATTACK"),
-	STRONG_ATTACK UMETA(DisplayName = "STRONG_ATTACK"),
-	RUNE_ATTACK UMETA(DisplayName = "RUNE_ATTACK"),
-	AXE_THROW_ATTACK UMETA(DisplayName = "AXE_THROW_ATTACK"),
-	DASH_ATTACK UMETA(DisplayName = "DASH_ATTACK"),
-	NONE UMETA(DisplayName = "NONE"),
-};
 UCLASS()
 class KINGGODGENERALOFWAR_API AKratos : public ACharacter
 {
@@ -123,6 +111,7 @@ public:
 	void HideHoldingAxe();
 	void ThrowAxe(const bool bIsHeavy);
 	void CallAxe();
+	void CallAxe(const float MaxReturnDuration, bool bImmediateReturn);
 	void CatchFlyingAxe();
 
 	// Damage Function
@@ -134,9 +123,6 @@ public:
 	// Rune
 	void OnMyRuneAttackCameraSet();
 	void OnMySpawnEarthCrack();
-
-	void OnMyInitAttackType();
-
 	void OnMyAttackProgress();
 
 	void OnMyEndWithFail();
@@ -377,8 +363,6 @@ public:
 
 	// 룬공격 막타 줌아웃
 	bool bZoomOut;
-
-	EAttackType CurrentAttackType;
 
 public:
 	bool bTraceEnemy = false;

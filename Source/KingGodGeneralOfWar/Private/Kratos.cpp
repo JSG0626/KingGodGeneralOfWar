@@ -288,8 +288,6 @@ void AKratos::Tick(float DeltaTime)
 	CameraComp->SetRelativeRotation(UKismetMathLibrary::RLerp(CameraComp->GetRelativeRotation(), TargetCameraAngle, DeltaTime * 2, true));
 
 
-	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("CurrentAttackType: %s"), *UEnum::GetValueAsString(CurrentAttackType)));
-
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, GetPlayerStateString());
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("TargetTargetArmLength: %f"), TargetTargetArmLength));
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("TargetCameraOffset: %s"), *TargetCameraOffset.ToString()));
@@ -497,12 +495,6 @@ void AKratos::OnMySpawnEarthCrack()
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), EarthCrackVFX, Axe->MeshComp->GetComponentLocation() - FVector(0, 0, 22));
 }
 
-
-
-void AKratos::OnMyInitAttackType()
-{
-	CurrentAttackType = EAttackType::NONE;
-}
 
 void AKratos::OnMyAttackProgress()
 {
@@ -738,7 +730,6 @@ void AKratos::OnMyActionHAttack(const FInputActionValue& value)
 
 void AKratos::OnMyActionHChargeAttack(const FInputActionValue& value)
 {
-	UE_LOG(LogTemp, Display, TEXT("OnMyActionHChargeAttack"));
 	if (CurrentState->CanHandleHChargeAttack())
 	{
 		CurrentState->HandleHChargeAttack();
@@ -771,20 +762,6 @@ void AKratos::OnMyActionAbility(const FInputActionValue& value)
 	{
 		CurrentState->HandleAbility();
 	}
-
-
-	//{
-	//	bIsAxeWithdrawing = true;
-	//	CallAxe();
-	//}
-	if (bAxeGone && !bIsAxeWithdrawing)
-	{
-
-	}
-	else
-	{
-		UE_LOG(LogTemp, Display, TEXT("Use Ability"));
-	}
 }
 
 void AKratos::OnMyActionRuneBase(const FInputActionValue& value)
@@ -815,7 +792,13 @@ void AKratos::ThrowAxe(const bool bIsHeay)
 void AKratos::CallAxe()
 {
 	bIsAxeWithdrawing = true;
-	FlyingAxe->BackToPlayer();
+	FlyingAxe->BackToPlayer(false);
+}
+
+void AKratos::CallAxe(const float MaxReturnDuration, bool bImmediateReturn)
+{
+	bIsAxeWithdrawing = true;
+	FlyingAxe->BackToPlayer(MaxReturnDuration, bImmediateReturn);
 }
 
 void AKratos::CatchFlyingAxe()
