@@ -102,6 +102,9 @@ private:
 	UFUNCTION()
 	void AnimNotify_FaceCameraForward() ;
 
+	UFUNCTION()
+	void AnimNotify_GrabAxe();
+
 	FName GetAttackMontageSection(int32 Section);
 	FName GetRollMontageSection(int32 Section);
 	FName GetGuardMontageSection(int32 Section);

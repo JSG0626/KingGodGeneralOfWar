@@ -303,6 +303,7 @@ FString AKratos::GetPlayerStateString()
 }
 void AKratos::PlayerMove()
 {
+
 	//FRotator ControlRotation = GetControlRotation();
 	//ControlRotation.Pitch = 0;
 	//FTransform T = UKismetMathLibrary::MakeTransform(FVector(0, 0, 0), ControlRotation, FVector(1, 1, 1));
@@ -618,9 +619,15 @@ void AKratos::SetKratosState(const EPlayerState& NewState, const FGenericStatePa
 
 void AKratos::ActiveLerpPlayerRotation(FRotator TargetRotation, int Scale)
 {
+	if (TargetRotation == FRotator::ZeroRotator) return;
 	TargetActorRotation = TargetRotation;
 	LeprPlayerRotationScale = Scale;
 	bLerpPlayerRotation = true;
+}
+
+void AKratos::InactiveLerpPlayerRotation()
+{
+	bLerpPlayerRotation = false;
 }
 
 void AKratos::OnMyActionMove(const FInputActionValue& Value)

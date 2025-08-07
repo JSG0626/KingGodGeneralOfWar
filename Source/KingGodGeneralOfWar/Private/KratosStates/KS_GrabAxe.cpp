@@ -16,5 +16,4 @@ void UKS_GrabAxe::TickState(const FGenericStateParams& params, float DeltaTime)
 
 void UKS_GrabAxe::ExitState(const FGenericStateParams& params)
 {
-	Anim->bRecallAxe = false;
 }

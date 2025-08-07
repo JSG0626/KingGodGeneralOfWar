@@ -21,7 +21,7 @@ void USG_KratosAnim::NativeUpdateAnimation(float DeltaTime)
 	Super::NativeUpdateAnimation(DeltaTime);
 
 	UpdatePlayerState();
-
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("RecallAxe: %d"), bRecallAxe));
 }
 
 void USG_KratosAnim::UpdatePlayerState()
@@ -177,6 +177,11 @@ void USG_KratosAnim::AnimNotify_EndDodge()
 void USG_KratosAnim::AnimNotify_FaceCameraForward()
 {
 	Me->CurrentState->bFaceCameraForward = false;
+}
+
+void USG_KratosAnim::AnimNotify_GrabAxe()
+{
+	//bRecallAxe = false;
 }
 
 FName USG_KratosAnim::GetAttackMontageSection(int32 Section)

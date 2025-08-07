@@ -413,6 +413,8 @@ public:
 	const float DEFAULT_FOV = 90;
 
 	void ActiveLerpPlayerRotation(FRotator TargetRotation, int Scale);
+	void InactiveLerpPlayerRotation();
+
 	float SetHP(const float NewHP);
 
 	float GetAttackPower(EPlayerWeaponType WeaponType) const;

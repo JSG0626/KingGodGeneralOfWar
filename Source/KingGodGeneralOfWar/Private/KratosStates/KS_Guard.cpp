@@ -125,6 +125,5 @@ void UKS_Guard::HandleAbility(const FGenericStateParams& params)
 
 void UKS_Guard::HandleGrabAxe(const FGenericStateParams& params)
 {
-	Anim->bRecallAxe = false;
 	Anim->PlayMontage(EPlayerMontage::GrabAxe);
 }
