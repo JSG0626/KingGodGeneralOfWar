@@ -50,6 +50,7 @@ enum class EPlayerMontage : uint8
 	LDashAttack UMETA(DisplayName = "LDashAttack"),
 	HDashAttack UMETA(DisplayName = "HDashAttack"),
 	CombatIdle UMETA(DisplayName = "CombatIdle"),
+	HChargeAttack UMETA(DisplayName = "HChargeAttack"),
 };
 
 UENUM(BlueprintType)

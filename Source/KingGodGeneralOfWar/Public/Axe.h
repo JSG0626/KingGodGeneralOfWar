@@ -17,6 +17,8 @@ public:
 	// Sets default values for this actor's properties
 	AAxe();
 
+	UPROPERTY()
+	TMap<class ABaseEnemy*, bool> DamagedActorMap ;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -41,31 +41,14 @@ void UKS_LAttack::EnterState(const FGenericStateParams& params)
 	{
 		UE_LOG(LogTemp, Display, TEXT("타겟 설정 완료!"));
 	}
-	Me->bFaceEnemy = true;
 }
 
 void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
 	StateLog(TEXT("LAttack Tick"), true);
 
-	if (nullptr != Me->CurTargetEnemy)
-	{
-		const FVector ToTarget = (Me->CurTargetEnemy->GetActorLocation() - Me->GetActorLocation()).GetSafeNormal();
-		if (Me->bFaceEnemy)
-		{
-			FRotator rotate = ToTarget.Rotation();
-			rotate.Pitch = 0.0f;
-			Me->SetActorRotation(rotate);
-		}
-
-		float DistSquared = FVector::DistSquared(Me->CurTargetEnemy->GetActorLocation(), Me->GetActorLocation());
-		if (Me->bTraceEnemy && DistSquared >= Me->AttackRangeSquared)
-		{
-			UE_LOG(LogTemp, Display, TEXT("TraceEnemy"));
-			Me->AddMovementInput(ToTarget, 1.0f);
-		}
-	}
-	else
+	
+	if (nullptr == Me->CurTargetEnemy && false == Me->bTraceEnemy)
 	{
 		FRotator rotate = Me->GetControlRotation();
 		rotate.Pitch = 0.0f;

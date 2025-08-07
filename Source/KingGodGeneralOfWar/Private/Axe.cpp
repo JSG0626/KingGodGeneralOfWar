@@ -63,17 +63,14 @@ void AAxe::Tick(float DeltaTime)
 // 도끼 공격이 닿았을 때 데미지와 공격 방향을 전달
 void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	/*Me->IncreaseTargetTargetArmLength(-5);
-	Me->IncreaseTargetCameraOffset(FVector(0, 0, -10));*/
-	ActiveHitCollision(false);
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactoryArr[FMath::RandRange(0, BLOOD_VFX_MAX)], EdgeComp->GetComponentLocation());
-
-	//Me->SetGlobalTimeDilation(0.004f, 0.04f);
-	Me->SetAnimationSpeedSlow(0.1f, 0.01f);
 	ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
-	if (Enemy)
+	if (Enemy && nullptr == DamagedActorMap.Find(Enemy))
 	{
 		DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale));
+		DamagedActorMap.Add({Enemy, true});
+
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactoryArr[FMath::RandRange(0, BLOOD_VFX_MAX)], EdgeComp->GetComponentLocation());
+		Me->SetAnimationSpeedSlow(0.1f, 0.01f);
 	}
 }
 
@@ -87,6 +84,7 @@ void AAxe::ActiveHitCollision(bool ActiveState)
 	else
 	{
 		MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
+		DamagedActorMap.Empty();
 	}
 }
 

@@ -324,6 +324,7 @@ void AFlyingAxe::OnEnterStuck(const FHitResult& HitResult)
 		USkeletalMeshSocket* TargetSocket = nullptr;
 		for (USkeletalMeshSocket* Socket : Sockets)
 		{
+			UE_LOG(LogTemp, Display, TEXT("Socket: %s"), *Socket->GetName());
 			const float DistSqured = FVector::DistSquared(Socket->GetSocketLocation(StuckSkeletalMeshComp), CurLocation);
 			if (DistSqured <= MinDistSquared)
 			{
@@ -334,8 +335,8 @@ void AFlyingAxe::OnEnterStuck(const FHitResult& HitResult)
 
 		if (TargetSocket)
 		{
-			UE_LOG(LogTemp, Display, TEXT("TargetSocket: %s"), *TargetSocket->GetName());
-			AttachToComponent(HitResult.GetComponent(), FAttachmentTransformRules::KeepWorldTransform, *TargetSocket->GetName());
+			bool bAttach = AttachToComponent(StuckSkeletalMeshComp, FAttachmentTransformRules::KeepWorldTransform, TargetSocket->GetFName());
+			UE_LOG(LogTemp, Display, TEXT("TargetSocket: %s, Attach: %d"), *TargetSocket->GetFName().ToString(), bAttach);
 		}
 	}
 }

@@ -73,6 +73,7 @@ public:
 	virtual bool CanHandleIdle() const { return false; }
 	virtual bool CanHandleLAttack() const { return false; }
 	virtual bool CanHandleHAttack() const { return false; }
+	virtual bool CanHandleHChargeAttack() const { return false; }
 	virtual bool CanHandleAim() const { return false; }
 	virtual bool CanHandleDodge() const { return false; }
 	virtual bool CanHandleRoll() const { return false; }
@@ -80,7 +81,7 @@ public:
 	virtual bool CanHandleParry() const { return false; }
 	virtual bool CanHandleAbility() const { return false; }
 	virtual bool CanHandleGrabAxe() const { return false; }
-
+	
 	virtual bool CanHandleHit() const { return true; }
 
 	// 상태를 처리하는 함수. 기본적으로 아무 행동도 하지 않음
@@ -92,6 +93,7 @@ public:
 	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) {}
 	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) {};
+	virtual void HandleHChargeAttack(const FGenericStateParams& params = FGenericStateParams()) {};
 	virtual void HandleAbility(const FGenericStateParams& params = FGenericStateParams()) {};
 	virtual void HandleGrabAxe(const FGenericStateParams& params = FGenericStateParams()) {};
 

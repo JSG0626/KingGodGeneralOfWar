@@ -170,8 +170,9 @@ void AKratos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		input->BindAction(IA_LockOn, ETriggerEvent::Started, this, &AKratos::OnMyActionLockOn);
 		input->BindAction(IA_DebugKey, ETriggerEvent::Started, this, &AKratos::OnMyActionDebugKey);
 
-		input->BindAction(IA_WeakAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionLAttack);
-		input->BindAction(IA_StrongAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionSAttack);
+		input->BindAction(IA_LightAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionLAttack);
+		input->BindAction(IA_HeavyAttack, ETriggerEvent::Started, this, &AKratos::OnMyActionHAttack);
+		input->BindAction(IA_HeavyChargeAttack, ETriggerEvent::Triggered, this, &AKratos::OnMyActionHChargeAttack);
 		input->BindAction(IA_Aim, ETriggerEvent::Triggered, this, &AKratos::OnMyActionAimOn);
 		input->BindAction(IA_Aim, ETriggerEvent::Completed, this, &AKratos::OnMyActionAimOff);
 		input->BindAction(IA_WithdrawAxe, ETriggerEvent::Started, this, &AKratos::OnMyActionAbility);
@@ -252,7 +253,7 @@ void AKratos::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	GEngine->AddOnScreenDebugMessage(1, DeltaTime, FColor::White, FString::Printf(TEXT("%s"), *UEnum::GetValueAsString(State)));
+	GEngine->AddOnScreenDebugMessage(1, DeltaTime, FColor::White, FString::Printf(TEXT("%f"), GetCharacterMovement()->MaxWalkSpeed));
 	if (nullptr != CurrentState)
 	{
 		CurrentState->TickState(FGenericStateParams(), DeltaTime);
@@ -715,6 +716,7 @@ void AKratos::OnMyActionIdle(const FInputActionValue& value)
 
 void AKratos::OnMyActionLAttack(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Display, TEXT("OnMyActionLAttack"));
 	if (CurrentState->CanHandleLAttack())
 	{
 		CurrentState->HandleLAttack();
@@ -725,11 +727,20 @@ void AKratos::OnMyActionLAttack(const FInputActionValue& value)
 	}
 }
 
-void AKratos::OnMyActionSAttack(const FInputActionValue& value)
+void AKratos::OnMyActionHAttack(const FInputActionValue& value)
 {
 	if (CurrentState->CanHandleHAttack())
 	{
 		CurrentState->HandleHAttack();
+	}
+}
+
+void AKratos::OnMyActionHChargeAttack(const FInputActionValue& value)
+{
+	UE_LOG(LogTemp, Display, TEXT("OnMyActionHChargeAttack"));
+	if (CurrentState->CanHandleHAttack())
+	{
+		CurrentState->HandleHChargeAttack();
 	}
 }
 
@@ -867,8 +878,8 @@ TObjectPtr<class AActor> AKratos::FindTargetEnemy() const
 	if (bLockOn && LockTarget) return LockTarget;
 
 	FVector CameraForwardVector = GetControlRotation().Vector();
-	FVector CurLocation = GetActorLocation() + CameraForwardVector  * FindTargetRadius;
-	FVector EndLocation = CurLocation + CameraForwardVector * FindTargetEndLocation;
+	FVector StartLocation = GetActorLocation() + CameraForwardVector  * FindTargetRadius;
+	FVector EndLocation = StartLocation + CameraForwardVector * FindTargetEndLocation;
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(TEnumAsByte<EObjectTypeQuery>(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)));
 	TArray<AActor*> ActorsToIgnore;
@@ -882,7 +893,7 @@ TObjectPtr<class AActor> AKratos::FindTargetEnemy() const
 	FCollisionObjectQueryParams ObjectQueryParams;
 	bool bHit = UKismetSystemLibrary::SphereTraceMultiForObjects(
 		GetWorld(),
-		CurLocation,
+		StartLocation,
 		EndLocation,
 		FindTargetRadius,
 		ObjectTypes,
@@ -896,6 +907,7 @@ TObjectPtr<class AActor> AKratos::FindTargetEnemy() const
 		DrawTime
 	);
 
+	const FVector CurLocation = GetActorLocation();
 	if (bHit)
 	{
 		FVector ToTarget;
@@ -918,7 +930,7 @@ TObjectPtr<class AActor> AKratos::FindTargetEnemy() const
 			ToTarget.Normalize();
 			float Dot = FVector::DotProduct(CameraForwardVector, ToTarget);
 			float DistSquared = FVector::DistSquared(CurLocation, CandidateLocation);
-			float Score = Dot + -(DistSquared / MaxDistSquared) * FindTargetDistPoint;
+			float Score = Dot + (1 - DistSquared / MaxDistSquared) * FindTargetDistPoint;
 			UE_LOG(LogTemp, Display, TEXT("Actor: %s, Dot: %f"), *OutHits[i].GetActor()->GetName(), Dot);
 			if (Score >= MaxScore)
 			{
@@ -938,4 +950,15 @@ TObjectPtr<class AActor> AKratos::FindTargetEnemy() const
 		UE_LOG(LogTemp, Display, TEXT("적 없음"));
 	}
 	return nullptr;
+}
+
+
+void AKratos::InitMaxWalkSpeed()
+{
+	GetCharacterMovement()->MaxWalkSpeed = PlayerMaxSpeed;
+}
+
+void AKratos::SetMaxWalkSpeed(const float NewWalkSpeed)
+{
+	GetCharacterMovement()->MaxWalkSpeed = NewWalkSpeed;
 }

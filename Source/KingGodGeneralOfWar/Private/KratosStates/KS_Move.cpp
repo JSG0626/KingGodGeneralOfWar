@@ -28,7 +28,8 @@ void UKS_Move::TickState(const FGenericStateParams& params, float DeltaTime)
 
 	CurrentMoveScale = FMath::Lerp(CurrentMoveScale, TargetMoveScale, DeltaTime * 6);
 	
-	Me->AddMovementInput(ForwardDirection, CurrentMoveScale);
+	float MoveScale = FMath::Max(0.5f, CurrentMoveScale * Me->GetActorForwardVector().Dot(ForwardDirection));
+	Me->AddMovementInput(ForwardDirection, MoveScale);
 }
 
 void UKS_Move::ExitState(const FGenericStateParams& params)

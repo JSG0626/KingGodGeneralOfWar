@@ -36,9 +36,12 @@ void UKS_HAttack::EnterState(const FGenericStateParams& params)
 void UKS_HAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
 	StateLog(TEXT("HAttack Tick"), true);
-	FRotator rotate = Me->GetControlRotation();
-	rotate.Pitch = 0.0f;
-	Me->SetActorRotation(UKismetMathLibrary::RLerp(Me->GetActorRotation(), rotate, DeltaTime * 4, true));
+	if (false == Me->bTraceEnemy)
+	{
+		FRotator rotate = Me->GetControlRotation();
+		rotate.Pitch = 0.0f;
+		Me->SetActorRotation(rotate);
+	}
 
 	if (Me->CanComboAttack && InputOn)
 	{
@@ -87,6 +90,12 @@ void UKS_HAttack::HandleGuard(const FGenericStateParams& params)
 void UKS_HAttack::HandleAim(const FGenericStateParams& params)
 {
 	bAimInputOn = true;
+}
+
+void UKS_HAttack::HandleHChargeAttack(const FGenericStateParams& params)
+{
+	//Me->SetKratosState(EPlayerState::HChargeAttack);
+	Anim->PlayMontage(EPlayerMontage::HChargeAttack);
 }
 
 void UKS_HAttack::HandleHAttack(const FGenericStateParams& params)

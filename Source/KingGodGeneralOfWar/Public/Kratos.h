@@ -94,7 +94,10 @@ public:
 	void OnMyActionLAttack(const FInputActionValue& value);
 
 	UFUNCTION()
-	void OnMyActionSAttack(const FInputActionValue& value);
+	void OnMyActionHAttack(const FInputActionValue& value);
+
+	UFUNCTION()
+	void OnMyActionHChargeAttack(const FInputActionValue& value) ;
 
 	UFUNCTION()
 	void OnMyActionAimOn(const FInputActionValue& value);
@@ -180,10 +183,13 @@ public:
 	class UInputAction* IA_LockOn;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_WeakAttack;
+	class UInputAction* IA_LightAttack;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_StrongAttack;
+	class UInputAction* IA_HeavyAttack;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	class UInputAction* IA_HeavyChargeAttack;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
 	class UInputAction* IA_Aim;
@@ -438,4 +444,6 @@ public:
 
 	TObjectPtr<class AActor> FindTargetEnemy() const;
 
+	void InitMaxWalkSpeed();
+	void SetMaxWalkSpeed(const float NewWalkSpeed);
 };

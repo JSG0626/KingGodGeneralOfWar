@@ -26,23 +26,7 @@ void UKS_HDashAttack::TickState(const FGenericStateParams& params, float DeltaTi
 {
 	StateLog(TEXT("HDashAttack Tick"), true);
 
-	if (nullptr != Me->CurTargetEnemy)
-	{
-		const FVector ToTarget = (Me->CurTargetEnemy->GetActorLocation() - Me->GetActorLocation()).GetSafeNormal();
-		if (Me->bFaceEnemy)
-		{
-			FRotator rotate = ToTarget.Rotation();
-			rotate.Pitch = 0.0f;
-			Me->SetActorRotation(rotate);
-		}
-		float DistSquared = FVector::DistSquared(Me->CurTargetEnemy->GetActorLocation(), Me->GetActorLocation());
-		if (Me->bTraceEnemy && DistSquared >= Me->AttackRangeSquared)
-		{
-			UE_LOG(LogTemp, Display, TEXT("TraceEnemy"));
-			Me->AddMovementInput(ToTarget, 1.0f);
-		}
-	}
-	else
+	if (false == Me->bTraceEnemy)
 	{
 		FRotator rotate = Me->GetControlRotation();
 		rotate.Pitch = 0.0f;

@@ -14,7 +14,17 @@ class KINGGODGENERALOFWAR_API UANS_TraceEnemy : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
+	class AKratos* Kratos ;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess))
+	float NewWalkSpeed = 1000 ;
 public:
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference) override;
+	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference) override;
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
+
+	/*
+	
+*/
 };
