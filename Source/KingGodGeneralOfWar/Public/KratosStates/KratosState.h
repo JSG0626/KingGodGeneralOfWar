@@ -81,7 +81,7 @@ public:
 	virtual bool CanHandleParry() const { return false; }
 	virtual bool CanHandleAbility() const { return false; }
 	virtual bool CanHandleGrabAxe() const { return false; }
-	
+	virtual bool CanHandleHChargeAttackHit() const { return false; }
 	virtual bool CanHandleHit() const { return true; }
 
 	// 상태를 처리하는 함수. 기본적으로 아무 행동도 하지 않음
@@ -96,6 +96,7 @@ public:
 	virtual void HandleHChargeAttack(const FGenericStateParams& params = FGenericStateParams()) {};
 	virtual void HandleAbility(const FGenericStateParams& params = FGenericStateParams()) {};
 	virtual void HandleGrabAxe(const FGenericStateParams& params = FGenericStateParams()) {};
+	virtual void HandleHChargeAttackHit(const FGenericStateParams& params = FGenericStateParams()) {};
 
 	// 기본적으로 즉시 전환이 가능한 상태들을 다루는 메소드
 	virtual void HandleHit(const FGenericStateParams& params = FGenericStateParams());

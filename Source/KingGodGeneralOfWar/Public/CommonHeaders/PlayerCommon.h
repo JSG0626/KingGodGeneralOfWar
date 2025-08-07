@@ -26,6 +26,9 @@ enum class EPlayerState : uint8
 	HDashAttack UMETA(DisplayName = "HDashAttack"),
 	CombatIdle UMETA(DisplayName = "CombatIdle"),
 	NoneMovable UMETA(DisplayName = "NoneMovable"),
+	LChargeAttack UMETA(DisplayName = "LChargeAttack"),
+	HChargeAttack UMETA(DisplayName = "HChargeAttack"),
+	HChargeAttackHit UMETA(DisplayName = "HChargeAttackHit"),
 };
 
 UENUM(BlueprintType)
@@ -51,6 +54,7 @@ enum class EPlayerMontage : uint8
 	HDashAttack UMETA(DisplayName = "HDashAttack"),
 	CombatIdle UMETA(DisplayName = "CombatIdle"),
 	HChargeAttack UMETA(DisplayName = "HChargeAttack"),
+	HChargeAttackHit UMETA(DisplayName = "HChargeAttackHit"),
 };
 
 UENUM(BlueprintType)

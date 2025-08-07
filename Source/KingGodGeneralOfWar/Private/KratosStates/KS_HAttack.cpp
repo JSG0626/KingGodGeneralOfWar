@@ -94,8 +94,7 @@ void UKS_HAttack::HandleAim(const FGenericStateParams& params)
 
 void UKS_HAttack::HandleHChargeAttack(const FGenericStateParams& params)
 {
-	//Me->SetKratosState(EPlayerState::HChargeAttack);
-	Anim->PlayMontage(EPlayerMontage::HChargeAttack);
+	Me->SetKratosState(EPlayerState::HChargeAttack);
 }
 
 void UKS_HAttack::HandleHAttack(const FGenericStateParams& params)

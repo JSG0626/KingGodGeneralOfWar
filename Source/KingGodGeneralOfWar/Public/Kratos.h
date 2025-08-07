@@ -446,4 +446,8 @@ public:
 
 	void InitMaxWalkSpeed();
 	void SetMaxWalkSpeed(const float NewWalkSpeed);
+	void PlayMontage(const EPlayerMontage MontageType, bool bJumpSection = false, const FString SectionName = TEXT("Default"));
+	void OnHitHChargeAttack();
+
+	void SwapAxeHands(bool Right);
 };

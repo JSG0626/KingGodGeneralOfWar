@@ -458,11 +458,12 @@ void AKratos::IncreaseTargetCameraOffset(FVector value)
 void AKratos::SetWeapon()
 {
 	FActorSpawnParameters param;
+	const FName SocketName = TEXT("hand_rAxeSocket");
 	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	Axe = GetWorld()->SpawnActor<AAxe>(AxeFactory, GetMesh()->GetSocketTransform(TEXT("hand_rAxeSocket")), param);
+	Axe = GetWorld()->SpawnActor<AAxe>(AxeFactory, GetMesh()->GetSocketTransform(SocketName), param);
 	if (Axe)
 	{
-		Axe->K2_AttachToComponent(GetMesh(), TEXT("hand_rAxeSocket"), EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+		Axe->K2_AttachToComponent(GetMesh(), SocketName, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 		Axe->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
 		Axe->Me = this;
 	}
@@ -738,7 +739,7 @@ void AKratos::OnMyActionHAttack(const FInputActionValue& value)
 void AKratos::OnMyActionHChargeAttack(const FInputActionValue& value)
 {
 	UE_LOG(LogTemp, Display, TEXT("OnMyActionHChargeAttack"));
-	if (CurrentState->CanHandleHAttack())
+	if (CurrentState->CanHandleHChargeAttack())
 	{
 		CurrentState->HandleHChargeAttack();
 	}
@@ -961,4 +962,25 @@ void AKratos::InitMaxWalkSpeed()
 void AKratos::SetMaxWalkSpeed(const float NewWalkSpeed)
 {
 	GetCharacterMovement()->MaxWalkSpeed = NewWalkSpeed;
+}
+
+void AKratos::PlayMontage(const EPlayerMontage MontageType, bool bJumpSection, const FString SectionName)
+{
+	Anim->PlayMontage(MontageType, bJumpSection, SectionName);
+}
+
+void AKratos::OnHitHChargeAttack()
+{
+	UE_LOG(LogTemp, Display, TEXT("OnHitHChargeAttack"));
+	if (CurrentState->CanHandleHChargeAttackHit())
+	{
+		UE_LOG(LogTemp, Display, TEXT("HandleHChargeAttack"));
+		CurrentState->HandleHChargeAttackHit();
+	}
+}
+
+void AKratos::SwapAxeHands(bool Right)
+{
+	FName SocketName = Right ? TEXT("hand_rAxeSocket") : TEXT("hand_lAxeSocket");
+	Axe->K2_AttachToComponent(GetMesh(), SocketName, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
 }

@@ -64,13 +64,14 @@ void AAxe::Tick(float DeltaTime)
 void AAxe::OnAxeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ABaseEnemy* Enemy = Cast<ABaseEnemy>(OtherActor);
-	if (Enemy && nullptr == DamagedActorMap.Find(Enemy))
+	if (nullptr != Enemy && nullptr == DamagedActorMap.Find(Enemy))
 	{
 		DealDamage(Enemy, FGenericAttackParams(Me, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale));
 		DamagedActorMap.Add({Enemy, true});
 
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactoryArr[FMath::RandRange(0, BLOOD_VFX_MAX)], EdgeComp->GetComponentLocation());
 		Me->SetAnimationSpeedSlow(0.1f, 0.01f);
+		Me->OnHitHChargeAttack();
 	}
 }
 
