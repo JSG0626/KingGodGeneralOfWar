@@ -17,7 +17,13 @@ class KINGGODGENERALOFWAR_API UAN_PlayerSetState : public UAnimNotify
 	
 public:
 	UPROPERTY(EditAnywhere)
+	EPlayerState OriginState;
+
+	UPROPERTY(EditAnywhere)
 	EPlayerState NewState;
+
+	UPROPERTY(EditAnywhere)
+	bool bForceSet = true;
 
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 };

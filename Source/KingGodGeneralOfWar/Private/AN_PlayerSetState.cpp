@@ -16,6 +16,9 @@ void UAN_PlayerSetState::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 	APawn* pawn = anim->TryGetPawnOwner();
 	if (pawn == nullptr) return;
 
-	AKratos* kratos = CastChecked<AKratos>(pawn);
-	kratos->SetKratosState(NewState);
+	AKratos* Kratos = CastChecked<AKratos>(pawn);
+	if (!bForceSet && Kratos->GetState() == OriginState || bForceSet)
+	{
+		Kratos->SetKratosState(NewState);
+	}
 }

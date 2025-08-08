@@ -435,4 +435,6 @@ public:
 	void OnHitHChargeAttack();
 
 	void SwapAxeHands(bool Right);
+
+	inline EPlayerState GetState() const { return State; }
 };

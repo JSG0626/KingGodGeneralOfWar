@@ -37,20 +37,36 @@ void UKS_Dodge::TickState(const FGenericStateParams& params, float DeltaTime)
 {
 	StateLog(TEXT("Dodge Tick"), true);
 	TickTime += DeltaTime;
-	if (Me->CanComboAttack)
-	{
-		if (bAimInputOn && (AttackInput != EAttackType::None))
-		{
-			FGenericStateParams Params;
-			Params.Bool = true;
-			Params.Integer = static_cast<int32>(AttackInput);
-			Me->SetKratosState(EPlayerState::Aim, Params);
-		}
-		else if (AttackInput == EAttackType::LAttack)
-		{
+	//if (Me->CanComboAttack)
+	//{
+	//	if (bAimInputOn && (AttackInput != EAttackType::None))
+	//	{
+	//		Me->CanComboAttack = false;
+	//		FGenericStateParams Params;
+	//		Params.Bool = true;
+	//		Params.Integer = static_cast<int32>(AttackInput);
+	//		Me->SetKratosState(EPlayerState::Aim, Params);
+	//		return;
+	//	}
+	//}
+	UE_LOG(LogTemp, Display, TEXT("AttackInput == LAttack, InputDirection :%s"), *InputDirection.ToString());
 
+	if (AttackInput != EAttackType::None)
+	{
+		if (bDashing && TickTime >= DashDodgeAttackTimeThreshold ||
+			!bDashing && TickTime >= RollDodgeAttackTimeThreshold)
+		{
+			if (InputDirection.X <= -0.7f)
+			{
+				UE_LOG(LogTemp, Display, TEXT("BackWard"));
+				Me->SetKratosState(EPlayerState::DodgeBackAttack);
+			}
+			else if (InputDirection.X >= 0.7f)
+			{
+				UE_LOG(LogTemp, Display, TEXT("Front"));
+				Me->SetKratosState(EPlayerState::DodgeFrontAttack);
+			}
 		}
-		Me->CanComboAttack = false;
 	}
 }
 
@@ -67,12 +83,7 @@ bool UKS_Dodge::CanHandleHit() const
 
 void UKS_Dodge::HandleMove(const FGenericStateParams& params)
 {
-	if (bDashing && TickTime >= DodgeAttackTimeThreshold ||
-		!bDashing && TickTime >= DodgeAttackTimeThreshold * 2)
-	{
-		UE_LOG(LogTemp, Display, TEXT("TickTime >= DodgeAttackTimeThreshold"));
-		InputDirection = params.Vector2D;
-	}
+	InputDirection = params.Vector2D;
 }
 
 void UKS_Dodge::HandleDodge(const FGenericStateParams& params)
@@ -94,17 +105,6 @@ void UKS_Dodge::HandleDodge(const FGenericStateParams& params)
 void UKS_Dodge::HandleLAttack(const FGenericStateParams& params)
 {
 	AttackInput = EAttackType::LAttack;
-	UE_LOG(LogTemp, Display, TEXT("AttackInput == LAttack, InputDirection :%s"), *InputDirection.ToString());
-	if (InputDirection.X <= -0.7f)
-	{
-		UE_LOG(LogTemp, Display, TEXT("BackWard"));
-		Me->SetKratosState(EPlayerState::DodgeBackAttack);
-	}
-	else if (InputDirection.X >= 0.7f)
-	{
-		UE_LOG(LogTemp, Display, TEXT("Front"));
-		Me->SetKratosState(EPlayerState::DodgeFrontAttack);
-	}
 }
 
 void UKS_Dodge::HandleHAttack(const FGenericStateParams& params)

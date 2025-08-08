@@ -36,7 +36,10 @@ private:
 	float RollVelocityThreshhold ;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
-	float DodgeAttackTimeThreshold = 0.5f;
+	float DashDodgeAttackTimeThreshold = 0.5f;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	float RollDodgeAttackTimeThreshold = .05f;
 
 	bool bDashing = false;
 	FString GetDodgeDirection(const FVector& Direction) const;
