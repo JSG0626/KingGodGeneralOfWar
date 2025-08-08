@@ -296,7 +296,7 @@ void AKratos::Tick(float DeltaTime)
 }
 // -------------------------------------------------- TICK -------------------------------------------------------------
 
-FString AKratos::GetPlayerStateString()
+FString AKratos::GetPlayerStateString() const
 {
 	return UEnum::GetValueAsString(State);
 }
@@ -779,12 +779,12 @@ void AKratos::HideHoldingAxe()
 	Axe->MeshComp->SetVisibility(false, true);
 }
 
-void AKratos::ThrowAxe(const bool bIsHeay)
+void AKratos::ThrowAxe(const bool bIsHeavy)
 {
 	const FVector SpawnLoc = CameraComp->GetComponentLocation() + CameraComp->GetForwardVector() * 100.0f;
 	const FRotator SpawnRot = CameraComp->GetComponentRotation();
 	FlyingAxe = GetWorld()->SpawnActor<AFlyingAxe>(FlyingAxeFactory, SpawnLoc, SpawnRot);
-	FlyingAxe->Init(this, bIsHeay);
+	FlyingAxe->Init(this, bIsHeavy);
 	bAxeGone = true;
 	CameraShakeOnAttack(EAttackDirectionType::UP, 1.0f);
 }
@@ -795,10 +795,10 @@ void AKratos::CallAxe()
 	FlyingAxe->BackToPlayer(false);
 }
 
-void AKratos::CallAxe(const float MaxReturnDuration, bool bImmediateReturn)
+void AKratos::CallAxe(const float MaxReturnDuration, const float MinReturnDuration, bool bImmediateReturn, const float RadiusScale)
 {
 	bIsAxeWithdrawing = true;
-	FlyingAxe->BackToPlayer(MaxReturnDuration, bImmediateReturn);
+	FlyingAxe->BackToPlayer(MaxReturnDuration, MinReturnDuration, bImmediateReturn, RadiusScale);
 }
 
 void AKratos::CatchFlyingAxe()
@@ -811,6 +811,16 @@ void AKratos::CatchFlyingAxe()
 	bAxeGone = false;
 	bIsAxeWithdrawing = false;
 	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(CatchAxeShakeFactory, 0.2f);
+}
+
+void AKratos::ThrowAxeInAttack(const FRotator LocalRotationOffset)
+{
+	const FVector SpawnLoc = Axe->GetActorLocation();
+	const FRotator SpawnRot = GetActorRotation();
+	FlyingAxe = GetWorld()->SpawnActor<AFlyingAxe>(FlyingAxeFactory, SpawnLoc, SpawnRot);
+	FlyingAxe->Init(this, LocalRotationOffset);
+	bAxeGone = true;
+	CameraShakeOnAttack(EAttackDirectionType::UP, 1.0f);
 }
 
 

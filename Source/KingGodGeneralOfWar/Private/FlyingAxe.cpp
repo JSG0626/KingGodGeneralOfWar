@@ -63,6 +63,22 @@ void AFlyingAxe::Init(AKratos* _Me, bool _bIsHeavy)
 	PrevBladeLocation = BladeLocationComp->GetComponentLocation();
 	StartInterpRotationDistSquared = StartInterpRotationDist * StartInterpRotationDist;
 }
+void AFlyingAxe::Init(AKratos* _Me, const FRotator LocalRotationOffset)
+{
+	Kratos = _Me;
+	AddActorLocalRotation(LocalRotationOffset);
+	IWeaponInterface::BaseAttackPower = Kratos->GetAttackPower(EPlayerWeaponType::Axe);
+	IWeaponInterface::CurrentAttackScale = DefaultScale;
+	IWeaponInterface::CurrentStunAttackScale = StunDamage;
+
+	//AxeMeshOffset = SubMeshComp->GetRelativeLocation();
+	SubMeshComp->SetRelativeLocation(FVector(0));
+	CurrentVelocity = GetActorForwardVector() * HeavyThrowingMoveSpeed;
+	PrevLocation = GetActorLocation();
+	PrevBladeLocation = BladeLocationComp->GetComponentLocation();
+	StartInterpRotationDistSquared = StartInterpRotationDist * StartInterpRotationDist;
+	bPass = true;
+}
 // Called every frame
 void AFlyingAxe::Tick(float DeltaTime)
 {
@@ -113,6 +129,7 @@ void AFlyingAxe::TickState_Flying(float DeltaTime)
 	bool bHit = CollisionCheck(HitResult);
 	if (bHit)
 	{
+		if (bPass) return;
 		if (bIsHeavy || Cast<ABaseEnemy>(HitResult.GetActor()) == nullptr)
 		{
 			SetState(EAxeState::Stuck, HitResult);
@@ -121,8 +138,6 @@ void AFlyingAxe::TickState_Flying(float DeltaTime)
 		{
 			SetState(EAxeState::Bounce, HitResult);
 		}
-		
-
 	}
 }
 
@@ -392,7 +407,7 @@ void AFlyingAxe::OnEnterReturning()
 	ReturnStartLocation = PrevLocation;
 	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
 	const float DistanceToTarget = FVector::Dist(PrevLocation, TargetLocation);
-	ReturnDuration = FMath::Min(DistanceToTarget / MinReturnSpeed, MaxReturnDuration);
+	ReturnDuration = FMath::Max(MinReturnDuration, FMath::Min(DistanceToTarget / MinReturnSpeed, MaxReturnDuration));
 	PathCurveRadius = DistanceToTarget * RadiusScale;
 
 	if (TObjectPtr<ABaseEnemy> Enemy = Cast<ABaseEnemy>(StuckActor))
@@ -464,9 +479,11 @@ void AFlyingAxe::BackToPlayer(bool bImmediateReturn)
 	}
 }
 
-void AFlyingAxe::BackToPlayer(const float _MaxReturnDuration, bool bImmediateReturn)
+void AFlyingAxe::BackToPlayer(const float _MaxReturnDuration, const float _MinReturnDuration, const bool bImmediateReturn, const float _RadiusScale)
 {
 	MaxReturnDuration = _MaxReturnDuration;
+	MinReturnDuration = _MinReturnDuration;
+	RadiusScale = _RadiusScale;
 	BackToPlayer(bImmediateReturn);
 }
 

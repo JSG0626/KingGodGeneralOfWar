@@ -58,11 +58,12 @@ public:
 	TObjectPtr<class USoundBase> BounceSound;
 
 	void BackToPlayer(bool bImmediateReturn);
-	void BackToPlayer(const float MaxReturnDuration, bool bImmediateReturn);
+	void BackToPlayer(const float MaxReturnDuration, const float _MinReturnDurationbool, bool bImmediateReturn, const float _RadiusScale = 0.25f);
 
 	virtual void ActiveHitCollision(bool Active) override;
 	virtual TObjectPtr<class USoundCue> GetBaseHitSound() const override;
 	void Init(class AKratos* _Me, bool _bIsHeavy);
+	void Init(class AKratos* _Me, const FRotator LocalRotationOffset);
 
 protected:
 	virtual void BeginPlay() override;
@@ -148,6 +149,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float MaxReturnDuration = 2.5f;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
+	float MinReturnDuration = 0.0f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float RadiusScale = 0.25;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float StartInterpRotationDist = 1000 ;
@@ -173,6 +176,7 @@ private:
 	float VibrationRoll = 0;
 	int VibrationTickCount = 0;
 	FQuat TargetLeprInitQuat;
+	bool bPass;
 
 	struct ST_StateElapsedTime
 	{

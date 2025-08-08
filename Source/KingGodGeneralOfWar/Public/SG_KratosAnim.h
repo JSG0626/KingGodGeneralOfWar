@@ -82,9 +82,6 @@ private:
 	void AnimNotify_SpawnEarthCrack();
 
 	UFUNCTION()
-	void AnimNotify_InitAttackType();
-
-	UFUNCTION()
 	void AnimNotify_AttackProgress();
 
 	UFUNCTION()

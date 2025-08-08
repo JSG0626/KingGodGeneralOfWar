@@ -7,11 +7,19 @@
 #include "KS_DodgeBackAttack.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class KINGGODGENERALOFWAR_API UKS_DodgeBackAttack : public UKratosState
 {
 	GENERATED_BODY()
-	
+public:
+	virtual void EnterState(const FGenericStateParams& params) override;
+	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
+	virtual void ExitState(const FGenericStateParams& params) override;
+
+	virtual bool CanHandleDodge() const override { return true; }
+
+	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
+
 };

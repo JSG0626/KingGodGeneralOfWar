@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AN_ThrowAxe.h"
+#include "AN_CallAxe.h"
 #include "Kratos.h"
 
-void UAN_ThrowAxe::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void UAN_CallAxe::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
 	if (!MeshComp || !MeshComp->GetWorld() || !MeshComp->GetWorld()->IsGameWorld())
@@ -20,14 +20,6 @@ void UAN_ThrowAxe::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
 	AKratos* Kratos = CastChecked<AKratos>(pawn);
 	if (Kratos)
 	{
-		if (bThrowInAttack)
-		{
-			Kratos->ThrowAxeInAttack(LocalRotationOffset);
-		}
-		else
-		{
-			Kratos->ThrowAxe(bIsHeavy);
-		}
-		Kratos->HideHoldingAxe();
+		Kratos->CallAxe(MaxReturnDuration, MinReturnDuration, ImmediateReturn, RadiusScale);
 	}
 }

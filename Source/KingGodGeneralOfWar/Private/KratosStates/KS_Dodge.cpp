@@ -8,11 +8,11 @@
 void UKS_Dodge::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Dodge Enter"));
-	bLAttackInputOn = false;
-	bHAttackInputOn = false;
+	AttackInput = EAttackType::None;
 	bAimInputOn = false;
 	Me->CanComboAttack = false;
-
+	InputDirection = FVector2D::ZeroVector;
+	TickTime = 0.0f;
 	FRotator rotate = Me->GetController()->GetControlRotation();
 	rotate.Pitch = 0;
 	Me->SetActorRotation(rotate);
@@ -36,28 +36,21 @@ void UKS_Dodge::EnterState(const FGenericStateParams& params)
 void UKS_Dodge::TickState(const FGenericStateParams& params, float DeltaTime)
 {
 	StateLog(TEXT("Dodge Tick"), true);
-
+	TickTime += DeltaTime;
 	if (Me->CanComboAttack)
 	{
-		UE_LOG(LogTemp, Display, TEXT("CacComboAttack: %d, bAimInputOn: %d, bLAttackInputOn: %d, bHAttackInputOn: %d"),	Me->CanComboAttack, bAimInputOn, bLAttackInputOn, bHAttackInputOn);
-		if (bAimInputOn && (bLAttackInputOn || bHAttackInputOn))
+		if (bAimInputOn && (AttackInput != EAttackType::None))
 		{
 			FGenericStateParams Params;
 			Params.Bool = true;
-			if (bHAttackInputOn)
-			{
-				Params.Integer = 1;
-			}
+			Params.Integer = static_cast<int32>(AttackInput);
 			Me->SetKratosState(EPlayerState::Aim, Params);
 		}
-		else if (bLAttackInputOn)
+		else if (AttackInput == EAttackType::LAttack)
 		{
 
 		}
-		else if (bHAttackInputOn)
-		{
-			
-		}
+		Me->CanComboAttack = false;
 	}
 }
 
@@ -72,11 +65,21 @@ bool UKS_Dodge::CanHandleHit() const
 	return !bDashing && !Me->bEvade;
 }
 
+void UKS_Dodge::HandleMove(const FGenericStateParams& params)
+{
+	if (bDashing && TickTime >= DodgeAttackTimeThreshold ||
+		!bDashing && TickTime >= DodgeAttackTimeThreshold * 2)
+	{
+		UE_LOG(LogTemp, Display, TEXT("TickTime >= DodgeAttackTimeThreshold"));
+		InputDirection = params.Vector2D;
+	}
+}
+
 void UKS_Dodge::HandleDodge(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Dash -> Roll"));
 	bDashing = false;
-
+	TickTime = 0.0f;
 	Me->bEvade = true;
 
 	FRotator rotate = Me->GetController()->GetControlRotation();
@@ -90,17 +93,27 @@ void UKS_Dodge::HandleDodge(const FGenericStateParams& params)
 
 void UKS_Dodge::HandleLAttack(const FGenericStateParams& params)
 {
-	bLAttackInputOn = true;
+	AttackInput = EAttackType::LAttack;
+	UE_LOG(LogTemp, Display, TEXT("AttackInput == LAttack, InputDirection :%s"), *InputDirection.ToString());
+	if (InputDirection.X <= -0.7f)
+	{
+		UE_LOG(LogTemp, Display, TEXT("BackWard"));
+		Me->SetKratosState(EPlayerState::DodgeBackAttack);
+	}
+	else if (InputDirection.X >= 0.7f)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Front"));
+		Me->SetKratosState(EPlayerState::DodgeFrontAttack);
+	}
 }
 
 void UKS_Dodge::HandleHAttack(const FGenericStateParams& params)
 {
-	bHAttackInputOn = true;
+	AttackInput = EAttackType::HAttack;
 }
 
 void UKS_Dodge::HandleAim(const FGenericStateParams& params)
 {
-	UE_LOG(LogTemp, Display, TEXT("HandleAim"));
 	bAimInputOn = true;
 }
 

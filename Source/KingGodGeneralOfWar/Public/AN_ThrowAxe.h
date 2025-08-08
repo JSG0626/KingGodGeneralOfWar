@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -17,6 +17,10 @@ class KINGGODGENERALOFWAR_API UAN_ThrowAxe : public UAnimNotify
 private:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess))
 	bool bIsHeavy ;
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess))
+	bool bThrowInAttack;
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess))
+	FRotator LocalRotationOffset;
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override ;
 

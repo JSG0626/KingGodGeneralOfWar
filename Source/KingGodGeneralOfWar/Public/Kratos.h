@@ -111,8 +111,9 @@ public:
 	void HideHoldingAxe();
 	void ThrowAxe(const bool bIsHeavy);
 	void CallAxe();
-	void CallAxe(const float MaxReturnDuration, bool bImmediateReturn);
+	void CallAxe(const float MaxReturnDuration, const float MinReturnDuration, bool bImmediateReturn, const float RadiusScale);
 	void CatchFlyingAxe();
+	void ThrowAxeInAttack(const FRotator LocalRotationOffset);
 
 	// Damage Function
 	// if Kratos get damage, return true; else return false;
@@ -131,7 +132,7 @@ public:
 
 
 	void CameraShakeOnAttack(EAttackDirectionType attackDir = EAttackDirectionType::UP, float scale = 1.0f);
-	FString GetPlayerStateString();
+	FString GetPlayerStateString() const;
 	void SetGlobalTimeDilation(float Duration, float SlowScale);
 	void SetAnimationSpeedSlow(float Duration, float SlowScale);
 
