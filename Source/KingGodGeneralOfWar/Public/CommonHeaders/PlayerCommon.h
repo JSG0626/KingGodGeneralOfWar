@@ -33,6 +33,8 @@ enum class EPlayerState : uint8
 	AxeReturnHAttack UMETA(DisplayName = "AxeReturnHAttack"),
 	DodgeFrontAttack UMETA(DisplayName = "DodgeFrontAttack"),
 	DodgeBackAttack UMETA(DisplayName = "DodgeBackAttack"),
+	CombatIdleLAttack UMETA(DisplayName = "CombatIdleLAttack"),
+	CombatIdleHAttack UMETA(DisplayName = "CombatIdleHAttack"),
 };
 
 UENUM(BlueprintType)
@@ -64,6 +66,8 @@ enum class EPlayerMontage : uint8
 	AxeReturnHAttack UMETA(DisplayName = "AxeReturnHAttack"),
 	DodgeFrontAttack UMETA(DisplayName = "DodgeFrontAttack"),
 	DodgeBackAttack UMETA(DisplayName = "DodgeBackAttack"),
+	CombatIdleLAttack UMETA(DisplayName = "CombatIdleLAttack"),
+	CombatIdleHAttack UMETA(DisplayName = "CombatIdleHAttack"),
 };
 
 UENUM(BlueprintType)

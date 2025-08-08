@@ -58,7 +58,14 @@ void UANS_TraceEnemy::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
 	else
 	{
 		Kratos->CurTargetEnemy = Kratos->FindTargetEnemy();
+		if (Kratos->CurTargetEnemy == nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("타겟 없어서 앞으로 감"));
+			Kratos->AddMovementInput(Kratos->GetActorForwardVector(), 1.0f);
+		}
 	}
+
+
 }
 
 void UANS_TraceEnemy::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)

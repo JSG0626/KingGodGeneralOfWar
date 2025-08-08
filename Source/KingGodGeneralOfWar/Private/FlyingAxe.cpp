@@ -211,7 +211,7 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	StateElapsedTime.Return += DeltaTime;
 
 	const FVector CurLocation = GetActorLocation();
-	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
+	TargetLocation = TargetSocketTransform->GetComponentLocation();
 	const float LocationAlpha = FMath::Min(1.0f, StateElapsedTime.Return / ReturnDuration);
 	// 이동 로직
 	{
@@ -231,7 +231,7 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	if (DistanceSquaredToTarget <= StartInterpRotationDistSquared)
 	{
 		const float RotationAlpha = FMath::Min(1.0f, StateElapsedTime.SlerpHandRotation / InterpRotationDuration);
-		const FQuat NewRotation = FQuat::Slerp(GetActorQuat(), Kratos->WithdrawPositionComp->GetComponentQuat(), RotationAlpha);
+		const FQuat NewRotation = FQuat::Slerp(GetActorQuat(), TargetSocketTransform->GetComponentQuat(), RotationAlpha);
 		SetActorRotation(NewRotation);
 		StateElapsedTime.SlerpHandRotation += DeltaTime;
 	}
@@ -391,7 +391,7 @@ void AFlyingAxe::OnEnterReturning()
 	// TargetQuat 초기값 계산
 	{
 		const FVector AxeLocation = GetActorLocation();
-		const FVector TargetHandLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
+		const FVector TargetHandLocation = TargetSocketTransform->GetComponentLocation();
 
 		const FVector DirectionToPlayer = (TargetHandLocation - AxeLocation).GetSafeNormal();
 
@@ -405,7 +405,7 @@ void AFlyingAxe::OnEnterReturning()
 	SubMeshComp->SetRelativeLocation(FVector::ZeroVector);
 	PrevLocation = GetActorLocation();
 	ReturnStartLocation = PrevLocation;
-	TargetLocation = Kratos->WithdrawPositionComp->GetComponentLocation();
+	TargetLocation = TargetSocketTransform->GetComponentLocation();
 	const float DistanceToTarget = FVector::Dist(PrevLocation, TargetLocation);
 	ReturnDuration = FMath::Max(MinReturnDuration, FMath::Min(DistanceToTarget / MinReturnSpeed, MaxReturnDuration));
 	PathCurveRadius = DistanceToTarget * RadiusScale;
@@ -469,6 +469,7 @@ void AFlyingAxe::HandleCatch()
 
 void AFlyingAxe::BackToPlayer(bool bImmediateReturn)
 {
+	TargetSocketTransform = Kratos->RightHandTransformComp;
 	if (CurrentState == EAxeState::Stuck && bImmediateReturn == false)
 	{
 		SetState(EAxeState::Vibration);
@@ -479,11 +480,12 @@ void AFlyingAxe::BackToPlayer(bool bImmediateReturn)
 	}
 }
 
-void AFlyingAxe::BackToPlayer(const float _MaxReturnDuration, const float _MinReturnDuration, const bool bImmediateReturn, const float _RadiusScale)
+void AFlyingAxe::BackToPlayer(const float _MaxReturnDuration, const float _MinReturnDuration, const bool bImmediateReturn, const float _RadiusScale, const bool bRightHand)
 {
 	MaxReturnDuration = _MaxReturnDuration;
 	MinReturnDuration = _MinReturnDuration;
 	RadiusScale = _RadiusScale;
+	TargetSocketTransform = bRightHand ? Kratos->RightHandTransformComp : Kratos->LeftHandTransformComp;
 	BackToPlayer(bImmediateReturn);
 }
 

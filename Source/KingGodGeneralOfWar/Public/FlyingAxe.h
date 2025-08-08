@@ -58,7 +58,7 @@ public:
 	TObjectPtr<class USoundBase> BounceSound;
 
 	void BackToPlayer(bool bImmediateReturn);
-	void BackToPlayer(const float MaxReturnDuration, const float _MinReturnDurationbool, bool bImmediateReturn, const float _RadiusScale = 0.25f);
+	void BackToPlayer(const float MaxReturnDuration, const float _MinReturnDurationbool, bool bImmediateReturn, const float _RadiusScale = 0.25f, const bool bRightHand = true);
 
 	virtual void ActiveHitCollision(bool Active) override;
 	virtual TObjectPtr<class USoundCue> GetBaseHitSound() const override;
@@ -160,6 +160,9 @@ private:
 	float LerpInitReturnRotationTime = 0.2f ;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float LerpInitReturnRotationSpeed = 40.0f ;
+
+	UPROPERTY()
+	class UArrowComponent* TargetSocketTransform ;
 
 	// 상태 관련 변수
 	FVector PrevLocation;

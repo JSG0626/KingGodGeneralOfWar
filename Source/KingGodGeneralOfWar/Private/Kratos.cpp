@@ -67,9 +67,12 @@ AKratos::AKratos()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("cameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
-	WithdrawPositionComp = CreateDefaultSubobject<UArrowComponent>(TEXT("WithdrawPositionComp"));
-	WithdrawPositionComp->SetupAttachment(GetMesh(), TEXT("hand_rAxeSocket"));
+	RightHandTransformComp = CreateDefaultSubobject<UArrowComponent>(TEXT("RightHandTransformComp"));
+	RightHandTransformComp->SetupAttachment(GetMesh(), TEXT("hand_rAxeSocket"));
 
+	LeftHandTransformComp = CreateDefaultSubobject<UArrowComponent>(TEXT("LeftHandTransformComp"));
+	LeftHandTransformComp->SetupAttachment(GetMesh(), TEXT("hand_lAxeSocket"));
+	
 	CurHP = MaxHP;
 	GetCharacterMovement()->MaxWalkSpeed = PlayerMaxSpeed;
 
@@ -795,10 +798,10 @@ void AKratos::CallAxe()
 	FlyingAxe->BackToPlayer(false);
 }
 
-void AKratos::CallAxe(const float MaxReturnDuration, const float MinReturnDuration, bool bImmediateReturn, const float RadiusScale)
+void AKratos::CallAxe(const float MaxReturnDuration, const float MinReturnDuration, bool bImmediateReturn, const float RadiusScale, const bool bRightHand)
 {
 	bIsAxeWithdrawing = true;
-	FlyingAxe->BackToPlayer(MaxReturnDuration, MinReturnDuration, bImmediateReturn, RadiusScale);
+	FlyingAxe->BackToPlayer(MaxReturnDuration, MinReturnDuration, bImmediateReturn, RadiusScale, bRightHand);
 }
 
 void AKratos::CatchFlyingAxe()

@@ -19,6 +19,7 @@ private:
 	bool bIsHeavy ;
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess))
 	bool bThrowInAttack;
+
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess))
 	FRotator LocalRotationOffset;
 public:

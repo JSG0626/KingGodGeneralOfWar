@@ -20,6 +20,7 @@ void UAN_CallAxe::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* An
 	AKratos* Kratos = CastChecked<AKratos>(pawn);
 	if (Kratos)
 	{
-		Kratos->CallAxe(MaxReturnDuration, MinReturnDuration, ImmediateReturn, RadiusScale);
+		Kratos->SwapAxeHands(bRightHand);
+		Kratos->CallAxe(MaxReturnDuration, MinReturnDuration, bImmediateReturn, RadiusScale, bRightHand);
 	}
 }

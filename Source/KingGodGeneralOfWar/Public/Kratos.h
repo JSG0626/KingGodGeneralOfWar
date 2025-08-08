@@ -111,7 +111,7 @@ public:
 	void HideHoldingAxe();
 	void ThrowAxe(const bool bIsHeavy);
 	void CallAxe();
-	void CallAxe(const float MaxReturnDuration, const float MinReturnDuration, bool bImmediateReturn, const float RadiusScale);
+	void CallAxe(const float MaxReturnDuration, const float MinReturnDuration, bool bImmediateReturn, const float RadiusScale, const bool bRightHand = true);
 	void CatchFlyingAxe();
 	void ThrowAxeInAttack(const FRotator LocalRotationOffset);
 
@@ -206,7 +206,10 @@ public:
 	class UCameraComponent* CameraComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UArrowComponent* WithdrawPositionComp;
+	class UArrowComponent* RightHandTransformComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UArrowComponent* LeftHandTransformComp;
 
 	// Kratos Weapon
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")

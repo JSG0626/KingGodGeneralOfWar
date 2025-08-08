@@ -51,7 +51,7 @@ void UKS_Dodge::TickState(const FGenericStateParams& params, float DeltaTime)
 	//}
 	UE_LOG(LogTemp, Display, TEXT("AttackInput == LAttack, InputDirection :%s"), *InputDirection.ToString());
 
-	if (AttackInput != EAttackType::None)
+	if (!Me->bAxeGone && AttackInput != EAttackType::None)
 	{
 		if (bDashing && TickTime >= DashDodgeAttackTimeThreshold ||
 			!bDashing && TickTime >= RollDodgeAttackTimeThreshold)

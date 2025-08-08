@@ -22,7 +22,9 @@ private:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess))
 	float RadiusScale = 0.15f;
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess))
-	bool ImmediateReturn;
+	bool bImmediateReturn;
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess))
+	bool bRightHand = true;
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
 
