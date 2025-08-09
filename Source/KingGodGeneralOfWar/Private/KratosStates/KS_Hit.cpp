@@ -1,15 +1,15 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Hit.h"
 #include "Kratos.h"
-#include "SG_KratosAnim.h"
+#include <Kismet/GameplayStatics.h>
 
 void UKS_Hit::SetUp(AKratos* Kratos)
 {
 	UKratosState::SetUp(Kratos);
 
-	NuckBackScale.Add({ EHitType::NB_HIGH, 20000.0f });
+	NuckBackScale.Add({ EHitType::NB_HIGH, 5000.0f });
 	NuckBackScale.Add({ EHitType::NB_MEDIUM, 500.0f });
 	NuckBackScale.Add({ EHitType::NB_LOW, 100.0f });
 	NuckBackScale.Add({ EHitType::STAGGER, 2000.0f });
@@ -21,8 +21,7 @@ void UKS_Hit::EnterState(const FGenericStateParams& params)
 	StateLog(TEXT("Hit Enter"));
 	FEnemyAttackParams AttackParams = params.AttackParams;
 	
-	const float CurHP = Me->SetHP(Me->CurHP - AttackParams.Damage);
-
+	const float CurHP = Me->GetDamage(AttackParams.Damage);
 	if (CurHP == 0)
 	{
 		HandleDie();
@@ -30,7 +29,7 @@ void UKS_Hit::EnterState(const FGenericStateParams& params)
 	else
 	{
 		UE_LOG(LogTemp, Display, TEXT("EHitType: %s"), *UEnum::GetValueAsString(AttackParams.HitType));
-		Anim->PlayMontage(EPlayerMontage::Hit, true, Me->GetHitSectionName(AttackParams.HitType));
+		Me->PlayMontage(EPlayerMontage::Hit, true, GetHitSectionName(AttackParams.HitType));
 
 		FVector NuckBackDirection = Me->GetActorLocation() - params.AttackParams.Attacker->GetActorLocation();
 		Me->LaunchCharacter(NuckBackDirection.GetSafeNormal() * NuckBackScale[AttackParams.HitType], true, false);
@@ -48,6 +47,8 @@ void UKS_Hit::EnterState(const FGenericStateParams& params)
 		else
 			Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, .5);
 
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, Me->GetActorLocation());
+
 	}
 }
 
@@ -59,4 +60,10 @@ void UKS_Hit::TickState(const FGenericStateParams& params, float DeltaTime)
 void UKS_Hit::ExitState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Hit Exit"));
+}
+
+FString UKS_Hit::GetHitSectionName(EHitType hitType) const
+{
+	FString HitTypeValueAsString = UEnum::GetValueAsString(hitType);
+	return HitTypeValueAsString.Mid(10);
 }

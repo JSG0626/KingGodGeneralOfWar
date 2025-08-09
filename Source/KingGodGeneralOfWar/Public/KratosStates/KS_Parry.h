@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -31,4 +31,7 @@ private:
 
 	const float PARRY_DAMAGE = 10.0f;
 	const float PARRY_STUN_DAMAGE = 10.0f;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	TSubclassOf<class AActor> ParryingLightFactory ;
 };

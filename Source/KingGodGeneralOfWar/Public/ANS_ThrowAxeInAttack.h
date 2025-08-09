@@ -33,7 +33,7 @@ class KINGGODGENERALOFWAR_API UANS_ThrowAxeInAttack : public UAnimNotifyState
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), Category = "Return")
 	bool bOrbital = false ;
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), Category = "Return")
-	int OrbitalCount = 1;
+	float OrbitalCount = 1;
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), Category = "Return")
 	bool bClockWise = true;
 	public:

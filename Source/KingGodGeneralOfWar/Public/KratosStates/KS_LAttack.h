@@ -33,6 +33,8 @@ public:
 	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) override;
 
 protected:
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	int MaxLAttackCount = 4;
 	int CurrentAttackNum = 1;
 	bool bGuardInputOn;
 	bool bAimInputOn;

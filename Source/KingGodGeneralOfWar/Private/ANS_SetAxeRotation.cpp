@@ -22,7 +22,7 @@ void UANS_SetAxeRotation::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeq
 	AKratos* Kratos = Cast<AKratos>(Pawn);
 	if (Kratos == nullptr) return;
 
-	Axe = Kratos->Axe;
+	Axe = Kratos->GetAxe();
 	if (Axe == nullptr) return;
 
 	Axe->SetActorRelativeRotation(NewRotation);

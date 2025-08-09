@@ -2,57 +2,32 @@
 
 
 #include "Kratos.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
-#include <Kismet/KismetMathLibrary.h>
-#include <EnhancedInputSubsystems.h>
-#include <EnhancedInputComponent.h>
-#include <Kismet/KismetSystemLibrary.h>
-#include "TimerManager.h"
 #include "SG_KratosAnim.h"
-#include <GameFramework/CharacterMovementComponent.h>
 #include "Axe.h"
 #include "SG_Shield.h"
-#include "Camera/PlayerCameraManager.h"
-#include "Kismet/GameplayStatics.h"
-#include "Components/WidgetComponent.h"
-#include "Blueprint/UserWidget.h"
-#include "Components/ArrowComponent.h"
-#include "PlayerHPUI.h"
-#include "CSW/AwakenThor.h"
-#include "CSW/AwakenThorFSM.h"
-#include "BDThor.h"
-#include "BDThorFSM.h"
 #include "FlyingAxe.h"
-#include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
-#include "CSW/CSWGameMode.h"
-#include "Sound/SoundBase.h"
+#include "PlayerHPUI.h"
 #include "PlayerAimUI.h"
-#include <BaseEnemy.h>
-
+#include "CSW/CSWGameMode.h"
+#include "BaseEnemy.h"
 #include "KratosStates/PlayerStateMappingDataAsset.h"
-#include "KratosStates/KS_Idle.h"
-#include <KratosStates/KS_Move.h>
-#include <KratosStates/KS_Dodge.h>
-#include <KratosStates/KS_Guard.h>
-#include <KratosStates/KS_Parry.h>
-#include <KratosStates/KS_Aim.h>
-#include "KratosStates/KS_LAttack.h"
-#include <KratosStates/KS_HAttack.h>
-#include <KratosStates/KS_LRunicAttack.h>
-#include <KratosStates/KS_HRunicAttack.h>
-#include <KratosStates/KS_Hit.h>
-#include <KratosStates/KS_Die.h>
+
+#include <Components/ArrowComponent.h>
+#include <GameFramework/SpringArmComponent.h>
+#include <GameFramework/CharacterMovementComponent.h>
+#include <Camera/CameraComponent.h>
+#include <EnhancedInputComponent.h>
+
+#include <Kismet/KismetSystemLibrary.h>
+#include <Camera/PlayerCameraManager.h>
+#include <Kismet/KismetMathLibrary.h>
+#include <EnhancedInputSubsystems.h>
+#include <Kismet/GameplayStatics.h>
+#include <NiagaraFunctionLibrary.h>
+#include <Sound/SoundBase.h>
+#include <TimerManager.h>
 
 // Sets default values
-
-const float WALK_FOV = 90;
-const float RUN_FOV = 105;
-const float GUARD_FOV = 70;
-const float AIM_FOV = 60;
-const float PARRY_FOV = 100;
-const float ATTACK_FOV = 105;
-const int GUARD_MAX_COUNT = 2;
 
 AKratos::AKratos()
 {
@@ -72,87 +47,9 @@ AKratos::AKratos()
 
 	LeftHandTransformComp = CreateDefaultSubobject<UArrowComponent>(TEXT("LeftHandTransformComp"));
 	LeftHandTransformComp->SetupAttachment(GetMesh(), TEXT("hand_lAxeSocket"));
-	
+
 	CurHP = MaxHP;
 	GetCharacterMovement()->MaxWalkSpeed = PlayerMaxSpeed;
-
-	// Sound Referencing
-	{
-		static ConstructorHelpers::FObjectFinder<USoundBase> avoid_sfx(TEXT("/ Script / Engine.SoundWave'/Game/JSG/SFX/RealSFX/Avoid.Avoid'"));
-		if (avoid_sfx.Succeeded())	AvoidSound = avoid_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> axeThrow_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/Axe2Throw.Axe2Throw'"));
-		if (axeThrow_sfx.Succeeded())	AxeThrowSound = axeThrow_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> AxeWithdraw_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/Axe3Get.Axe3Get'"));
-		if (AxeWithdraw_sfx.Succeeded())	AxeWithdrawSound = AxeWithdraw_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> hit1_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/PlayerDamaged3.PlayerDamaged3'"));
-		if (hit1_sfx.Succeeded())	HitSound1 = hit1_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> hit2_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/PlayerDamaged.PlayerDamaged'"));
-		if (hit2_sfx.Succeeded())	HitSound2 = hit2_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> hit3_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/PlayerDamaged2.PlayerDamaged2'"));
-		if (hit3_sfx.Succeeded())	HitSound3 = hit3_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> roll_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/Roll.Roll'"));
-		if (roll_sfx.Succeeded())	RollSound = roll_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> runeBase_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/RuneReady.RuneReady'"));
-		if (runeBase_sfx.Succeeded())	RuneBaseSound = runeBase_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> rune1_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/Rune1.Rune1'"));
-		if (rune1_sfx.Succeeded())	RuneAttack1Sound = rune1_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> rune2_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/Rune2.Rune2'"));
-		if (rune2_sfx.Succeeded())	RuneAttack2Sound = rune2_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> rune3_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/Rune3.Rune3'"));
-		if (rune3_sfx.Succeeded())	RuneAttack3Sound = rune3_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> rune4_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/Rune4.Rune4'"));
-		if (rune4_sfx.Succeeded())	RuneAttack4Sound = rune4_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> strong1_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/StrongAttack1.StrongAttack1'"));
-		if (strong1_sfx.Succeeded())	StrongAttack1Sound = strong1_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> strong2_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/StrongAttack2.StrongAttack2'"));
-		if (strong2_sfx.Succeeded())	StrongAttack2Sound = strong2_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> strong3_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/StrongAttack3.StrongAttack3'"));
-		if (strong3_sfx.Succeeded())	StrongAttack3Sound = strong3_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> strong4_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/StrongAttack4.StrongAttack4'"));
-		if (strong4_sfx.Succeeded())	StrongAttack4Sound = strong4_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> weak1_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/WeakAttack1.WeakAttack1'"));
-		if (weak1_sfx.Succeeded())	WeakAttack1Sound = weak1_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> weak2_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/WeakAttack2.WeakAttack2'"));
-		if (weak2_sfx.Succeeded())	WeakAttack2Sound = weak2_sfx.Object;
-
-		static ConstructorHelpers::FObjectFinder<USoundBase> weak3_sfx(TEXT("/Script/Engine.SoundWave'/Game/JSG/SFX/RealSFX/WeakAttack3.WeakAttack3'"));
-		if (weak3_sfx.Succeeded())	WeakAttack3Sound = weak3_sfx.Object;
-
-		WeakAttackSoundArr.Add(WeakAttack1Sound);
-		WeakAttackSoundArr.Add(WeakAttack1Sound);
-		WeakAttackSoundArr.Add(WeakAttack2Sound);
-		WeakAttackSoundArr.Add(WeakAttack3Sound);
-
-		StrongAttackSoundArr.Add(StrongAttack1Sound);
-		StrongAttackSoundArr.Add(StrongAttack1Sound);
-		StrongAttackSoundArr.Add(StrongAttack2Sound);
-		StrongAttackSoundArr.Add(StrongAttack3Sound);
-		StrongAttackSoundArr.Add(StrongAttack4Sound);
-
-		RuneAttackSoundArr.Add(RuneAttack1Sound);
-		RuneAttackSoundArr.Add(RuneAttack1Sound);
-		RuneAttackSoundArr.Add(RuneAttack2Sound);
-		RuneAttackSoundArr.Add(RuneAttack3Sound);
-		RuneAttackSoundArr.Add(RuneAttack4Sound);
-
-	}
 }
 // Called to bind functionality to input
 void AKratos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -179,8 +76,6 @@ void AKratos::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		input->BindAction(IA_Aim, ETriggerEvent::Triggered, this, &AKratos::OnMyActionAimOn);
 		input->BindAction(IA_Aim, ETriggerEvent::Completed, this, &AKratos::OnMyActionAimOff);
 		input->BindAction(IA_WithdrawAxe, ETriggerEvent::Started, this, &AKratos::OnMyActionAbility);
-		input->BindAction(IA_RuneBase, ETriggerEvent::Started, this, &AKratos::OnMyActionRuneBase);
-
 	}
 }
 void AKratos::PostInitializeComponents()
@@ -226,12 +121,12 @@ void AKratos::BeginPlay()
 	GameMode = Cast<ACSWGameMode>(GetWorld()->GetAuthGameMode());
 	if (nullptr == Axe)
 	{
-		SetWeapon();
+		InitAxe();
 	}
 
 	if (nullptr == Shield)
 	{
-		SetShield();
+		InitShield();
 	}
 
 	DefaultCameraOffset = SpringArmComp->SocketOffset;
@@ -255,7 +150,7 @@ void AKratos::BeginPlay()
 void AKratos::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	GEngine->AddOnScreenDebugMessage(1, DeltaTime, FColor::White, FString::Printf(TEXT("%f"), GetCharacterMovement()->MaxWalkSpeed));
 	if (nullptr != CurrentState)
 	{
@@ -291,7 +186,7 @@ void AKratos::Tick(float DeltaTime)
 	CameraComp->SetRelativeRotation(UKismetMathLibrary::RLerp(CameraComp->GetRelativeRotation(), TargetCameraAngle, DeltaTime * 2, true));
 
 
-	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, GetPlayerStateString());
+	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, UEnum::GetValueAsString(State));
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("TargetTargetArmLength: %f"), TargetTargetArmLength));
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("TargetCameraOffset: %s"), *TargetCameraOffset.ToString()));
 
@@ -299,10 +194,6 @@ void AKratos::Tick(float DeltaTime)
 }
 // -------------------------------------------------- TICK -------------------------------------------------------------
 
-FString AKratos::GetPlayerStateString() const
-{
-	return UEnum::GetValueAsString(State);
-}
 void AKratos::PlayerMove()
 {
 
@@ -327,7 +218,7 @@ void AKratos::PlayerMove()
 	//AddMovementInput(ForwardDirection, MoveScale);
 }
 
-void AKratos::SetLockOnTarget()
+void AKratos::SetTargetToLockOn()
 {
 	float lockOnRadius = 1000000.0f;
 	FVector cameraForwardVector = UKismetMathLibrary::GetForwardVector(CameraComp->USceneComponent::K2_GetComponentRotation());
@@ -427,36 +318,7 @@ FORCEINLINE void AKratos::LockOnTargetTick(float DeltaTime)
 	}
 }
 
-void AKratos::OnMyGuardDisappear()
-{
-	TargetShieldScale = 0;
-}
-
-void AKratos::OnMyLaunchCharacterInStrongAttack()
-{
-	const float LaunchScale = 500;
-	LaunchCharacter(GetActorForwardVector() * LaunchScale, true, false);
-}
-
-void AKratos::OnMyJumpCharacterInStrongAttack()
-{
-	const float LaunchScale = 250;
-	FVector dir = GetActorForwardVector() + FVector(0, 0, 1);
-	dir.Normalize();
-	LaunchCharacter(dir * LaunchScale, true, true);
-}
-
-void AKratos::IncreaseTargetTargetArmLength(float value)
-{
-	TargetTargetArmLength += value;
-}
-
-void AKratos::IncreaseTargetCameraOffset(FVector value)
-{
-	TargetCameraOffset += value;
-}
-
-void AKratos::SetWeapon()
+void AKratos::InitAxe()
 {
 	FActorSpawnParameters param;
 	const FName SocketName = TEXT("hand_rAxeSocket");
@@ -470,7 +332,7 @@ void AKratos::SetWeapon()
 	}
 }
 
-void AKratos::SetShield()
+void AKratos::InitShield()
 {
 	FActorSpawnParameters param;
 	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -482,42 +344,6 @@ void AKratos::SetShield()
 		Shield->MeshComp->UPrimitiveComponent::SetCollisionProfileName(TEXT("IdleWeapon"), true);
 		Shield->Init(this);
 	}
-}
-
-
-void AKratos::OnMyRuneAttackCameraSet()
-{
-	TargetFOV = 100;
-	TargetCameraOffset = DefaultCameraOffset + FVector(0, 20, 55);
-	TargetCameraAngle = DefaultCameraAngle + FRotator(-10, 0, 0);
-	TargetTargetArmLength = TargetTargetArmLength + 30;
-}
-
-void AKratos::OnMySpawnEarthCrack()
-{
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), EarthCrackVFX, Axe->MeshComp->GetComponentLocation() - FVector(0, 0, 22));
-}
-
-
-void AKratos::OnMyAttackProgress()
-{
-	GetMovementComponent()->Velocity = GetActorForwardVector() * 2000;
-}
-
-void AKratos::OnMyEndWithFail()
-{
-	FTimerHandle handle;
-	GetWorld()->GetTimerManager().SetTimer(handle, [&]()
-	{
-		GameMode->EndWithFail();
-	}, 2.0f, false);
-}
-
-void AKratos::OnMyGetUPCameraSet()
-{
-	TargetCameraOffset = DefaultCameraOffset;
-	TargetCameraAngle = DefaultCameraAngle;
-	TargetTargetArmLength = DefaultTargetTargetArmLength;
 }
 
 void AKratos::OnMyActionDebugKey()
@@ -553,34 +379,6 @@ void AKratos::SetAnimationSpeedSlow(float Duration, float SlowScale)
 		UE_LOG(LogTemp, Display, TEXT("Speed TurnBack"));
 		Anim->Montage_SetPlayRate(nullptr, OriginScale);
 	}, Duration, false);
-}
-
-FString AKratos::GetHitSectionName(EHitType hitType)
-{
-	FString HitTypeValueAsString = UEnum::GetValueAsString(hitType);
-	return HitTypeValueAsString.Mid(10);
-}
-
-FString AKratos::GetDodgeDirection()
-{
-	float absX = abs(PrevDirection.X), absY = abs(PrevDirection.Y);
-	FString DodgeDirString = "";
-	UE_LOG(LogTemp, Display, TEXT("PrevDirection: %s"), *PrevDirection.ToString());
-	if (absY >= 0.7)
-	{
-		if (PrevDirection.Y >= 0.7)
-			DodgeDirString += TEXT("R");
-		else
-			DodgeDirString += TEXT("L");
-	}
-	if (absX >= 0.7f)
-	{
-		if (PrevDirection.X >= 0.7)
-			DodgeDirString += TEXT("F");
-		else
-			DodgeDirString += TEXT("B");
-	}
-	return DodgeDirString;
 }
 
 void AKratos::InitializeStates()
@@ -699,7 +497,7 @@ void AKratos::OnMyActionLockOn(const FInputActionValue& value)
 		return;
 	}
 
-	SetLockOnTarget();
+	SetTargetToLockOn();
 }
 
 void AKratos::OnMyActionIdle(const FInputActionValue& value)
@@ -767,16 +565,6 @@ void AKratos::OnMyActionAbility(const FInputActionValue& value)
 	}
 }
 
-void AKratos::OnMyActionRuneBase(const FInputActionValue& value)
-{
-	//if (bAxeGone) return;
-	//if (State == EPlayerState::Idle || State == EPlayerState::Move || State == EPlayerState::Run)
-	//{
-	//	Anim->PlayRuneBaseMontage();
-	//	UGameplayStatics::PlaySound2D(GetWorld(), RuneBaseSound, 1, 1, 0.2f);
-	//}
-}
-
 void AKratos::HideHoldingAxe()
 {
 	Axe->MeshComp->SetVisibility(false, true);
@@ -816,7 +604,7 @@ void AKratos::CatchFlyingAxe()
 	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(CatchAxeShakeFactory, 0.2f);
 }
 
-void AKratos::ThrowAxeInAttack(const FRotator LocalRotationOffset, const bool bOrbital, const float OrbitalDuration, const int OrbitalCount, const bool bClockWise)
+void AKratos::ThrowAxeInAttack(const FRotator LocalRotationOffset, const bool bOrbital, const float OrbitalDuration, const float OrbitalCount, const bool bClockWise)
 {
 	const FVector SpawnLoc = Axe->GetActorLocation();
 	const FRotator SpawnRot = GetActorRotation();
@@ -826,15 +614,14 @@ void AKratos::ThrowAxeInAttack(const FRotator LocalRotationOffset, const bool bO
 	CameraShakeOnAttack(EAttackDirectionType::UP, 1.0f);
 }
 
-
-
 bool AKratos::Damage(AActor* Attacker, int DamageValue, EHitType HitType, bool IsMelee)
 {
 	if (CurrentState->CanHandleHit())
 	{
 		CurrentState->HandleHit(FEnemyAttackParams(Attacker, DamageValue, HitType, IsMelee));
+		return true;
 	}
-	return true;
+	return false;
 }
 
 float AKratos::SetHP(const float NewHP)
@@ -875,7 +662,7 @@ TObjectPtr<class AActor> AKratos::FindTargetEnemy() const
 	if (bLockOn && LockTarget) return LockTarget;
 
 	FVector CameraForwardVector = GetControlRotation().Vector();
-	FVector StartLocation = GetActorLocation() + CameraForwardVector  * FindTargetRadius;
+	FVector StartLocation = GetActorLocation() + CameraForwardVector * FindTargetRadius;
 	FVector EndLocation = StartLocation + CameraForwardVector * FindTargetEndLocation;
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	ObjectTypes.Add(TEnumAsByte<EObjectTypeQuery>(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1)));
@@ -928,7 +715,6 @@ TObjectPtr<class AActor> AKratos::FindTargetEnemy() const
 			float Dot = FVector::DotProduct(CameraForwardVector, ToTarget);
 			float DistSquared = FVector::DistSquared(CurLocation, CandidateLocation);
 			float Score = Dot + (1 - DistSquared / MaxDistSquared) * FindTargetDistPoint;
-			UE_LOG(LogTemp, Display, TEXT("Actor: %s, Dot: %f"), *OutHits[i].GetActor()->GetName(), Dot);
 			if (Score >= MaxScore)
 			{
 				MaxScore = Score;
@@ -965,6 +751,21 @@ void AKratos::PlayMontage(const EPlayerMontage MontageType, bool bJumpSection, c
 	Anim->PlayMontage(MontageType, bJumpSection, SectionName);
 }
 
+void AKratos::PlayMontage(const EPlayerMontage MontageType, const int SectionNumber)
+{
+	Anim->PlayMontage(MontageType, true, FString::FromInt(SectionNumber));
+}
+
+void AKratos::Montage_JumpToSection(const int SectionNumber)
+{
+	Anim->Montage_JumpToSection(*FString::FromInt(SectionNumber));
+}
+
+void AKratos::Montage_JumpToSection(const FString SectionName)
+{
+	Anim->Montage_JumpToSection(*SectionName);
+}
+
 void AKratos::OnHitHChargeAttack()
 {
 	UE_LOG(LogTemp, Display, TEXT("OnHitHChargeAttack"));
@@ -979,4 +780,47 @@ void AKratos::SwapAxeHands(bool Right)
 {
 	FName SocketName = Right ? TEXT("hand_rAxeSocket") : TEXT("hand_lAxeSocket");
 	Axe->K2_AttachToComponent(GetMesh(), SocketName, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+}
+
+void AKratos::SetMeshSpaceRotationBlend(const bool bActive) const
+{
+	Anim->bMeshSpaceRotationBlend = bActive;
+}
+
+TObjectPtr<class UArrowComponent> AKratos::GetHandTransformComp(const bool bRightHand) const
+{
+	return bRightHand ? RightHandTransformComp : LeftHandTransformComp;
+}
+FVector AKratos::GetCameraLocation() const
+{
+	return CameraComp->GetComponentLocation();
+}
+
+FRotator AKratos::GetCameraRotation(bool bRemovePitch) const
+{
+	return CameraComp->GetComponentRotation();
+}
+
+float AKratos::GetAttackRangeSquared() const
+{
+	return AttackRangeSquared;
+}
+
+void AKratos::ChangeAimUIColor(bool bHit) const
+{
+	AimWidget->ChangeColor(bHit);
+}
+
+float AKratos::GetDamage(const float Damage)
+{
+	return SetHP(CurHP - Damage);
+}
+TObjectPtr<class AAxe> AKratos::GetAxe() const
+{
+	return Axe;
+}
+
+TObjectPtr<class ASG_Shield> AKratos::GetShield() const
+{
+	return Shield;
 }

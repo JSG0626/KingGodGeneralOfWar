@@ -16,7 +16,6 @@ class KINGGODGENERALOFWAR_API UKS_Aim : public UKratosState
 	GENERATED_BODY()
 
 public:
-	virtual void SetUp(class AKratos* Kratos) override;
 	virtual void EnterState(const FGenericStateParams& params) override;
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
 	virtual void ExitState(const FGenericStateParams& params) override;
@@ -44,6 +43,5 @@ private:
 	float CurrentMoveScale;
 	float CoolDown = THROW_AXE_COOLDOWN;
 	bool bNoneMovable = false;
-	class UPlayerAimUI* AimWidget;
 
 };

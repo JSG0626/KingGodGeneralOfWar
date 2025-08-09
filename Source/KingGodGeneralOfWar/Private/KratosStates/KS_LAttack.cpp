@@ -3,9 +3,7 @@
 
 #include "KratosStates/KS_LAttack.h"
 #include "Kratos.h"
-#include "Axe.h"
 #include "SG_Shield.h"
-#include "SG_KratosAnim.h"
 #include <Camera/CameraComponent.h>
 #include <Kismet/GameplayStatics.h>
 #include <WeaponInterface.h>
@@ -28,13 +26,12 @@ void UKS_LAttack::EnterState(const FGenericStateParams& params)
 		return;
 	}
 	
-	CurrentAttackNum = 1;
+	CurrentAttackNum = 0;
 	bGuardInputOn = false;
 	bAimInputOn = false;
 	Me->CanComboAttack = false;
 
-	Anim->PlayMontage(EPlayerMontage::LAttack);
-	CurrentAttackNum++;
+	Me->PlayMontage(EPlayerMontage::LAttack, CurrentAttackNum++);
 
 	Me->CurTargetEnemy = Me->FindTargetEnemy();
 	if (nullptr != Me->CurTargetEnemy)
@@ -70,7 +67,12 @@ void UKS_LAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 
 			Me->CanComboAttack = false;
 			InputOn = false;
-			Anim->JumpToAttackMontageSection(CurrentAttackNum++);
+
+			if (CurrentAttackNum >= MaxLAttackCount)
+			{
+				CurrentAttackNum = 0;
+			}
+			Me->Montage_JumpToSection(CurrentAttackNum++);
 		}
 	}
 }
@@ -80,9 +82,6 @@ void UKS_LAttack::ExitState(const FGenericStateParams& params)
 	StateLog(TEXT("LAttack Exit"));
 	Me->CanComboAttack = false;
 	InputOn = false;
-	Anim->Montage_Stop(.1f);
-	Me->Axe->ActiveHitCollision(false);
-	Me->Shield->ActiveHitCollision(false);
 }
 
 

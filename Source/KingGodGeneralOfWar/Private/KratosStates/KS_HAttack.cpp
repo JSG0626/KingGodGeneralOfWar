@@ -3,11 +3,8 @@
 
 #include "KratosStates/KS_HAttack.h"
 #include "Kratos.h"
-#include "SG_KratosAnim.h"
 #include <Kismet/KismetMathLibrary.h>
 #include "WeaponInterface.h"
-#include "Axe.h"
-#include "SG_Shield.h"
 
 void UKS_HAttack::EnterState(const FGenericStateParams& params)
 {
@@ -26,8 +23,8 @@ void UKS_HAttack::EnterState(const FGenericStateParams& params)
 	}
 	bGuardInputOn = false;
 	bAimInputOn = false;
-	CurrentAttackNum = 1;
-	Anim->PlayMontage(EPlayerMontage::HAttack);
+	CurrentAttackNum = 0;
+	Me->PlayMontage(EPlayerMontage::HAttack);
 	CurrentAttackNum++;
 	Me->CanComboAttack = false;
 }
@@ -55,7 +52,7 @@ void UKS_HAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 		{
 			Me->CanComboAttack = false;
 			InputOn = false;
-			Anim->JumpToAttackMontageSection(CurrentAttackNum++);
+			Me->Montage_JumpToSection(FString::FromInt(CurrentAttackNum++));
 		}
 	}
 }
@@ -65,9 +62,6 @@ void UKS_HAttack::ExitState(const FGenericStateParams& params)
 	StateLog(TEXT("HAttack Exit"));
 	Me->CanComboAttack = false;
 	InputOn = false;
-	Anim->Montage_Stop(.1f);
-	TScriptInterface<IWeaponInterface>(Me->Axe)->ActiveHitCollision(false);
-	TScriptInterface<IWeaponInterface>(Me->Shield)->ActiveHitCollision(false);
 }
 
 

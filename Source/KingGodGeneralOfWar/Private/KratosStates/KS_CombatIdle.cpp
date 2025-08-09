@@ -3,11 +3,13 @@
 
 #include "KratosStates/KS_CombatIdle.h"
 #include "Kratos.h"
+#include <Kismet/GameplayStatics.h>
 
 void UKS_CombatIdle::EnterState(const FGenericStateParams& params)
 {
 	Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 0.1f);
 	Me->PlayMontage(EPlayerMontage::CombatIdle);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), CombatReadySound, Me->GetActorLocation());
 }
 
 void UKS_CombatIdle::TickState(const FGenericStateParams& params, float DeltaTime)

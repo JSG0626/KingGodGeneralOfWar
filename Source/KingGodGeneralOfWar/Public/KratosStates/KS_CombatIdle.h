@@ -34,4 +34,6 @@ class KINGGODGENERALOFWAR_API UKS_CombatIdle : public UKratosState
 	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleAbility(const FGenericStateParams& params = FGenericStateParams()) override;
 private:
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	TObjectPtr<USoundBase> CombatReadySound ;
 };

@@ -5,22 +5,13 @@
 #include "Kratos.h"
 #include <Kismet/KismetMathLibrary.h>
 #include "PlayerAimUI.h"
-#include "Camera/CameraComponent.h"
-#include "SG_KratosAnim.h"
 
-void UKS_Aim::SetUp(AKratos* Kratos)
-{
-	UKratosState::SetUp(Kratos);
-
-	AimWidget = Me->AimWidget;
-}
 
 void UKS_Aim::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Aim Enter"));
 
 	Me->TargetFOV = AIM_FOV;
-	Anim->ActiveLookAt(true);
 	CoolDown = 0.0f;
 
 	if (params.Bool)
@@ -42,17 +33,14 @@ void UKS_Aim::TickState(const FGenericStateParams& params, float DeltaTime)
 	StateLog(TEXT("Aim Tick"), true);
 	CoolDown -= DeltaTime;
 
-	FRotator CameraRotator = Me->CameraComp->GetComponentRotation();
-	CameraRotator.Pitch = 0;
+	FRotator CameraRotator = Me->GetCameraRotation();
 	Me->SetActorRotation(CameraRotator);
-
 	{
 		FRotator ControlRotation = Me->GetControlRotation();
 		if (abs(Me->GetVelocity().Dot(Me->GetActorRightVector())) >= 0.5f)
 		{
 			ControlRotation.Yaw -= 20.0f;
 		}
-		Anim->LookAtTarget = Me->GetMesh()->GetBoneLocation(FName(TEXT("neck_01"))) + ControlRotation.Vector() * 500;
 	}
 	
 
@@ -68,21 +56,19 @@ void UKS_Aim::TickState(const FGenericStateParams& params, float DeltaTime)
 	
 	{
 		FHitResult hitResult;
-		FVector Start = Me->CameraComp->GetComponentLocation();
-		FVector End = Start + Me->CameraComp->GetForwardVector() * AIM_UI_MAX_DIST;
+		FVector Start = Me->GetCameraLocation();
+		FVector End = Start + Me->GetCameraRotation().Vector() * AIM_UI_MAX_DIST;
 		FCollisionObjectQueryParams traceParams;
 		traceParams.AddObjectTypesToQuery(ECC_GameTraceChannel1);
 		bool bHit = GetWorld()->LineTraceSingleByObjectType(hitResult, Start, End, traceParams);
-		AimWidget->ChangeColor(bHit);
+		Me->ChangeAimUIColor(bHit);
 	}
 }
 
 void UKS_Aim::ExitState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Aim Exit"));
-	AimWidget->SetVisibility(ESlateVisibility::Hidden);
 	Me->TargetFOV = Me->DEFAULT_FOV;
-	Anim->ActiveLookAt(false);
 }
 
 void UKS_Aim::HandleIdle(const FGenericStateParams& params)
@@ -106,7 +92,7 @@ void UKS_Aim::HandleLAttack(const FGenericStateParams& params)
 	if (!Me->bAxeGone && CoolDown <= 0)
 	{
 		CoolDown = THROW_AXE_COOLDOWN;
-		Anim->PlayMontage(EPlayerMontage::LightThrowAxe);
+		Me->PlayMontage(EPlayerMontage::LightThrowAxe);
 	}
 }
 
@@ -115,7 +101,7 @@ void UKS_Aim::HandleHAttack(const FGenericStateParams& params)
 	if (!Me->bAxeGone && CoolDown <= 0)
 	{
 		CoolDown = THROW_AXE_COOLDOWN;
-		Anim->PlayMontage(EPlayerMontage::HeavyThrowAxe);
+		Me->PlayMontage(EPlayerMontage::HeavyThrowAxe);
 	}
 }
 

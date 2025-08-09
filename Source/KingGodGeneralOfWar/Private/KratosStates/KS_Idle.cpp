@@ -2,7 +2,6 @@
 
 
 #include "KratosStates/KS_Idle.h"
-#include "SG_KratosAnim.h"
 #include "Kratos.h"
 #include <Kismet/KismetMathLibrary.h>
 
@@ -33,8 +32,7 @@ void UKS_Idle::TickState( const FGenericStateParams& params, float DeltaTime)
 
 	if (TickTime >= 1.0f)
 	{
-		Anim->ActiveLookAt(true);
-		LookAtProcess(DeltaTime);
+		//LookAtProcess(DeltaTime);
 	}
 }
 
@@ -43,7 +41,6 @@ void UKS_Idle::ExitState(const FGenericStateParams& params)
 	StateLog(TEXT("Idle Exit"));
 
 	CurrentMoveScale = 0.56f;
-	Anim->ActiveLookAt(false);
 }
 
 void UKS_Idle::HandleLAttack(const FGenericStateParams& params)

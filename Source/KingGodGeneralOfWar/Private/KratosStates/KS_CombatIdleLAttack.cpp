@@ -7,22 +7,42 @@
 void UKS_CombatIdleLAttack::EnterState(const FGenericStateParams& params)
 {
 	Me->PlayMontage(EPlayerMontage::CombatIdleLAttack);
+	bGuardInputOn = false;
+	AttackInputOn = EAttackType::None;
 }
 
 void UKS_CombatIdleLAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
+	if (Me->bAxeGone && bGuardInputOn)
+	{
+		if (AttackInputOn == EAttackType::LAttack)
+		{
+			Me->SetKratosState(EPlayerState::AxeReturnLAttack);
+		}
+		else if (AttackInputOn == EAttackType::HAttack)
+		{
+			Me->SetKratosState(EPlayerState::AxeReturnHAttack);
+		}
+	}
 }
 
 void UKS_CombatIdleLAttack::ExitState(const FGenericStateParams& params)
 {
 }
 
+bool UKS_CombatIdleLAttack::CanHandleGuard() const
+{
+	return Me->bAxeGone;
+}
+
 void UKS_CombatIdleLAttack::HandleLAttack(const FGenericStateParams& params)
 {
+	AttackInputOn = EAttackType::LAttack;
 }
 
 void UKS_CombatIdleLAttack::HandleHAttack(const FGenericStateParams& params)
 {
+	AttackInputOn = EAttackType::HAttack;
 }
 
 void UKS_CombatIdleLAttack::HandleAbility(const FGenericStateParams& params)

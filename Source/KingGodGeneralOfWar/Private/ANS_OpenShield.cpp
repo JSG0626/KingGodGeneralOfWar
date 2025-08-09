@@ -23,7 +23,7 @@ void UANS_OpenShield::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenc
 	AKratos* Kratos = Cast<AKratos>(Pawn);
 	if (Kratos == nullptr) return;
 
-	Shield = Kratos->Shield;
+	Shield = Kratos->GetShield();
 	if (Shield == nullptr) return;
 
 	Shield->SetTargetScale(true);

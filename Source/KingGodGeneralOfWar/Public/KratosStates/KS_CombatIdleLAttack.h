@@ -19,10 +19,10 @@ public:
 	virtual void ExitState(const FGenericStateParams& params) override;
 
 	virtual bool CanHandleDodge() const override { return true; }
-	virtual bool CanHandleLAttack() const override { return true; }
-	virtual bool CanHandleHAttack() const override { return true; }
+	virtual bool CanHandleLAttack() const override { return bGuardInputOn; }
+	virtual bool CanHandleHAttack() const override { return bGuardInputOn; }
 	virtual bool CanHandleAbility() const override { return true; }
-	virtual bool CanHandleGuard() const override { return true; }
+	virtual bool CanHandleGuard() const override;
 
 	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) override;
@@ -31,5 +31,5 @@ public:
 private:
 
 	bool bGuardInputOn;
-	EAttackType AttckInputOn;
+	EAttackType AttackInputOn;
 };

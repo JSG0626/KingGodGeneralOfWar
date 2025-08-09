@@ -3,24 +3,23 @@
 
 #include "KratosStates/KS_Guard.h"
 #include "Kratos.h"
-#include "SG_KratosAnim.h"
 #include "SG_Shield.h"
 #include <Kismet/KismetMathLibrary.h>
 #include <NiagaraFunctionLibrary.h>
 #include <Components/ArrowComponent.h>
+
 void UKS_Guard::SetUp(AKratos* kratos)
 {
 	UKratosState::SetUp(kratos);
-	Shield = kratos->Shield;
-
+	Shield = kratos->GetShield();
 }
 
 void UKS_Guard::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Guard Enter"));
-	Anim->PlayMontage(EPlayerMontage::Guard);
+	Me->PlayMontage(EPlayerMontage::Guard);
 	Shield->SetTargetScale(true);
-	Anim->bMeshSpaceRotationBlend = true;
+	Me->SetMeshSpaceRotationBlend(true);
 
 	FRotator ControlRotation = Me->GetControlRotation();
 	ControlRotation.Pitch = 0.0f;
@@ -38,10 +37,10 @@ void UKS_Guard::TickState(const FGenericStateParams& params, float DeltaTime)
 
 void UKS_Guard::ExitState(const FGenericStateParams& params)
 {
-	Anim->Montage_Stop(0.1f);
+	Me->StopAnimMontage();
 	StateLog(TEXT("Guard Exit"));
 	Shield->SetTargetScale(false);
-	Anim->bMeshSpaceRotationBlend = false;
+	Me->SetMeshSpaceRotationBlend(false);
 }
 
 
@@ -99,11 +98,10 @@ void UKS_Guard::HandleHit(const FGenericStateParams& params)
 	{
 		if (TickTime > PARRIABLE_TIME)
 		{
-			Anim->Montage_JumpToSection(TEXT("Guard_Block"));
-
-			Me->LaunchCharacter(Me->GetActorForwardVector() * -1 * 1500, true, false);
-			GetWorld()->SpawnActor<AActor>(Me->GuardBlockLightFactory, Shield->GetActorTransform())->AttachToActor(Shield, FAttachmentTransformRules::KeepWorldTransform);
-			UNiagaraFunctionLibrary::SpawnSystemAttached(Me->GuardBlockVFX, Shield->LightPosition, TEXT("GuardBlockVFX"), Shield->LightPosition->GetComponentLocation(),
+			Me->Montage_JumpToSection(TEXT("Guard_Block"));
+			Me->LaunchCharacter(Me->GetActorForwardVector() * -1 * 750, true, false);
+			GetWorld()->SpawnActor<AActor>(GuardBlockLightFactory, Shield->GetActorTransform())->AttachToActor(Shield, FAttachmentTransformRules::KeepWorldTransform);
+			UNiagaraFunctionLibrary::SpawnSystemAttached(GuardBlockVFX, Shield->LightPosition, TEXT("GuardBlockVFX"), Shield->LightPosition->GetComponentLocation(),
 				Shield->LightPosition->GetComponentRotation(), EAttachLocation::KeepWorldPosition, true);
 		}
 		// 패링 가능 상태
@@ -129,13 +127,12 @@ void UKS_Guard::HandleAbility(const FGenericStateParams& params)
 	/*Me->SetKratosState(EPlayerState::Ability);*/
 	if (Me->bAxeGone)
 	{
-		Anim->PlayMontage(EPlayerMontage::CallAxe);
+		Me->PlayMontage(EPlayerMontage::CallAxe);
 		Me->CallAxe();
-		Anim->bRecallAxe = true;
 	}
 }
 
 void UKS_Guard::HandleGrabAxe(const FGenericStateParams& params)
 {
-	Anim->PlayMontage(EPlayerMontage::GrabAxe);
+	Me->PlayMontage(EPlayerMontage::GrabAxe);
 }

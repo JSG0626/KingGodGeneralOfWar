@@ -27,33 +27,10 @@ public:
 	AKratos();
 
 private:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))
-	float UnarmedAttackPower = 10.0f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))
-	float AxeAttackPower = 10.0f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))
-	float BladeAttackPower = 10.0f;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess))
-	float SpearAttackPower = 10.0f;
 
-	bool bLerpPlayerRotation = false;
-	int LeprPlayerRotationScale = 1;
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	virtual void PostInitializeComponents() override;
-
+	// ================== Bind Action ====================
 	UFUNCTION()
 	void OnMyActionMove(const FInputActionValue& Value);
-
 	UFUNCTION()
 	void OnMyActionLook(const FInputActionValue& value);
 
@@ -85,7 +62,7 @@ public:
 	void OnMyActionHAttack(const FInputActionValue& value);
 
 	UFUNCTION()
-	void OnMyActionHChargeAttack(const FInputActionValue& value) ;
+	void OnMyActionHChargeAttack(const FInputActionValue& value);
 
 	UFUNCTION()
 	void OnMyActionAimOn(const FInputActionValue& value);
@@ -96,16 +73,184 @@ public:
 	UFUNCTION()
 	void OnMyActionAbility(const FInputActionValue& value);
 
-	UFUNCTION()
-	void OnMyActionRuneBase(const FInputActionValue& value);
+	void OnMyActionDebugKey();
+	// ================== Bind Action ====================
 
-	void OnMyGuardDisappear();
+	// ================== Input Mapping ====================
 
-	void OnMyLaunchCharacterInStrongAttack();
-	void OnMyJumpCharacterInStrongAttack();
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Input Action")
+	TObjectPtr<class  UInputMappingContext> IMC_Player;
 
-	void IncreaseTargetTargetArmLength(float value);
-	void IncreaseTargetCameraOffset(FVector value);
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_Move;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_Look;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_Dodge;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_Run;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_Guard;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_LockOn;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_LightAttack;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_HeavyAttack;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_HeavyChargeAttack;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction>IA_Aim;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_WithdrawAxe;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
+	TObjectPtr<class UInputAction> IA_DebugKey;
+	// ================== Input Mapping ====================
+	
+	// ================== State ====================
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	TObjectPtr<class UPlayerStateMappingDataAsset> PlayerStateDataAsset;
+	UPROPERTY()
+	TMap<EPlayerState, TObjectPtr<UKratosState>> KratosStatesMap;
+	UPROPERTY()
+	TObjectPtr<UKratosState> CurrentState;
+	// ================== State ====================
+	
+	// ================== Components ====================
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
+	TObjectPtr<class  USpringArmComponent> SpringArmComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
+	TObjectPtr<class  UCameraComponent> CameraComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
+	TObjectPtr<class  UArrowComponent> RightHandTransformComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
+	TObjectPtr<class  UArrowComponent> LeftHandTransformComp;
+
+	UPROPERTY()
+	TObjectPtr<class UCharacterMovementComponent> CMC;
+	// ================== Components ====================
+
+	// ================== UClass Pointer ====================
+	UPROPERTY()
+	TObjectPtr<class  ABaseEnemy> LockTarget;
+
+	UPROPERTY()
+	TObjectPtr<class  USG_KratosAnim> Anim;
+
+	UPROPERTY()
+	TObjectPtr<class AAxe> Axe;
+
+	UPROPERTY()
+	TObjectPtr<class ASG_Shield> Shield;
+
+	UPROPERTY()
+	TObjectPtr<class AFlyingAxe> FlyingAxe;
+
+	UPROPERTY()
+	TObjectPtr<class UPlayerAimUI> AimWidget;
+	// ================== UClass Pointer ====================
+
+	// ================== VFX & Camera Shake ====================
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), Category = "Camera Shake")
+	TSubclassOf<class UCameraShakeBase> DownAttackShakeFactory;
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), Category = "Camera Shake")
+	TSubclassOf<class UCameraShakeBase> UpAttackShakeFactory;
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), Category = "Camera Shake")
+	TSubclassOf<class UCameraShakeBase> LeftAttackShakeFactory;
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), Category = "Camera Shake")
+	TSubclassOf<class UCameraShakeBase> RightAttackShakeFactory;
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), Category = "Camera Shake")
+
+	TSubclassOf<class UCameraShakeBase> CatchAxeShakeFactory;
+
+	UPROPERTY()
+	TArray< TSubclassOf<class UCameraShakeBase>> AttackShakeFactoryArr;
+	// ================== VFX & Camera Shake ====================
+
+	// ================== Factory ===============================
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Factory/Weapon")
+	TSubclassOf<class AAxe> AxeFactory;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Factory/Weapon")
+	TSubclassOf<class ASG_Shield> ShieldFactory;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Factory/Weapon")
+	TSubclassOf<class AFlyingAxe> FlyingAxeFactory;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Factory/UI")
+	TSubclassOf<class UUserWidget> AimWidgetClass;
+	// ================== Factory ===============================
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "TraceEnemy")
+	float FindTargetDistPoint = 0.5f;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "TraceEnemy")
+	float FindTargetRadius = 200;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "TraceEnemy")
+	float FindTargetEndLocation = 400;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "TraceEnemy")
+	float AttackRange = 100.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess), Category = "Status/Attack")
+	float UnarmedAttackPower = 10.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess), Category = "Status/Attack")
+	float AxeAttackPower = 10.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess), Category = "Status/Attack")
+	float BladeAttackPower = 10.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess), Category = "Status/Attack")
+	float SpearAttackPower = 10.0f;
+
+	bool bLerpPlayerRotation = false;
+	int LeprPlayerRotationScale = 1;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), BlueprintReadWrite, Category = "Status")
+	float MaxHP = 100;
+
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess))
+	EPlayerState State = EPlayerState::Idle;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), BlueprintReadWrite, Category = "Camera");
+	float MinPitch;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), BlueprintReadWrite, Category = "Camera");
+	float MaxPitch;
+
+	float CurHP;
+	float AttackRangeSquared;
+
+
+	void PlayerMove();
+	void InitAxe();
+	void InitShield();
+	void LockOnTargetTick(float DeltaTime);
+	void SetTargetToLockOn();
+
+protected:
+
+public:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void PostInitializeComponents() override;
+
+	// Damage Function
+	// if Kratos get damage, return true; else return false;
+	UFUNCTION(BlueprintCallable)
+	bool Damage(AActor* Attacker, int DamageValue, EHitType HitType, bool IsMelee);
 
 	// Axe Throwing
 	void HideHoldingAxe();
@@ -113,293 +258,43 @@ public:
 	void CallAxe();
 	void CallAxe(const float MaxReturnDuration, const float MinReturnDuration, bool bImmediateReturn, const float RadiusScale, const bool bRightHand = true);
 	void CatchFlyingAxe();
-	void ThrowAxeInAttack(const FRotator LocalRotationOffset, const bool bOrbital = false, const float OrbitalDuration = 0.0f, const int OrbitalCount = 1, const bool bClockWise = true);
+	void ThrowAxeInAttack(const FRotator LocalRotationOffset, const bool bOrbital = false, const float OrbitalDuration = 0.0f, const float OrbitalCount = 1, const bool bClockWise = true);
 
-	// Damage Function
-	// if Kratos get damage, return true; else return false;
-	UFUNCTION(BlueprintCallable)
-	bool Damage(AActor* Attacker, int DamageValue, EHitType HitType, bool IsMelee);
-	void LaunchKratos(float LaunchScale = 2000);
-
-	// Rune
-	void OnMyRuneAttackCameraSet();
-	void OnMySpawnEarthCrack();
-	void OnMyAttackProgress();
-
-	void OnMyEndWithFail();
-	void OnMyGetUPCameraSet();
-	void OnMyActionDebugKey();
-
-
+	// VFX
 	void CameraShakeOnAttack(EAttackDirectionType attackDir = EAttackDirectionType::UP, float scale = 1.0f);
-	FString GetPlayerStateString() const;
 	void SetGlobalTimeDilation(float Duration, float SlowScale);
 	void SetAnimationSpeedSlow(float Duration, float SlowScale);
 
-	void PlayerMove();
-	void SetWeapon();
-	void SetShield();
-
-	void SetLockOnTarget();
-	void LockOnTargetTick(float DeltaTime);
-
-	FString GetHitSectionName(EHitType hitType);
-	FString GetDodgeDirection();
-
-public:
-	// Player Input
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputMappingContext* IMC_Player;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_Move;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_Look;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_Dodge;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_Run;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_Guard;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_LockOn;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_LightAttack;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_HeavyAttack;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_HeavyChargeAttack;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_Aim;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_WithdrawAxe;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_RuneBase;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input Action")
-	class UInputAction* IA_DebugKey;
-
-	// UClass Pointer
-
-	UPROPERTY()
-	class ABaseEnemy* LockTarget;
-
-	UPROPERTY()
-	class USG_KratosAnim* Anim;
-
-	// Components
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class USpringArmComponent* SpringArmComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UCameraComponent* CameraComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UArrowComponent* RightHandTransformComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UArrowComponent* LeftHandTransformComp;
-
-	// Kratos Weapon
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<class AAxe> AxeFactory;
-
-	UPROPERTY()
-	class AAxe* Axe;
-
-	UPROPERTY()
-	class UCharacterMovementComponent* CMC;
-
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<class ASG_Shield> ShieldFactory;
-
-	UPROPERTY()
-	class ASG_Shield* Shield;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<class AFlyingAxe> FlyingAxeFactory;
-
-	UPROPERTY()
-	class AFlyingAxe* FlyingAxe;
-
-	// VFX & Camera Shake
-	UPROPERTY(EditAnywhere, Category = "Camera Shake")
-	TSubclassOf<class UCameraShakeBase> DownAttackShakeFactory;
-	UPROPERTY(EditAnywhere, Category = "Camera Shake")
-	TSubclassOf<class UCameraShakeBase> UpAttackShakeFactory;
-	UPROPERTY(EditAnywhere, Category = "Camera Shake")
-	TSubclassOf<class UCameraShakeBase> LeftAttackShakeFactory;
-	UPROPERTY(EditAnywhere, Category = "Camera Shake")
-	TSubclassOf<class UCameraShakeBase> RightAttackShakeFactory;
-	UPROPERTY(EditAnywhere, Category = "Camera Shake")
-
-	TSubclassOf<class UCameraShakeBase> CatchAxeShakeFactory;
-
-	UPROPERTY()
-	TArray< TSubclassOf<class UCameraShakeBase>> AttackShakeFactoryArr;
-
-	UPROPERTY(EditDefaultsOnly, Category = "VFX")
-	class UNiagaraSystem* ParryVFX;
-
-	UPROPERTY(EditDefaultsOnly, Category = "VFX")
-	class UNiagaraSystem* ShockWaveVFX;
-
-	UPROPERTY(EditDefaultsOnly, Category = "VFX")
-	class UNiagaraSystem* GuardBlockVFX;
-
-	UPROPERTY(EditDefaultsOnly, Category = "VFX")
-	class UNiagaraSystem* GuardCrashVFX;
-
-	UPROPERTY(EditDefaultsOnly, Category = "VFX")
-	class UNiagaraSystem* EarthCrackVFX;
-
-	UPROPERTY(EditDefaultsOnly, Category = "VFX Actor")
-	TSubclassOf<class AActor> ParryingLightFactory;
-
-	UPROPERTY(EditDefaultsOnly, Category = "VFX Actor")
-	TSubclassOf<class AActor> GuardBlockLightFactory;
-
-	// ------------------------------------------ SFX -----------------------------------------------
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* AvoidSound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* AxeThrowSound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* AxeWithdrawSound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* HitSound1;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* HitSound2;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* HitSound3;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* RollSound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* RuneBaseSound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* RuneAttack1Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* RuneAttack2Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* RuneAttack3Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* RuneAttack4Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* StrongAttack1Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* StrongAttack2Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* StrongAttack3Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* StrongAttack4Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* WeakAttack1Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* WeakAttack2Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* WeakAttack3Sound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	class USoundBase* GrabAxeSound;
-
-	
-	UPROPERTY()
-	TArray<class USoundBase*> WeakAttackSoundArr;
-
-	UPROPERTY()
-	TArray<class USoundBase*> StrongAttackSoundArr;
-
-	UPROPERTY()
-	TArray<class USoundBase*> RuneAttackSoundArr;
 
 	UPROPERTY()
 	class ACSWGameMode* GameMode;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<class UUserWidget> AimWidgetClass;
-	UPROPERTY()
-	class UPlayerAimUI* AimWidget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxHP = 100;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float CurHP;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EPlayerState State = EPlayerState::Idle;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera");
-	float MinPitch;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera");
-	float MaxPitch;
-
-	// 룬공격 막타 줌아웃
-	bool bZoomOut;
-
 public:
 	bool bTraceEnemy = false;
 	bool bFaceEnemy = true;
-	FVector DefaultCameraOffset;
-	FRotator TargetCameraRotation;
-	FRotator TargetActorRotation;
-	float TargetShieldScale = 0;
-	FVector Direction;
-	FVector PrevDirection;
-
-	float TargetFOV = DefaultTargetFOV;
-	float TargetTargetArmLength = DefaultTargetTargetArmLength;
-	FVector TargetCameraOffset;
-	FRotator TargetCameraAngle = FRotator(0);
-
 	bool bLockOn;
 	bool bEvade;
 	bool bAxeGone;
 	bool bIsAxeWithdrawing;
 
-	UPROPERTY(EditDefaultsOnly)
-	class UPlayerStateMappingDataAsset* PlayerStateDataAsset;
+	float TargetShieldScale = 0;
+	float TargetFOV = DefaultTargetFOV;
+	float TargetTargetArmLength = DefaultTargetTargetArmLength;
+
+	FVector Direction;
+	FVector PrevDirection;
+	FVector DefaultCameraOffset;
+	FVector TargetCameraOffset;
+	FRotator TargetCameraRotation;
+	FRotator TargetActorRotation;
+	FRotator TargetCameraAngle = FRotator(0);
 
 	void InitializeStates();
 	void SetKratosState(const EPlayerState& NewState, const FGenericStateParams& params = FGenericStateParams());
 
-	//UPROPERTY(EditDefaultsOnly, Category = "States")
-	//TArray<FStateClassPair> StateClassSetUp;
+
 	UPROPERTY()
-	TMap<EPlayerState, TObjectPtr<UKratosState>> KratosStatesMap;
-	UPROPERTY()
-	TObjectPtr<UKratosState> CurrentState;
+	TObjectPtr<class AActor> CurTargetEnemy;
 
 	bool CanComboAttack;
 	bool bIsRunning;
@@ -414,30 +309,35 @@ public:
 	float GetAttackPower(EPlayerWeaponType WeaponType) const;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
-	float DistPoint = 2.0f ;
+	float DistPoint = 2.0f;
 
-	void ActiveAxeTrail(bool ActiveState);
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
-	float FindTargetDistPoint = 0.5f;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
-	float FindTargetRadius = 200;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
-	float FindTargetEndLocation = 400;
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
-	float AttackRange = 100.0f;
-	float AttackRangeSquared;
-	UPROPERTY()
-	TObjectPtr<class AActor> CurTargetEnemy;
 
-	TObjectPtr<class AActor> FindTargetEnemy() const;
+
 
 	void InitMaxWalkSpeed();
 	void SetMaxWalkSpeed(const float NewWalkSpeed);
 	void PlayMontage(const EPlayerMontage MontageType, bool bJumpSection = false, const FString SectionName = TEXT("Default"));
+	void PlayMontage(const EPlayerMontage MontageType, const int SectionNumber);
+	void Montage_JumpToSection(const int SectionNumber);
+	void Montage_JumpToSection(const FString SectionName);
 	void OnHitHChargeAttack();
 
 	void SwapAxeHands(bool Right);
 
 	inline EPlayerState GetState() const { return State; }
+
+	float GetDamage(const float Damage);
+	FVector GetCameraLocation() const;
+	FRotator GetCameraRotation(bool bRemovePitch = true) const;
+	float GetAttackRangeSquared() const;
+	TObjectPtr<class  UArrowComponent> GetHandTransformComp(const bool bRightHand) const;
+	TObjectPtr<class AAxe> GetAxe() const;
+	TObjectPtr<class ASG_Shield> GetShield() const;
+
+	void SetMeshSpaceRotationBlend(const bool bActive) const;
+	void ChangeAimUIColor(bool bHit) const;
+	void ActiveAxeTrail(bool ActiveState);
+
+	TObjectPtr<class AActor> FindTargetEnemy() const;
 };

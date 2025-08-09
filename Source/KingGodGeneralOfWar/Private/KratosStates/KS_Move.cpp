@@ -4,7 +4,6 @@
 #include "KratosStates/KS_Move.h"
 #include "Kratos.h"
 #include <Kismet/KismetMathLibrary.h>
-#include "SG_KratosAnim.h"
 
 void UKS_Move::EnterState(const FGenericStateParams& params)
 {

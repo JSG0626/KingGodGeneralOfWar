@@ -3,11 +3,10 @@
 
 #include "KratosStates/KS_GrabAxe.h"
 #include "Kratos.h"
-#include "SG_KratosAnim.h"
 
 void UKS_GrabAxe::EnterState(const FGenericStateParams& params)
 {
-	Anim->PlayMontage(EPlayerMontage::GrabAxe);
+	Me->PlayMontage(EPlayerMontage::GrabAxe);
 }
 
 void UKS_GrabAxe::TickState(const FGenericStateParams& params, float DeltaTime)

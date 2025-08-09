@@ -47,4 +47,9 @@ private:
 
 	const float PARRIABLE_TIME = 0.2f;
 	float TickTime = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	TSubclassOf<class AActor> GuardBlockLightFactory;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	TObjectPtr<class UNiagaraSystem> GuardBlockVFX;
 };

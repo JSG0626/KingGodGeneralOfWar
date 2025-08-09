@@ -1,9 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Kratos.h"
+#include "GenericAttackParams.h"
+#include "CommonHeaders/PlayerCommon.h"
 #include "Components/ActorComponent.h"
 #include "KingGodGeneralOfWar.h"
 #include "AwakenThorFSM.generated.h"
@@ -94,7 +95,7 @@ private:
 	EAwakenThorState State = EAwakenThorState::Idle;
 	
 	UPROPERTY(VisibleAnywhere, Category=FSM)
-	AKratos* Target;
+	class AKratos* Target;
 	
 	UPROPERTY()
 	class AAwakenThor* Me;
@@ -118,7 +119,7 @@ private:
 	bool bPlay;
 
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess), Category="VFX")
-	TArray<UNiagaraSystem*> ThunderVFXarr;
+	TArray<class UNiagaraSystem*> ThunderVFXarr;
 
 	UPROPERTY(EditDefaultsOnly, meta=(AllowPrivateAccess), Category="VFX")
 	UNiagaraSystem* ThunderVFX;

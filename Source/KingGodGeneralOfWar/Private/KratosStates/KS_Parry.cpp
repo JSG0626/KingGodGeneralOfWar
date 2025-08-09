@@ -1,10 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "KratosStates/KS_Parry.h"
 #include "Kratos.h"
 #include "SG_Shield.h"
-#include "SG_KratosAnim.h"
 #include <Components/ArrowComponent.h>
 #include <BaseEnemy.h>
 #include <WeaponInterface.h>
@@ -12,38 +11,21 @@
 void UKS_Parry::SetUp(AKratos* Kratos)
 {
 	UKratosState::SetUp(Kratos);
-	Shield = Kratos->Shield;
+	Shield = Kratos->GetShield();
 }
 
 void UKS_Parry::EnterState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Parry Enter"));
-	Anim->PlayMontage(EPlayerMontage::Parry);
+	Me->PlayMontage(EPlayerMontage::Parry);
 	Shield->SetTargetScale(true);
 	FEnemyAttackParams AttackParams = params.AttackParams;
 
-	GetWorld()->SpawnActor<AActor>(Me->ParryingLightFactory, Shield->LightPosition->GetComponentTransform())->AttachToActor(Shield, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	GetWorld()->SpawnActor<AActor>(ParryingLightFactory, Shield->LightPosition->GetComponentTransform())->AttachToActor(Shield, FAttachmentTransformRules::SnapToTargetIncludingScale);
 
 	Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 0.5f);
 	if (AttackParams.bMelee)
 	{
-		//auto* Thor = Cast<ABDThor>(Attacker);
-
-		//if (Thor)
-		//{
-		//	Thor->fsm->Damage(PARRYING_DAMAGE, EAttackDirectionType::UP);
-		//}
-		//else
-		//{
-		//	auto AwakenThor = Cast<AAwakenThor>(Attacker);
-
-		//	//AwakenThor->getFSM()->SetDamage(PARRYING_DAMAGE, EAttackDirectionType::UP, true);
-		//	bool bThorDead = AwakenThor->getFSM()->SetDamage(PARRYING_DAMAGE, EAttackDirectionType::UP);
-		//	if (bThorDead)
-		//	{
-		//		SetState(EPlayerState::NoneMovable);
-		//	}
-		//}
 		if (AttackParams.Attacker)
 		{
 			ABaseEnemy* Enemy = Cast<ABaseEnemy>(AttackParams.Attacker);

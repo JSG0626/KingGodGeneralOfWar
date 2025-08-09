@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -24,4 +24,8 @@ public:
 private:
 	UPROPERTY()
 	TMap<EHitType, float> NuckBackScale;
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	TObjectPtr<class USoundBase> HitSound;
+	FString GetHitSectionName(EHitType hitType) const;
+
 };

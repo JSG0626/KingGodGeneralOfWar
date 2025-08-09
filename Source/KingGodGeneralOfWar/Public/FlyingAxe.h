@@ -64,7 +64,7 @@ public:
 	virtual void ActiveHitCollision(bool Active) override;
 	virtual TObjectPtr<class USoundCue> GetBaseHitSound() const override;
 	void Init(class AKratos* _Me, bool _bIsHeavy);
-	void Init(class AKratos* _Me, const FRotator LocalRotationOffset, const bool ApplyGravity = true, const bool bOrbital = false, const float _OrbitalDuration = 0.0f, const int _OrbitalCount = 1, const float _OrbitalDirection = 1.0f);
+	void Init(class AKratos* _Me, const FRotator LocalRotationOffset, const bool ApplyGravity = true, const bool bOrbital = false, const float _OrbitalDuration = 0.0f, const float _OrbitalCount = 1, const float _OrbitalDirection = 1.0f);
 
 protected:
 	virtual void BeginPlay() override;
@@ -186,7 +186,7 @@ private:
 	bool bPass;
 	bool ApplyGravity = true;
 	float OrbitalDuration = 2.0f;
-	int OrbitalCount = 1;
+	float OrbitalCount = 1;
 	float OrbitalDirection = 1.0f;
 
 	float LastMultiple = 0.0f;

@@ -7,17 +7,41 @@
 void UKS_DodgeFrontAttack::EnterState(const FGenericStateParams& params)
 {
 	Me->PlayMontage(EPlayerMontage::DodgeFrontAttack);
+	AttackInputOn = EAttackType::None;
 }
 
 void UKS_DodgeFrontAttack::TickState(const FGenericStateParams& params, float DeltaTime)
 {
+	if (Me->CanComboAttack && AttackInputOn != EAttackType::None)
+	{
+		if (AttackInputOn == EAttackType::LAttack)
+		{
+			Me->SetKratosState(EPlayerState::LAttack);
+		}
+		else
+		{
+			Me->SetKratosState(EPlayerState::HAttack);
+		}
+		Me->CanComboAttack = false;
+	}
 }
 
 void UKS_DodgeFrontAttack::ExitState(const FGenericStateParams& params)
 {
 }
 
+
 void UKS_DodgeFrontAttack::HandleDodge(const FGenericStateParams& params)
 {
 	Me->SetKratosState(EPlayerState::Dodge);
+}
+
+void UKS_DodgeFrontAttack::HandleLAttack(const FGenericStateParams& params)
+{
+	AttackInputOn = EAttackType::LAttack;
+}
+
+void UKS_DodgeFrontAttack::HandleHAttack(const FGenericStateParams& params)
+{
+	AttackInputOn = EAttackType::HAttack;
 }

@@ -2,21 +2,18 @@
 
 
 #include "FlyingAxe.h"
-#include "Components/ArrowComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "Kratos.h"
-#include "Axe.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "CSW/AwakenThor.h"
-#include "CSW/AwakenThorFSM.h"
-#include "BDThor.h"
-#include "BDThorFSM.h"
-#include "Kismet/GameplayStatics.h"
-#include "../../../../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h"
 #include "BaseEnemy.h"
-#include "Components/LightComponent.h"
+
+#include <Components/ArrowComponent.h>
+#include <Components/CapsuleComponent.h>
+#include <Kismet/KismetMathLibrary.h>
+#include <Kismet/GameplayStatics.h>
+#include <NiagaraFunctionLibrary.h>
+#include <Components/LightComponent.h>
 #include <Components/PointLightComponent.h>
-#include "Engine/SkeletalMeshSocket.h"
+#include <Engine/SkeletalMeshSocket.h>
+
 // Sets default values
 AFlyingAxe::AFlyingAxe()
 {
@@ -63,7 +60,7 @@ void AFlyingAxe::Init(AKratos* _Me, bool _bIsHeavy)
 	PrevBladeLocation = BladeLocationComp->GetComponentLocation();
 	StartInterpRotationDistSquared = StartInterpRotationDist * StartInterpRotationDist;
 }
-void AFlyingAxe::Init(AKratos* _Me, const FRotator LocalRotationOffset, const bool _ApplyGravity, bool bOrbital, const float _OrbitalDuration, const int _OrbitalCount, const float _OrbitalDirection)
+void AFlyingAxe::Init(AKratos* _Me, const FRotator LocalRotationOffset, const bool _ApplyGravity, bool bOrbital, const float _OrbitalDuration, const float _OrbitalCount, const float _OrbitalDirection)
 {
 	Kratos = _Me;
 	AddActorLocalRotation(LocalRotationOffset);
@@ -183,8 +180,6 @@ void AFlyingAxe::TickState_Bounce(float DeltaTime)
 	{
 		PrevLocation = GetActorLocation();
 	}
-
-
 }
 
 void AFlyingAxe::TickState_Vibration(float DeltaTime)
@@ -273,10 +268,9 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 void AFlyingAxe::TickState_Orbital(float DeltaTime)
 {
 	StateElapsedTime.Orbital += DeltaTime;
-	PathCurveRadius += 100.0f * DeltaTime;
+	PathCurveRadius += 150.0f * DeltaTime;
 	const float Alpha = StateElapsedTime.Orbital / OrbitalDuration * 2.0f * OrbitalCount * OrbitalDirection;
 	float CurrentMultiple = FMath::FloorToFloat(Alpha / 0.25f);
-	UE_LOG(LogTemp, Display, TEXT("CurrentMultiple: %f"), CurrentMultiple);
 	if (CurrentMultiple != LastMultiple)
 	{
 		DamagedActors.Empty();
@@ -409,9 +403,6 @@ void AFlyingAxe::OnEnterBounce(const FHitResult& HitResult)
 	FRotator CurRotation = GetActorRotation();
 	CurRotation.Roll = 0;
 	SetActorRotation(CurRotation);
-	/*DrawDebugPoint(GetWorld(), HitResult.ImpactPoint, 10, FColor::Blue, false, 10.0f);
-	DrawDebugLine(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + NewDirection * 1000, FColor::Red, false, 5.0f);
-	DrawDebugLine(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint + N * 1000, FColor::Green, false, 5.0f);*/
 }
 void AFlyingAxe::OnEnterVibration()
 {
@@ -454,13 +445,16 @@ void AFlyingAxe::OnEnterReturning()
 }
 void AFlyingAxe::OnEnterOrbital()
 {
-	PathCurveRadius = 150.0f;
+	PathCurveRadius = 100.0f;
+	SubMeshComp->AddLocalOffset(FVector(0, 0, 25));
 }
 bool AFlyingAxe::CollisionCheck(FHitResult& HitResult)
 {
 	const FVector CurLocation = GetActorLocation();
+	const FVector CurBladeLocation = BladeLocationComp->GetComponentLocation();
 	FCollisionQueryParams Params;
 
+	//DrawDebugLine(GetWorld(), PrevLocation, CurLocation, FColor::Blue, false, 5.0f);
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, PrevLocation, CurLocation, ECC_Visibility);
 	if (bHit)
 	{
@@ -473,11 +467,25 @@ bool AFlyingAxe::CollisionCheck(FHitResult& HitResult)
 			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
 		}
 	}
+	else
+	{
+		bHit = GetWorld()->LineTraceSingleByChannel(HitResult, PrevBladeLocation, CurBladeLocation, ECC_Visibility);
+		if (bHit)
+		{
+			ABaseEnemy* Enemy = Cast<ABaseEnemy>(HitResult.GetActor());
 
+			if (Enemy && StuckActor != Enemy && DamagedActors.Find(Enemy) == INDEX_NONE)
+			{
+				DamagedActors.Add(Enemy);
+				DealDamage(Enemy, FGenericAttackParams(Kratos, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, EAttackDirectionType::UP));
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BloodVFXFactory, GetActorLocation());
+			}
+		}
+	}
 	FHitResult DecalHitResult;
-	FVector CurBladeLocation = BladeLocationComp->GetComponentLocation();
-	FVector HalfPoint = PrevBladeLocation + (CurBladeLocation - PrevBladeLocation) * 0.5f;
-	bool bBladeHit = GetWorld()->LineTraceSingleByChannel(DecalHitResult, PrevBladeLocation, HalfPoint, ECC_Visibility);
+	//DrawDebugLine(GetWorld(), PrevBladeLocation, CurBladeLocation, FColor::Blue, false, 5.0f);
+
+	bool bBladeHit = GetWorld()->LineTraceSingleByChannel(DecalHitResult, PrevBladeLocation, CurBladeLocation, ECC_Visibility);
 	if (bBladeHit)
 	{
 		UE_LOG(LogTemp, Display, TEXT("bBladeHit"));
@@ -485,13 +493,7 @@ bool AFlyingAxe::CollisionCheck(FHitResult& HitResult)
 		UGameplayStatics::SpawnDecalAttached(ImpactDecalMaterial, DecalSize, DecalHitResult.GetComponent(),
 			TEXT("Slash"), DecalHitResult.ImpactPoint + DecalHitResult.ImpactNormal * 5, DecalRotation, EAttachLocation::KeepWorldPosition, DecalLifeSpan);
 	}
-	else if (GetWorld()->LineTraceSingleByChannel(DecalHitResult, HalfPoint, CurLocation, ECC_Visibility))
-	{
-		UE_LOG(LogTemp, Display, TEXT("bBladeHit"));
-		FRotator DecalRotation = GetActorRotation();
-		UGameplayStatics::SpawnDecalAttached(ImpactDecalMaterial, DecalSize, DecalHitResult.GetComponent(),
-			TEXT("Slash"), DecalHitResult.ImpactPoint + DecalHitResult.ImpactNormal * 5, DecalRotation, EAttachLocation::KeepWorldPosition, DecalLifeSpan);
-	}
+
 	PrevLocation = CurLocation;
 	PrevBladeLocation = CurBladeLocation;
 	return bHit;
@@ -501,7 +503,6 @@ void AFlyingAxe::HandleCatch()
 {
 	if (Kratos)
 	{
-
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), CatchAxeSound, GetActorLocation());
 		Kratos->CatchFlyingAxe();
 	}
@@ -510,7 +511,7 @@ void AFlyingAxe::HandleCatch()
 
 void AFlyingAxe::BackToPlayer(bool bImmediateReturn)
 {
-	TargetSocketTransform = Kratos->RightHandTransformComp;
+	TargetSocketTransform = Kratos->GetHandTransformComp(true);
 	if (CurrentState == EAxeState::Stuck && bImmediateReturn == false)
 	{
 		SetState(EAxeState::Vibration);
@@ -527,7 +528,7 @@ void AFlyingAxe::BackToPlayer(const float _MaxReturnDuration, const float _MinRe
 	MinReturnDuration = _MinReturnDuration;
 	RadiusScale = _RadiusScale;
 	BackToPlayer(bImmediateReturn);
-	TargetSocketTransform = bRightHand ? Kratos->RightHandTransformComp : Kratos->LeftHandTransformComp;
+	TargetSocketTransform = Kratos->GetHandTransformComp(bRightHand);
 	UE_LOG(LogTemp, Display, TEXT("TargetSocketComp: %s"), *TargetSocketTransform->GetName());
 }
 

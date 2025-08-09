@@ -3,7 +3,6 @@
 
 #include "KratosStates/KS_HDashAttack.h"
 #include "Kratos.h"
-#include "SG_KratosAnim.h"
 
 void UKS_HDashAttack::EnterState(const FGenericStateParams& params)
 {
@@ -25,7 +24,7 @@ void UKS_HDashAttack::EnterState(const FGenericStateParams& params)
 	}
 	else
 	{
-		Anim->PlayMontage(EPlayerMontage::HDashAttack);
+		Me->PlayMontage(EPlayerMontage::HDashAttack);
 	}
 }
 

@@ -50,7 +50,7 @@ void UANS_TraceEnemy::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequence
 		}
 
 		float DistSquared = FVector::DistSquared(Kratos->CurTargetEnemy->GetActorLocation(), Kratos->GetActorLocation());
-		if (DistSquared >= Kratos->AttackRangeSquared)
+		if (DistSquared >= Kratos->GetAttackRangeSquared())
 		{
 			Kratos->AddMovementInput(ToTarget, 1.0f);
 		}

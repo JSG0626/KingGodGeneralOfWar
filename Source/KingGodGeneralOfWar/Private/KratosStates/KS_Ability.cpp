@@ -3,7 +3,6 @@
 
 #include "KratosStates/KS_Ability.h"
 #include "Kratos.h"
-#include "SG_KratosAnim.h"
 #include <Kismet/KismetMathLibrary.h>
 #include "Camera/CameraComponent.h"
 
@@ -12,9 +11,8 @@ void UKS_Ability::EnterState(const FGenericStateParams& params)
 	StateLog(TEXT("Ability Enter"));
 	if (Me->bAxeGone)
 	{
-		Anim->PlayMontage(EPlayerMontage::CallAxe);
+		Me->PlayMontage(EPlayerMontage::CallAxe);
 		Me->CallAxe();
-		Anim->bRecallAxe = true;
 	}
 }
 

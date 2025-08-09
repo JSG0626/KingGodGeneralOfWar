@@ -7,7 +7,7 @@
 #include "KS_DodgeFrontAttack.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class KINGGODGENERALOFWAR_API UKS_DodgeFrontAttack : public UKratosState
@@ -19,7 +19,13 @@ public:
 	virtual void ExitState(const FGenericStateParams& params) override;
 
 	virtual bool CanHandleDodge() const override { return true; }
+	virtual bool CanHandleLAttack() const override { return true; }
+	virtual bool CanHandleHAttack() const override { return true; }
 
 	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 
+private:
+	EAttackType AttackInputOn;
 };

@@ -47,7 +47,6 @@ class KINGGODGENERALOFWAR_API UKratosState : public UObject
 
 protected:
 	class AKratos* Me;
-	class USG_KratosAnim* Anim;
 	bool InputOn;
 	FVector TargetLookAtPos;
 

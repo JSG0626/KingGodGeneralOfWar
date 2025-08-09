@@ -22,7 +22,7 @@ void UANS_SetShieldRotation::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnim
 	AKratos* Kratos = Cast<AKratos>(Pawn);
 	if (Kratos == nullptr) return;
 
-	Shield = Kratos->Shield;
+	Shield = Kratos->GetShield();
 	if (Shield == nullptr) return;
 
 	Shield->SetActorRelativeRotation(NewRotation);

@@ -3,7 +3,6 @@
 
 #include "KratosStates/KS_LRunicAttack.h"
 #include "Kratos.h"
-#include "SG_KratosAnim.h"
 
 void UKS_LRunicAttack::EnterState(const FGenericStateParams& params)
 {
@@ -21,7 +20,7 @@ void UKS_LRunicAttack::EnterState(const FGenericStateParams& params)
 	}
 	else
 	{
-		Anim->PlayMontage(EPlayerMontage::LRunicAttack);
+		Me->PlayMontage(EPlayerMontage::LRunicAttack);
 	}
 }
 
@@ -29,7 +28,7 @@ void UKS_LRunicAttack::TickState(const FGenericStateParams& params, float DeltaT
 {
 	if (Me->CanComboAttack && InputOn)
 	{
-		Anim->Montage_JumpToSection(TEXT("Second"));
+		Me->Montage_JumpToSection(TEXT("Second"));
 		InputOn = false;
 		Me->CanComboAttack = false;
 	}
@@ -38,7 +37,6 @@ void UKS_LRunicAttack::TickState(const FGenericStateParams& params, float DeltaT
 void UKS_LRunicAttack::ExitState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("LRunicAttack Exit"));
-	Anim->Montage_Stop(0);
 }
 
 void UKS_LRunicAttack::HandleDodge(const FGenericStateParams& params)
@@ -48,7 +46,7 @@ void UKS_LRunicAttack::HandleDodge(const FGenericStateParams& params)
 
 void UKS_LRunicAttack::HandleHit(const FGenericStateParams& params)
 {
-	const float CurHP = Me->SetHP(Me->CurHP - params.AttackParams.Damage);
+	const float CurHP = Me->GetDamage(params.AttackParams.Damage);
 	if (CurHP == 0)
 	{
 		HandleDie(params);

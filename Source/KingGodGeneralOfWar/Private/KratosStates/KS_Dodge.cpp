@@ -2,8 +2,9 @@
 
 
 #include "KratosStates/KS_Dodge.h"
-#include "SG_KratosAnim.h"
+#include "Kratos.h"
 #include <Kismet/KismetMathLibrary.h>
+#include <Kismet/GameplayStatics.h>
 
 void UKS_Dodge::EnterState(const FGenericStateParams& params)
 {
@@ -18,19 +19,19 @@ void UKS_Dodge::EnterState(const FGenericStateParams& params)
 	Me->SetActorRotation(rotate);
 
 	// Roll
+	FString DodgeDirString = GetDodgeDirection(Me->PrevDirection);
 	if (Me->GetVelocity().Size() >= RollVelocityThreshhold)
 	{
-		Anim->PlayMontage(EPlayerMontage::Roll);
+		Me->PlayMontage(EPlayerMontage::Roll, true, DodgeDirString);
 		Me->bEvade = true;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), RollSound, Me->GetActorLocation());
 	}
 	// Dash
 	else
 	{
-		Anim->PlayMontage(EPlayerMontage::Dodge);
+		Me->PlayMontage(EPlayerMontage::Dodge, true, DodgeDirString);
 		bDashing = true;
 	}
-	FString DodgeDirString = GetDodgeDirection(Me->PrevDirection);
-	Anim->Montage_JumpToSection(*DodgeDirString);
 }
 
 void UKS_Dodge::TickState(const FGenericStateParams& params, float DeltaTime)
@@ -49,8 +50,6 @@ void UKS_Dodge::TickState(const FGenericStateParams& params, float DeltaTime)
 	//		return;
 	//	}
 	//}
-	UE_LOG(LogTemp, Display, TEXT("AttackInput == LAttack, InputDirection :%s"), *InputDirection.ToString());
-
 	if (!Me->bAxeGone && AttackInput != EAttackType::None)
 	{
 		if (bDashing && TickTime >= DashDodgeAttackTimeThreshold ||
@@ -98,8 +97,9 @@ void UKS_Dodge::HandleDodge(const FGenericStateParams& params)
 	Me->SetActorRotation(rotate);
 	FString DodgeDirString = GetDodgeDirection(Me->PrevDirection);
 	StateLog(FString::Printf(TEXT("DodgeString: %s"), *DodgeDirString));
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), RollSound, Me->GetActorLocation());
 
-	Anim->PlayMontage(EPlayerMontage::Roll, true, DodgeDirString);
+	Me->PlayMontage(EPlayerMontage::Roll, true, DodgeDirString);
 }
 
 void UKS_Dodge::HandleLAttack(const FGenericStateParams& params)

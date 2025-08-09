@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "CSW/CSWGameMode.h"
@@ -190,7 +190,7 @@ void ACSWGameMode::PlayFinalSequence()
 		AKratos* player = Cast<AKratos>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
 		player->SetActorHiddenInGame(true);
-		player->Axe->SetActorHiddenInGame(true);
+		player->GetAxe()->SetActorHiddenInGame(true);
 		Thor2->SetActorHiddenInGame(true);
 		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("SQ_FinalScene")));
 		ALevelSequenceActor* outActor;

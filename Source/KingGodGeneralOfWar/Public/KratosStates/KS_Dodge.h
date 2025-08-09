@@ -33,6 +33,9 @@ public:
 	virtual void HandleAim(const FGenericStateParams& params = FGenericStateParams()) override;
 private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	TObjectPtr<class USoundBase> RollSound;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
 	float RollVelocityThreshhold ;
 
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
