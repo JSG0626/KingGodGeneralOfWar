@@ -113,7 +113,7 @@ public:
 	void CallAxe();
 	void CallAxe(const float MaxReturnDuration, const float MinReturnDuration, bool bImmediateReturn, const float RadiusScale, const bool bRightHand = true);
 	void CatchFlyingAxe();
-	void ThrowAxeInAttack(const FRotator LocalRotationOffset);
+	void ThrowAxeInAttack(const FRotator LocalRotationOffset, const bool bOrbital = false, const float OrbitalDuration = 0.0f, const int OrbitalCount = 1, const bool bClockWise = true);
 
 	// Damage Function
 	// if Kratos get damage, return true; else return false;

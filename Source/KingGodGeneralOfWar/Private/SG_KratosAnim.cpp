@@ -173,11 +173,6 @@ void USG_KratosAnim::AnimNotify_FaceCameraForward()
 	Me->CurrentState->bFaceCameraForward = false;
 }
 
-void USG_KratosAnim::AnimNotify_GrabAxe()
-{
-	//bRecallAxe = false;
-}
-
 FName USG_KratosAnim::GetAttackMontageSection(int32 Section)
 {
 	return FName(*FString::Printf(TEXT("Attack%d"), Section));

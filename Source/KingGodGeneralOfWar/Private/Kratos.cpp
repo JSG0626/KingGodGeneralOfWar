@@ -816,12 +816,12 @@ void AKratos::CatchFlyingAxe()
 	GetWorld()->GetFirstPlayerController()->PlayerCameraManager->StartCameraShake(CatchAxeShakeFactory, 0.2f);
 }
 
-void AKratos::ThrowAxeInAttack(const FRotator LocalRotationOffset)
+void AKratos::ThrowAxeInAttack(const FRotator LocalRotationOffset, const bool bOrbital, const float OrbitalDuration, const int OrbitalCount, const bool bClockWise)
 {
 	const FVector SpawnLoc = Axe->GetActorLocation();
 	const FRotator SpawnRot = GetActorRotation();
 	FlyingAxe = GetWorld()->SpawnActor<AFlyingAxe>(FlyingAxeFactory, SpawnLoc, SpawnRot);
-	FlyingAxe->Init(this, LocalRotationOffset);
+	FlyingAxe->Init(this, LocalRotationOffset, false, bOrbital, OrbitalDuration, OrbitalCount, bClockWise ? 1.0f : -1.0f);
 	bAxeGone = true;
 	CameraShakeOnAttack(EAttackDirectionType::UP, 1.0f);
 }

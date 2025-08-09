@@ -32,6 +32,11 @@ void UKS_AxeReturnLAttack::ExitState(const FGenericStateParams& params)
 	NextAttackType = EAttackType::None;
 }
 
+void UKS_AxeReturnLAttack::HandleDodge(const FGenericStateParams& params)
+{
+	Me->SetKratosState(EPlayerState::Dodge);
+}
+
 void UKS_AxeReturnLAttack::HandleLAttack(const FGenericStateParams& params)
 {
 	NextAttackType = EAttackType::LAttack;

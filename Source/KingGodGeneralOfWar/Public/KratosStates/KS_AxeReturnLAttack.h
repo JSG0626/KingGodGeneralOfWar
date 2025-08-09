@@ -22,9 +22,11 @@ public:
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) override;
 	virtual void ExitState(const FGenericStateParams& params) override;
 
+	virtual bool CanHandleDodge() const override { return true; }
 	virtual bool CanHandleLAttack() const override { return true; }
 	virtual bool CanHandleHAttack() const override { return true; }
 
+	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 

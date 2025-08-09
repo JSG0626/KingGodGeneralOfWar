@@ -17,6 +17,7 @@ enum class EAxeState : uint8
 	Bounce,   // 충돌 후 튕겨나가는 상태
 	Vibration, // 회수 전 진동 상태
 	Returning, // 플레이어에게 돌아오는 중
+	Orbital,   // 플레이어 주변을 도는 상태
 };
 
 UCLASS()
@@ -63,7 +64,7 @@ public:
 	virtual void ActiveHitCollision(bool Active) override;
 	virtual TObjectPtr<class USoundCue> GetBaseHitSound() const override;
 	void Init(class AKratos* _Me, bool _bIsHeavy);
-	void Init(class AKratos* _Me, const FRotator LocalRotationOffset);
+	void Init(class AKratos* _Me, const FRotator LocalRotationOffset, const bool ApplyGravity = true, const bool bOrbital = false, const float _OrbitalDuration = 0.0f, const int _OrbitalCount = 1, const float _OrbitalDirection = 1.0f);
 
 protected:
 	virtual void BeginPlay() override;
@@ -75,6 +76,7 @@ private:
 	void TickState_Bounce(float DeltaTime);
 	void TickState_Vibration(float DeltaTime);
 	void TickState_Returning(float DeltaTime);
+	void TickState_Orbital(float DeltaTime);
 
 	void SetState(const EAxeState NewState, const FHitResult& HitResult = FHitResult{});
 
@@ -161,6 +163,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Return)")
 	float LerpInitReturnRotationSpeed = 40.0f ;
 
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess), Category = "Movement(Orbital)")
+	float OrbitalRotationSpeed = 100.0f;
 	UPROPERTY()
 	class UArrowComponent* TargetSocketTransform ;
 
@@ -180,7 +184,12 @@ private:
 	int VibrationTickCount = 0;
 	FQuat TargetLeprInitQuat;
 	bool bPass;
+	bool ApplyGravity = true;
+	float OrbitalDuration = 2.0f;
+	int OrbitalCount = 1;
+	float OrbitalDirection = 1.0f;
 
+	float LastMultiple = 0.0f;
 	struct ST_StateElapsedTime
 	{
 		float Flying = 0.0f;
@@ -188,6 +197,7 @@ private:
 		float Slerp = 0.0f;
 		float Vibration = 0.0f;
 		float Bounce = 0.0f;
+		float Orbital = 0.0f;
 		float SlerpHandRotation = 0.0f;
 	} ;
 	ST_StateElapsedTime StateElapsedTime;
@@ -201,4 +211,5 @@ private:
 	void OnEnterBounce(const FHitResult& HitResult);
 	void OnEnterVibration();
 	void OnEnterReturning();
+	void OnEnterOrbital();
 };

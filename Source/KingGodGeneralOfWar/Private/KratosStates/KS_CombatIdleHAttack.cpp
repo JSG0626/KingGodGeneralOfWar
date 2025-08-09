@@ -17,10 +17,6 @@ void UKS_CombatIdleHAttack::ExitState(const FGenericStateParams& params)
 {
 }
 
-void UKS_CombatIdleHAttack::HandleDodge(const FGenericStateParams& params)
-{
-}
-
 void UKS_CombatIdleHAttack::HandleLAttack(const FGenericStateParams& params)
 {
 }

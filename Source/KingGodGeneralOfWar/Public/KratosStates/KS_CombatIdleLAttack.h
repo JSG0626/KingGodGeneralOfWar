@@ -22,10 +22,14 @@ public:
 	virtual bool CanHandleLAttack() const override { return true; }
 	virtual bool CanHandleHAttack() const override { return true; }
 	virtual bool CanHandleAbility() const override { return true; }
+	virtual bool CanHandleGuard() const override { return true; }
 
-	virtual void HandleDodge(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleLAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleHAttack(const FGenericStateParams& params = FGenericStateParams()) override;
 	virtual void HandleAbility(const FGenericStateParams& params = FGenericStateParams()) override;
+	virtual void HandleGuard(const FGenericStateParams& params = FGenericStateParams()) override;
 private:
+
+	bool bGuardInputOn;
+	EAttackType AttckInputOn;
 };

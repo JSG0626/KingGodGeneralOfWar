@@ -17,10 +17,6 @@ void UKS_CombatIdleLAttack::ExitState(const FGenericStateParams& params)
 {
 }
 
-void UKS_CombatIdleLAttack::HandleDodge(const FGenericStateParams& params)
-{
-}
-
 void UKS_CombatIdleLAttack::HandleLAttack(const FGenericStateParams& params)
 {
 }
@@ -31,4 +27,9 @@ void UKS_CombatIdleLAttack::HandleHAttack(const FGenericStateParams& params)
 
 void UKS_CombatIdleLAttack::HandleAbility(const FGenericStateParams& params)
 {
+}
+
+void UKS_CombatIdleLAttack::HandleGuard(const FGenericStateParams& params)
+{
+	bGuardInputOn = true;
 }

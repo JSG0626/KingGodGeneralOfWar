@@ -63,7 +63,7 @@ void AFlyingAxe::Init(AKratos* _Me, bool _bIsHeavy)
 	PrevBladeLocation = BladeLocationComp->GetComponentLocation();
 	StartInterpRotationDistSquared = StartInterpRotationDist * StartInterpRotationDist;
 }
-void AFlyingAxe::Init(AKratos* _Me, const FRotator LocalRotationOffset)
+void AFlyingAxe::Init(AKratos* _Me, const FRotator LocalRotationOffset, const bool _ApplyGravity, bool bOrbital, const float _OrbitalDuration, const int _OrbitalCount, const float _OrbitalDirection)
 {
 	Kratos = _Me;
 	AddActorLocalRotation(LocalRotationOffset);
@@ -78,6 +78,11 @@ void AFlyingAxe::Init(AKratos* _Me, const FRotator LocalRotationOffset)
 	PrevBladeLocation = BladeLocationComp->GetComponentLocation();
 	StartInterpRotationDistSquared = StartInterpRotationDist * StartInterpRotationDist;
 	bPass = true;
+	ApplyGravity = _ApplyGravity;
+	OrbitalDuration = _OrbitalDuration;
+	OrbitalCount = _OrbitalCount;
+	OrbitalDirection = _OrbitalDirection;
+	SetState(bOrbital ? EAxeState::Orbital : EAxeState::Flying);
 }
 // Called every frame
 void AFlyingAxe::Tick(float DeltaTime)
@@ -101,6 +106,9 @@ void AFlyingAxe::Tick(float DeltaTime)
 	case EAxeState::Returning:
 		TickState_Returning(DeltaTime);
 		break;
+	case EAxeState::Orbital:
+		TickState_Orbital(DeltaTime);
+		break;
 	default:
 		PrevLocation = GetActorLocation();
 		break;
@@ -112,7 +120,7 @@ void AFlyingAxe::TickState_Flying(float DeltaTime)
 {
 	StateElapsedTime.Flying += DeltaTime;
 
-	if (StateElapsedTime.Flying >= GravityTime)
+	if (ApplyGravity && StateElapsedTime.Flying >= GravityTime)
 	{
 		const float GravityZ = GetWorld()->GetGravityZ();
 		const FVector GravityAcceleration = FVector(0.0f, 0.0f, GravityZ);
@@ -262,6 +270,30 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 	FHitResult HitResult;
 	bool bHit = CollisionCheck(HitResult);
 }
+void AFlyingAxe::TickState_Orbital(float DeltaTime)
+{
+	StateElapsedTime.Orbital += DeltaTime;
+	PathCurveRadius += 100.0f * DeltaTime;
+	const float Alpha = StateElapsedTime.Orbital / OrbitalDuration * 2.0f * OrbitalCount * OrbitalDirection;
+	float CurrentMultiple = FMath::FloorToFloat(Alpha / 0.25f);
+	UE_LOG(LogTemp, Display, TEXT("CurrentMultiple: %f"), CurrentMultiple);
+	if (CurrentMultiple != LastMultiple)
+	{
+		DamagedActors.Empty();
+		LastMultiple = CurrentMultiple;
+	}
+	const FVector X = Kratos->GetActorForwardVector() * FMath::Cos(UE_PI * Alpha) * PathCurveRadius;
+	const FVector Y = Kratos->GetActorRightVector() * FMath::Sin(UE_PI * Alpha) * PathCurveRadius;
+	SetActorLocation(Kratos->GetActorLocation() + X + Y);
+
+	FVector Axis = GetActorRightVector();
+	const FQuat RotationDelta(Axis, OrbitalRotationSpeed * DeltaTime);
+	AddActorWorldRotation(RotationDelta);
+
+	// 충돌 처리
+	FHitResult HitResult;
+	bool bHit = CollisionCheck(HitResult);
+}
 void AFlyingAxe::SetState(const EAxeState NewState, const FHitResult& HitResult)
 {
 	DamagedActors.Empty();
@@ -279,6 +311,8 @@ void AFlyingAxe::SetState(const EAxeState NewState, const FHitResult& HitResult)
 	case EAxeState::Vibration:
 		break;
 	case EAxeState::Returning:
+		break;
+	case EAxeState::Orbital:
 		break;
 	default:
 		break;
@@ -304,6 +338,9 @@ void AFlyingAxe::SetState(const EAxeState NewState, const FHitResult& HitResult)
 		break;
 	case EAxeState::Returning:
 		OnEnterReturning();
+		break;
+	case EAxeState::Orbital:
+		OnEnterOrbital();
 		break;
 	default:
 		break;
@@ -415,6 +452,10 @@ void AFlyingAxe::OnEnterReturning()
 		DealDamage(Enemy, FGenericAttackParams(Kratos, BaseAttackPower * CurrentAttackScale, CurrentStunAttackScale, EAttackDirectionType::UP));
 	}
 }
+void AFlyingAxe::OnEnterOrbital()
+{
+	PathCurveRadius = 150.0f;
+}
 bool AFlyingAxe::CollisionCheck(FHitResult& HitResult)
 {
 	const FVector CurLocation = GetActorLocation();
@@ -485,8 +526,9 @@ void AFlyingAxe::BackToPlayer(const float _MaxReturnDuration, const float _MinRe
 	MaxReturnDuration = _MaxReturnDuration;
 	MinReturnDuration = _MinReturnDuration;
 	RadiusScale = _RadiusScale;
-	TargetSocketTransform = bRightHand ? Kratos->RightHandTransformComp : Kratos->LeftHandTransformComp;
 	BackToPlayer(bImmediateReturn);
+	TargetSocketTransform = bRightHand ? Kratos->RightHandTransformComp : Kratos->LeftHandTransformComp;
+	UE_LOG(LogTemp, Display, TEXT("TargetSocketComp: %s"), *TargetSocketTransform->GetName());
 }
 
 void AFlyingAxe::ActiveHitCollision(bool Active)
