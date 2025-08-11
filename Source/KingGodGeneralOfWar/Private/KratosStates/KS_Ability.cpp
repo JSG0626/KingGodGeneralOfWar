@@ -8,6 +8,7 @@
 
 void UKS_Ability::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("Ability Enter"));
 	if (Me->bAxeGone)
 	{

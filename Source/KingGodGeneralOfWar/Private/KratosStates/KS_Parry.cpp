@@ -16,6 +16,7 @@ void UKS_Parry::SetUp(AKratos* Kratos)
 
 void UKS_Parry::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("Parry Enter"));
 	Me->PlayMontage(EPlayerMontage::Parry);
 	Shield->SetTargetScale(true);

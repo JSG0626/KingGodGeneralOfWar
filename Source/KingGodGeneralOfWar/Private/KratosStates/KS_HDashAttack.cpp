@@ -6,6 +6,7 @@
 
 void UKS_HDashAttack::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("HDashAttack Enter"));
 
 	Me->CanComboAttack = false;

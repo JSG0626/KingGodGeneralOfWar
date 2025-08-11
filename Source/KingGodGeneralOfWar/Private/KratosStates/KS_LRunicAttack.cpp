@@ -6,6 +6,7 @@
 
 void UKS_LRunicAttack::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("LRunicAttack Enter"));
 
 	FRotator rotate = Me->GetController()->GetControlRotation();

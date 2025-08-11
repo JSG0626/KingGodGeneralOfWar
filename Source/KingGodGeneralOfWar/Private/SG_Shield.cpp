@@ -106,7 +106,7 @@ void ASG_Shield::ActiveHitCollision(bool ActiveState)
 
 void ASG_Shield::SetTargetScale(const bool Bigger)
 {
-	TargetScale = Bigger ? MAX_SCALE * 0.7f : 0.03f;
+	TargetScale = Bigger ? MAX_SCALE * 0.7f : 0.00f;
 	bBigger = Bigger;
 }
 
@@ -126,16 +126,10 @@ void ASG_Shield::LerpScale(float DeltaTime)
 
 	if (abs(CurrentScale - TargetScale) < 0.001f)
 	{
-		if (TargetScale != MAX_SCALE && bBigger)
+		if (bBigger && TargetScale != MAX_SCALE)
 		{
 			{
 				TargetScale = MAX_SCALE;
-			}
-		}
-		else if (TargetScale != 0.0f && !bBigger)
-		{
-			{
-				TargetScale = 0.0f;
 			}
 		}
 	}

@@ -18,6 +18,7 @@ void UKS_Hit::SetUp(AKratos* Kratos)
 
 void UKS_Hit::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("Hit Enter"));
 	FEnemyAttackParams AttackParams = params.AttackParams;
 	
@@ -36,10 +37,7 @@ void UKS_Hit::EnterState(const FGenericStateParams& params)
 
 		if (AttackParams.HitType == EHitType::NB_HIGH)
 		{
-			Me->TargetCameraOffset = FVector(0, 50, -60);
-			Me->TargetCameraAngle = FRotator(20, 0, 0);
-			Me->TargetTargetArmLength = 190;
-			
+			Me->CameraSet(NB_HighCameraSetting);
 			Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 1);
 		}
 		else if (AttackParams.HitType == EHitType::STAGGER)

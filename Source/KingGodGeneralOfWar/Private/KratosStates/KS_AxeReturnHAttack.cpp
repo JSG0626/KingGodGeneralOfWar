@@ -6,6 +6,7 @@
 
 void UKS_AxeReturnHAttack::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	Me->CallAxe(GrabAxeTime, GrabAxeTime * 0.5f, true, -0.02f);
 	Me->PlayMontage(EPlayerMontage::AxeReturnHAttack);
 }

@@ -268,7 +268,7 @@ void AFlyingAxe::TickState_Returning(float DeltaTime)
 void AFlyingAxe::TickState_Orbital(float DeltaTime)
 {
 	StateElapsedTime.Orbital += DeltaTime;
-	PathCurveRadius += 150.0f * DeltaTime;
+	PathCurveRadius = 250.0f + 150.0f * FMath::Sin(StateElapsedTime.Orbital / OrbitalDuration * UE_PI * 4.0f);
 	const float Alpha = StateElapsedTime.Orbital / OrbitalDuration * 2.0f * OrbitalCount * OrbitalDirection;
 	float CurrentMultiple = FMath::FloorToFloat(Alpha / 0.25f);
 	if (CurrentMultiple != LastMultiple)
@@ -445,7 +445,7 @@ void AFlyingAxe::OnEnterReturning()
 }
 void AFlyingAxe::OnEnterOrbital()
 {
-	PathCurveRadius = 100.0f;
+	PathCurveRadius = 200.0f;
 	SubMeshComp->AddLocalOffset(FVector(0, 0, 25));
 }
 bool AFlyingAxe::CollisionCheck(FHitResult& HitResult)

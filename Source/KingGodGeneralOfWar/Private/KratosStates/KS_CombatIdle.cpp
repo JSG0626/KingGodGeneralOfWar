@@ -7,6 +7,7 @@
 
 void UKS_CombatIdle::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 0.1f);
 	Me->PlayMontage(EPlayerMontage::CombatIdle);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), CombatReadySound, Me->GetActorLocation());

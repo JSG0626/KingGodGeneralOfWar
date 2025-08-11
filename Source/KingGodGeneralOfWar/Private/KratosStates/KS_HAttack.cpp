@@ -8,6 +8,7 @@
 
 void UKS_HAttack::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("HAttack Enter"));
 	if (Me->GetVelocity().Size() >= DashAttackSpeedThreshold)
 	{

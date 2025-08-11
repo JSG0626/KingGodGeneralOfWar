@@ -8,6 +8,7 @@
 void UKS_Move::EnterState(const FGenericStateParams& params)
 {
 	// 이동 상태 진입
+	Super::EnterState(params);
 	StateLog(TEXT("Move Enter"));
 }
 

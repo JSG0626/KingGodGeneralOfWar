@@ -8,6 +8,7 @@
 
 void UKS_Dodge::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("Dodge Enter"));
 	AttackInput = EAttackType::None;
 	bAimInputOn = false;

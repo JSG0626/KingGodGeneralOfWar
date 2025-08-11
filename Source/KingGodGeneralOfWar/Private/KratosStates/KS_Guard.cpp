@@ -16,6 +16,7 @@ void UKS_Guard::SetUp(AKratos* kratos)
 
 void UKS_Guard::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("Guard Enter"));
 	Me->PlayMontage(EPlayerMontage::Guard);
 	Shield->SetTargetScale(true);

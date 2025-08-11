@@ -6,6 +6,7 @@
 
 void UKS_HChargeAttack::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	Me->PlayMontage(EPlayerMontage::HChargeAttack);
 }
 

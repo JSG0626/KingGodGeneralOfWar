@@ -11,6 +11,7 @@
 
 void UKS_LAttack::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("LAttack Enter"));
 
 	if (Me->GetVelocity().Size() >= DashAttackSpeedThreshold)

@@ -13,7 +13,7 @@ UCLASS()
 class KINGGODGENERALOFWAR_API UKS_Hit : public UKratosState
 {
 	GENERATED_BODY()
-
+	
 public:
 	virtual void SetUp(class AKratos* Kratos) override;
 	virtual void EnterState(const FGenericStateParams& params) override;
@@ -28,4 +28,6 @@ private:
 	TObjectPtr<class USoundBase> HitSound;
 	FString GetHitSectionName(EHitType hitType) const;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess))
+	FCameraSettingParams NB_HighCameraSetting;
 };

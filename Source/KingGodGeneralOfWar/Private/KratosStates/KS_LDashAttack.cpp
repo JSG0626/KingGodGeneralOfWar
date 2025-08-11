@@ -6,6 +6,7 @@
 
 void UKS_LDashAttack::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("LDashAttack Enter"));
 	Me->CanComboAttack = false;
 	CurrentSpeedScale = 1;

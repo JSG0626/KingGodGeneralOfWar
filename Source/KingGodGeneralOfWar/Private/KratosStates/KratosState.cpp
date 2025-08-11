@@ -5,6 +5,13 @@
 #include "Kratos.h"
 #include <Kismet/KismetMathLibrary.h>
 
+void UKratosState::EnterState(const FGenericStateParams& params)
+{
+	UE_LOG(LogTemp, Display, TEXT("Enter UKratosState"));
+
+	Me->CameraSet(CameraSettingParams);
+}
+
 void UKratosState::StateLog(const FString& message, bool isTickLog) const
 {
 	if (bShowLog && (!isTickLog || bShowTickLog))

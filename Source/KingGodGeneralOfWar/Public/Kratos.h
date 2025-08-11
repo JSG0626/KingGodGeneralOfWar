@@ -9,6 +9,7 @@
 #include <KratosStates/KratosState.h>
 #include "KingGodGeneralOfWar.h"
 #include "CommonHeaders/PlayerCommon.h"
+#include "CameraSettingParams.h"
 #include "Kratos.generated.h"
 
 
@@ -146,6 +147,9 @@ private:
 
 	// ================== UClass Pointer ====================
 	UPROPERTY()
+	TObjectPtr<class ACSWGameMode> GameMode;
+
+	UPROPERTY()
 	TObjectPtr<class  ABaseEnemy> LockTarget;
 
 	UPROPERTY()
@@ -211,13 +215,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess), Category = "Status/Attack")
 	float SpearAttackPower = 10.0f;
 
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
+	float LockOnDistPoint = 2.0f;
+
 	bool bLerpPlayerRotation = false;
 	int LeprPlayerRotationScale = 1;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), BlueprintReadWrite, Category = "Status")
 	float MaxHP = 100;
 
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess))
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess))
 	EPlayerState State = EPlayerState::Idle;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess), BlueprintReadWrite, Category = "Camera");
@@ -228,14 +235,15 @@ private:
 
 	float CurHP;
 	float AttackRangeSquared;
-
+	float DefaultCameraFOV;
+	FCameraSettingParams CurrentCameraSetting;
 
 	void PlayerMove();
 	void InitAxe();
 	void InitShield();
 	void LockOnTargetTick(float DeltaTime);
 	void SetTargetToLockOn();
-
+	void LerpCameraSetting(float DeltaTime);
 protected:
 
 public:
@@ -246,6 +254,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void PostInitializeComponents() override;
+
+	void InitializeStates();
+	void SetKratosState(const EPlayerState& NewState, const FGenericStateParams& params = FGenericStateParams());
+	void ActiveLerpPlayerRotation(FRotator TargetRotation, int Scale);
+	void InactiveLerpPlayerRotation();
+	float SetHP(const float NewHP);
+	float GetAttackPower(EPlayerWeaponType WeaponType) const;
 
 	// Damage Function
 	// if Kratos get damage, return true; else return false;
@@ -264,56 +279,7 @@ public:
 	void CameraShakeOnAttack(EAttackDirectionType attackDir = EAttackDirectionType::UP, float scale = 1.0f);
 	void SetGlobalTimeDilation(float Duration, float SlowScale);
 	void SetAnimationSpeedSlow(float Duration, float SlowScale);
-
-
-	UPROPERTY()
-	class ACSWGameMode* GameMode;
-
-public:
-	bool bTraceEnemy = false;
-	bool bFaceEnemy = true;
-	bool bLockOn;
-	bool bEvade;
-	bool bAxeGone;
-	bool bIsAxeWithdrawing;
-
-	float TargetShieldScale = 0;
-	float TargetFOV = DefaultTargetFOV;
-	float TargetTargetArmLength = DefaultTargetTargetArmLength;
-
-	FVector Direction;
-	FVector PrevDirection;
-	FVector DefaultCameraOffset;
-	FVector TargetCameraOffset;
-	FRotator TargetCameraRotation;
-	FRotator TargetActorRotation;
-	FRotator TargetCameraAngle = FRotator(0);
-
-	void InitializeStates();
-	void SetKratosState(const EPlayerState& NewState, const FGenericStateParams& params = FGenericStateParams());
-
-
-	UPROPERTY()
-	TObjectPtr<class AActor> CurTargetEnemy;
-
-	bool CanComboAttack;
-	bool bIsRunning;
-
-	const float DEFAULT_FOV = 90;
-
-	void ActiveLerpPlayerRotation(FRotator TargetRotation, int Scale);
-	void InactiveLerpPlayerRotation();
-
-	float SetHP(const float NewHP);
-
-	float GetAttackPower(EPlayerWeaponType WeaponType) const;
-
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess))
-	float DistPoint = 2.0f;
-
-
-
-
+	void CameraSet(const FCameraSettingParams& CameraSettingParams);
 
 	void InitMaxWalkSpeed();
 	void SetMaxWalkSpeed(const float NewWalkSpeed);
@@ -322,9 +288,7 @@ public:
 	void Montage_JumpToSection(const int SectionNumber);
 	void Montage_JumpToSection(const FString SectionName);
 	void OnHitHChargeAttack();
-
 	void SwapAxeHands(bool Right);
-
 	inline EPlayerState GetState() const { return State; }
 
 	float GetDamage(const float Damage);
@@ -340,4 +304,20 @@ public:
 	void ActiveAxeTrail(bool ActiveState);
 
 	TObjectPtr<class AActor> FindTargetEnemy() const;
+
+	UPROPERTY()
+	TObjectPtr<class AActor> CurTargetEnemy;
+
+	bool bTraceEnemy = false;
+	bool bFaceEnemy = true;
+	bool bLockOn;
+	bool bEvade;
+	bool bAxeGone;
+	bool bIsAxeWithdrawing;
+	bool bIsRunning;
+	bool CanComboAttack;
+
+	FVector Direction;
+	FVector PrevDirection;
+	FRotator TargetActorRotation;
 };

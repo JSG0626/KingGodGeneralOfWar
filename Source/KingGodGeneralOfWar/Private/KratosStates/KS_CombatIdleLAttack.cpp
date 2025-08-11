@@ -6,6 +6,7 @@
 
 void UKS_CombatIdleLAttack::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	Me->PlayMontage(EPlayerMontage::CombatIdleLAttack);
 	bGuardInputOn = false;
 	AttackInputOn = EAttackType::None;

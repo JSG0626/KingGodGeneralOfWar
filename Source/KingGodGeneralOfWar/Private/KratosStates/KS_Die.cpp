@@ -6,12 +6,10 @@
 
 void UKS_Die::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("Die Enter"));
 
 	Me->PlayMontage(EPlayerMontage::Die);
-	Me->TargetCameraOffset = FVector(0, 0, 0);
-	Me->TargetCameraAngle = FRotator(-30, 0, 0);
-	Me->TargetTargetArmLength = 250;
 	Me->CameraShakeOnAttack(EAttackDirectionType::DOWN, 1);
 }
 

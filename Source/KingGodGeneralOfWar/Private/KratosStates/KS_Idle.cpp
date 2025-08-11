@@ -7,13 +7,7 @@
 
 void UKS_Idle::EnterState(const FGenericStateParams& params)
 {
-	StateLog(TEXT("Idle Enter"));
-	Me->TargetFOV = DefaultTargetFOV;
-	Me->TargetCameraOffset = Me->DefaultCameraOffset;
-	Me->TargetCameraAngle = FRotator(0);
-	Me->TargetTargetArmLength = 143;
-	Me->TargetShieldScale = 0.0f;
-	//Anim->StopAllMontages(0.3f);
+	Super::EnterState(params);
 
 	Direction = Me->GetVelocity();
 	Direction.Normalize();

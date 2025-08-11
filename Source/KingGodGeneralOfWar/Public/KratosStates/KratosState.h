@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "../CommonHeaders/PlayerCommon.h"
+#include "CameraSettingParams.h"
+
 #include "KratosState.generated.h"
 
 struct FEnemyAttackParams
@@ -58,11 +60,12 @@ protected:
 	void StateLog(const FString& message, bool isTickLog = false) const;
 
 	virtual void LookAtProcess(float DeltaTime, FRotator offset = FRotator(0));
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FCameraSettingParams CameraSettingParams;
 public:
 	bool bFaceCameraForward = false;
 	virtual void SetUp(class AKratos* kratos);
-	virtual void EnterState(const FGenericStateParams& params) {};
+	virtual void EnterState(const FGenericStateParams& params);
 	virtual void TickState(const FGenericStateParams& params, float DeltaTime) {};
 	virtual void ExitState(const FGenericStateParams& params) {};
 	virtual void SetInputOn() { InputOn = true; }

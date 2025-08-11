@@ -9,9 +9,8 @@
 
 void UKS_Aim::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	StateLog(TEXT("Aim Enter"));
-
-	Me->TargetFOV = AIM_FOV;
 	CoolDown = 0.0f;
 
 	if (params.Bool)
@@ -68,7 +67,6 @@ void UKS_Aim::TickState(const FGenericStateParams& params, float DeltaTime)
 void UKS_Aim::ExitState(const FGenericStateParams& params)
 {
 	StateLog(TEXT("Aim Exit"));
-	Me->TargetFOV = Me->DEFAULT_FOV;
 }
 
 void UKS_Aim::HandleIdle(const FGenericStateParams& params)

@@ -36,8 +36,6 @@ AKratos::AKratos()
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->SocketOffset = DefaultCameraOffset;
-	SpringArmComp->TargetArmLength = DefaultTargetTargetArmLength;
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("cameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
@@ -128,10 +126,6 @@ void AKratos::BeginPlay()
 	{
 		InitShield();
 	}
-
-	DefaultCameraOffset = SpringArmComp->SocketOffset;
-	TargetCameraOffset = DefaultCameraOffset;
-
 	CMC = Cast<UCharacterMovementComponent>(GetComponentByClass(UCharacterMovementComponent::StaticClass()));
 	check(CMC);
 
@@ -143,6 +137,7 @@ void AKratos::BeginPlay()
 	AttackShakeFactoryArr.Add(LeftAttackShakeFactory);
 	AttackShakeFactoryArr.Add(RightAttackShakeFactory);
 
+	DefaultCameraFOV = CameraComp->FieldOfView;
 	InitializeStates();
 }
 // -------------------------------------------------- TICK -------------------------------------------------------------
@@ -170,26 +165,13 @@ void AKratos::Tick(float DeltaTime)
 		}
 	}
 
-	// 카메라 시야각 선형 보간
-	CameraComp->FieldOfView = FMath::Lerp(CameraComp->FieldOfView, TargetFOV, DeltaTime * 3);
-
-	// 카메라 오프셋 선형 보간
-	SpringArmComp->SocketOffset = FMath::Lerp(SpringArmComp->SocketOffset, TargetCameraOffset, DeltaTime * 2);
+	LerpCameraSetting(DeltaTime);
+	
 
 	// 쉴드 스케일 선형 보간. (가드시 커짐, 평소 스케일 0) 
 	//Shield->MeshComp->SetWorldScale3D(FVector(FMath::Lerp(Shield->MeshComp->GetComponentScale().X, TargetShieldScale, DeltaTime * 16)));
 
-	// TargetArmLength 선형 보간
-	SpringArmComp->TargetArmLength = FMath::Lerp(SpringArmComp->TargetArmLength, TargetTargetArmLength, DeltaTime * 2);
-
-	// 카메라 앵글 선형 보간
-	CameraComp->SetRelativeRotation(UKismetMathLibrary::RLerp(CameraComp->GetRelativeRotation(), TargetCameraAngle, DeltaTime * 2, true));
-
-
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::Yellow, UEnum::GetValueAsString(State));
-	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("TargetTargetArmLength: %f"), TargetTargetArmLength));
-	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("TargetCameraOffset: %s"), *TargetCameraOffset.ToString()));
-
 	GEngine->AddOnScreenDebugMessage(-1, DeltaTime, FColor::White, FString::Printf(TEXT("bAxeGone: %d"), bAxeGone));
 }
 // -------------------------------------------------- TICK -------------------------------------------------------------
@@ -277,7 +259,7 @@ void AKratos::SetTargetToLockOn()
 			ToTarget.Normalize();
 			float Dot = FVector::DotProduct(CameraForward, ToTarget);
 			float DistSquared = FVector::DistSquared(GetActorLocation(), CandidateLocation);
-			float Score = Dot + -(DistSquared / MaxDistSquared) * (State == EPlayerState::Aim ? 0.0f : DistPoint);
+			float Score = Dot + -(DistSquared / MaxDistSquared) * (State == EPlayerState::Aim ? 0.0f : LockOnDistPoint);
 			UE_LOG(LogTemp, Display, TEXT("Actor: %s, Dot: %f"), *OutHits[i].GetActor()->GetName(), Dot);
 			if (Score >= MaxScore)
 			{
@@ -303,6 +285,22 @@ void AKratos::SetTargetToLockOn()
 	}
 }
 
+void AKratos::LerpCameraSetting(float DeltaTime)
+{
+	// 카메라 시야각 선형 보간
+	const float BlendSpeed = CurrentCameraSetting.BlendSpeed;
+	CameraComp->FieldOfView = FMath::Lerp(CameraComp->FieldOfView, CurrentCameraSetting.FieldOfView, DeltaTime * BlendSpeed);
+
+	// 카메라 오프셋 선형 보간
+	SpringArmComp->SocketOffset = FMath::Lerp(SpringArmComp->SocketOffset, CurrentCameraSetting.SocketOffset, DeltaTime * BlendSpeed);
+
+	// TargetArmLength 선형 보간
+	SpringArmComp->TargetArmLength = FMath::Lerp(SpringArmComp->TargetArmLength, CurrentCameraSetting.TargetArmLength, DeltaTime * BlendSpeed);
+
+	// 카메라 앵글 선형 보간
+	CameraComp->SetRelativeRotation(UKismetMathLibrary::RLerp(CameraComp->GetRelativeRotation(), CurrentCameraSetting.CameraRotation, DeltaTime * BlendSpeed, true));
+}
+
 FORCEINLINE void AKratos::LockOnTargetTick(float DeltaTime)
 {
 	if (!IsValid(LockTarget))
@@ -313,8 +311,8 @@ FORCEINLINE void AKratos::LockOnTargetTick(float DeltaTime)
 	if (bLockOn)
 	{
 		FRotator playerCameraRotation = GetController()->AController::GetControlRotation();
-		TargetCameraRotation = UKismetMathLibrary::FindLookAtRotation(CameraComp->GetComponentLocation(), LockTarget->GetActorLocation());
-		GetController()->AController::SetControlRotation(TargetCameraRotation);
+		CurrentCameraSetting.CameraRotation= UKismetMathLibrary::FindLookAtRotation(CameraComp->GetComponentLocation(), LockTarget->GetActorLocation());
+		GetController()->AController::SetControlRotation(CurrentCameraSetting.CameraRotation);
 	}
 }
 
@@ -730,7 +728,6 @@ TObjectPtr<class AActor> AKratos::FindTargetEnemy() const
 	}
 	else
 	{
-		UE_LOG(LogTemp, Display, TEXT("적 없음"));
 	}
 	return nullptr;
 }
@@ -780,6 +777,12 @@ void AKratos::SwapAxeHands(bool Right)
 {
 	FName SocketName = Right ? TEXT("hand_rAxeSocket") : TEXT("hand_lAxeSocket");
 	Axe->K2_AttachToComponent(GetMesh(), SocketName, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, true);
+}
+
+void AKratos::CameraSet(const FCameraSettingParams& CameraSettingParams)
+{
+	CurrentCameraSetting = CameraSettingParams;
+	UE_LOG(LogTemp, Display, TEXT("CurrentCameraSetting: %s"), *CurrentCameraSetting.ToString());
 }
 
 void AKratos::SetMeshSpaceRotationBlend(const bool bActive) const

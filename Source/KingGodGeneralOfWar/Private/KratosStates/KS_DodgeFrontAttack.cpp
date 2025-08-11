@@ -6,6 +6,7 @@
 
 void UKS_DodgeFrontAttack::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	Me->PlayMontage(EPlayerMontage::DodgeFrontAttack);
 	AttackInputOn = EAttackType::None;
 }

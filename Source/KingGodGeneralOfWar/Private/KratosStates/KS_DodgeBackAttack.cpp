@@ -6,6 +6,7 @@
 
 void UKS_DodgeBackAttack::EnterState(const FGenericStateParams& params)
 {
+	Super::EnterState(params);
 	Me->PlayMontage(EPlayerMontage::DodgeBackAttack);
 	bGuardInputOn = false;
 	AttackInputOn = EAttackType::None;
